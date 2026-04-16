@@ -1,0 +1,582 @@
+{
+  "version": 1,
+  "jobs": [
+    {
+      "id": "77d9099a-bb80-44d7-82ef-c997067027da",
+      "agentId": "noesis-vishwakarma",
+      "name": "Sankalpa Listener",
+      "enabled": true,
+      "createdAtMs": 1771205845231,
+      "updatedAtMs": 1772552136147,
+      "schedule": {
+        "kind": "every",
+        "everyMs": 780000,
+        "anchorMs": 1771205845231
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "You are the Sankalpa Listener routing worker.\n1. Read `memory/state/orders_cursor.json` for `last_message_id`.\n2. Fetch latest messages from #sankalpa-orders (channel 1472217604231004331).\n3. For each valid new command after cursor, DO NOT execute side effects directly.\n4. Route each message through proposal ingress via `python -m noesis orchestration route-event --channel sankalpa-orders --message-id <id> --author <author> --content <text>`.\n5. `.init` / init-protocol messages are mapped by router into iterative Dyad debate delivery on #satsang-council (1472239083307925721).\n6. Persist idempotent cursor advancement only after successful route-event call.\nInvariant: all actions must go proposal->mission->step with event trail."
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "state": {
+        "lastRunAtMs": 1772552132177,
+        "lastStatus": "ok",
+        "lastDurationMs": 3970,
+        "consecutiveErrors": 0,
+        "nextRunAtMs": 1772552912177,
+        "lastRunStatus": "ok",
+        "lastDelivered": false,
+        "lastDeliveryStatus": "not-delivered"
+      }
+    },
+    {
+      "id": "92bf15aa-1e8e-43ce-a72d-1f2342308e94",
+      "agentId": "noesis-vishwakarma",
+      "name": "Samskara Hunter",
+      "enabled": true,
+      "createdAtMs": 1771205845253,
+      "updatedAtMs": 1772549239122,
+      "schedule": {
+        "kind": "every",
+        "everyMs": 7500000,
+        "anchorMs": 1771205845253
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "You are the Samskara Hunter routing worker.\\n1. Read `memory/state/tattva_cursor.json` for `last_message_id`.\\n2. Fetch latest messages from #tattva-stream (channel 1470203565401178253).\\n3. Extract URLs from each new human message after cursor.\\n4. Route each message through proposal ingress via `python -m noesis orchestration route-event --channel tattva-stream --message-id <id> --author <author> --content <text>`.\\n5. Do not call bird/web directly in this router path; executor handlers run those steps after approval.\\n6. Persist cursor only after successful route-event call.\\nInvariant: URL processing must become mission steps with full event lineage."
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "state": {
+        "lastRunAtMs": 1772549213639,
+        "lastStatus": "ok",
+        "lastDurationMs": 25483,
+        "consecutiveErrors": 0,
+        "nextRunAtMs": 1772556713639,
+        "lastRunStatus": "ok",
+        "lastDelivered": false,
+        "lastDeliveryStatus": "not-delivered"
+      }
+    },
+    {
+      "id": "2c6af4b3-f10b-45d0-b7b0-68a82a2061de",
+      "agentId": "noesis-vishwakarma",
+      "name": "Chitta-Weaver Heartbeat",
+      "enabled": true,
+      "createdAtMs": 1771206244015,
+      "updatedAtMs": 1772487793467,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 2 * * *",
+        "tz": "Asia/Kolkata"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Perform the **Chitta-Samskara Heartbeat**.\n1. **Health Check:** Verify integrity of `MEMORY.md` and latest `memory/YYYY-MM-DD.md`. Ensure mandatory headers present.\n2. **Interactivity Check:** Run `memory_search` for top 3 Active Projects from `USER.md`. Confirm high-relevance results.\n3. **Pattern Weaving:** If today's log exceeds 5KB, synthesize one 'Lesson Learned' or 'Tatva' connection and append to `MEMORY.md`.\n4. **Skill Handshake:** Verify `extraction-skill` responsiveness by parsing a recent bookmark/link from logs.\n5. **TWC Vault Skills Check:** Verify skills in `/Volumes/madara/2026/twc-vault/.claude/skills/` are accessible:\n   - Check `KOSHA_SKILL_MAPPING.md` exists and is current\n   - Verify `shared/controlled-vocabulary.yaml` loads correctly\n   - Ensure analysis-skill (Stage 3, Manomaya→Vijnanamaya) is ready for classification tasks\n6. **Dashboard Sync:** Write status to `~/.openclaw/workspace/brahman-darshanam/public/cron-events.json`.\n\n**Substrate:** Manomaya → Vijnanamaya | **Vayu:** Vyana | **Guna:** Sattva | **Faculty:** Chitta + Buddhi"
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "state": {
+        "nextRunAtMs": 1772569800000,
+        "lastRunAtMs": 1772487666852,
+        "lastStatus": "error",
+        "lastDurationMs": 126615,
+        "consecutiveErrors": 1,
+        "lastRunStatus": "error",
+        "lastDeliveryStatus": "not-delivered",
+        "lastDelivered": false,
+        "lastError": "⚠️ ✍️ Write: `to ~/.openclaw/workspace/brahman-darshanam/public/cron-events.json (811 chars)` failed",
+        "lastDeliveryError": "⚠️ ✍️ Write: `to ~/.openclaw/workspace/brahman-darshanam/public/cron-events.json (811 chars)` failed"
+      }
+    },
+    {
+      "id": "2084b878-cb7d-4af0-9b17-d23dfa631462",
+      "agentId": "noesis-vishwakarma",
+      "name": "Prana-Sadhana Heartbeat",
+      "enabled": true,
+      "createdAtMs": 1771206244043,
+      "updatedAtMs": 1772425843664,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 10 * * *",
+        "tz": "Asia/Kolkata"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Perform the **Prana-Sadhana Heartbeat**.\n1. **Ritual Audit:** Run `cron list`. Identify jobs that failed in last 24h. If failures > 0, trigger alert.\n2. **Metabolic Check:** Review recent session activity. Ensure system not in persistent 'Tamasic' state.\n3. **Vayu Sync:** Verify active crons align with optimal timing (Prana at 10 AM).\n4. **Orchestration Test:** Run `session_status` to confirm connectivity.\n5. **Moon Phase Calibration:** Call Selemene Engine at https://selemene.tryambakam.space/api/v1/workflows/daily-practice with header `X-API-Key` sourced from env `SELEMENE_API_KEY`. If Waxing → suggest high-Rajas task. If Waning → suggest Sattvic cleanup.\n6. **TWC Vault Skills Status:** Check pipeline skill health:\n   - discovery-skill (Annamaya/Vyana) - Stage 1 readiness\n   - extraction-skill (Annamaya→Pranamaya/Prana) - Stage 2 readiness\n   - processing-skill (Pranamaya→Annamaya/Apana) - Stage 5 readiness\n7. **Dashboard Sync:** Write cron status to `~/.openclaw/workspace/brahman-darshanam/public/cron-events.json`.\n\n**Substrate:** Pranamaya → Manomaya | **Vayu:** Prana + Samana | **Guna:** Rajas→Sattva | **Faculty:** Mana + Aham"
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "state": {
+        "nextRunAtMs": 1772598600000,
+        "lastRunAtMs": 1772425802948,
+        "lastStatus": "error",
+        "lastDurationMs": 40716,
+        "consecutiveErrors": 1,
+        "lastRunStatus": "error",
+        "lastDelivered": false,
+        "lastDeliveryStatus": "not-delivered",
+        "lastDeliveryError": "⚠️ ✍️ Write: `to ~/.openclaw/workspace/brahman-darshanam/public/cron-events.json (502 chars)` failed"
+      }
+    },
+    {
+      "id": "2772a1c5-9bda-4461-9f43-475ebc50a7f8",
+      "agentId": "noesis-vishwakarma",
+      "name": "Weekly Memory Distillation",
+      "enabled": true,
+      "createdAtMs": 1771206244060,
+      "updatedAtMs": 1771698773984,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 0 * * 0",
+        "tz": "Asia/Kolkata"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Perform **Weekly Memory Distillation** (Manomaya Maintenance).\n1. Read all `memory/YYYY-MM-DD.md` files from past 7 days.\n2. Identify significant events, architectural decisions, completed projects, 'Lessons Learned'.\n3. Update `MEMORY.md` by appending insights to appropriate sections.\n4. Update '🚨 NEVER FORGET' section if foundational rules changed.\n5. Review 'Field Rotations' and update 'Last Run' dates.\n6. Archive distilled logs to `memory/archives/YYYY-WW.md` if needed.\n7. **TWC Vault Integration:** Check for any unprocessed content in twc-vault:\n   - Scan `/Volumes/madara/2026/twc-vault/` for new files\n   - If files found → trigger `orchestrator-skill` for 6-stage pipeline processing\n   - Update `KOSHA_SKILL_MAPPING.md` usage statistics\n8. **Dashboard Sync:** Write status to `~/.openclaw/workspace/brahman-darshanam/public/cron-events.json`.\n\n**Substrate:** Vijnanamaya | **Vayu:** Vyana | **Guna:** Sattva | **Faculty:** Chitta"
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "state": {
+        "nextRunAtMs": 1772908200000,
+        "lastRunAtMs": 1771698601534,
+        "lastStatus": "ok",
+        "lastDurationMs": 172450,
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "6a251bc8-9287-44a8-aae0-51593cc5ccf6",
+      "agentId": "noesis-vishwakarma",
+      "name": "Lunar Resonance Orchestrator",
+      "enabled": true,
+      "createdAtMs": 1771206268428,
+      "updatedAtMs": 1772487808142,
+      "schedule": {
+        "expr": "0 0 * * *",
+        "kind": "cron",
+        "tz": "Asia/Kolkata"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Perform **Vijnanamaya Lunar Orchestration** (Daily midnight).\n1. **Tithi Calculation:** Call Selemene Engine at https://selemene.tryambakam.space/api/v1/workflows/daily-practice with header `X-API-Key` sourced from env `SELEMENE_API_KEY` → get Tithi (1-30), Paksha (Shukla/Krishna), and lunar theme.\n2. **Phase Discrimination:** \n   - Waxing (Shukla Paksha, Tithi 1-15): Pichet pole — creation, expansion\n   - Waning (Krishna Paksha, Tithi 16-30): Aletheios pole — release, reflection\n   - Amavasya (Tithi 30/1): New Moon — rupture preparation\n   - Purnima (Tithi 15): Full Moon — octave jump ready\n3. **Theme Selection:** Log daily lunar theme to `memory/koshas/vijnanamaya/lunar-themes/YYYY-MM-DD.md`.\n4. **Subsidiary Coordination:** \n   - If Amavasya detected → trigger New Moon Rupture Audit\n   - If Purnima detected → trigger Full Moon Octave Jump\n5. **Khaloree Tracking:** Log net gain (+2) to Kosha tracking.\n6. **Dashboard Sync:** Write event to `~/.openclaw/workspace/brahman-darshanam/public/cron-events.json`.\n\n**Substrate:** Vijnanamaya | **Vayu:** Vyana | **Guna:** Sattva | **Faculty:** Buddhi → Mana → Chitta"
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "state": {
+        "nextRunAtMs": 1772562600000,
+        "lastRunAtMs": 1772487793467,
+        "lastStatus": "ok",
+        "lastDurationMs": 14675,
+        "consecutiveErrors": 0,
+        "lastRunStatus": "ok",
+        "lastDelivered": false,
+        "lastDeliveryStatus": "not-delivered"
+      }
+    },
+    {
+      "id": "00f68709-9144-4187-859f-847ffca68872",
+      "agentId": "noesis-vishwakarma",
+      "name": "Full Moon Octave Jump",
+      "enabled": true,
+      "createdAtMs": 1771206268467,
+      "updatedAtMs": 1772487822791,
+      "schedule": {
+        "expr": "30 0 * * *",
+        "kind": "cron",
+        "tz": "Asia/Kolkata"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Perform **Anandamaya Purnima Octave Jump** (Full Moon One-Shot).\n1. **Phase Verification:** Confirm Tithi = 15 via Selemene Engine https://selemene.tryambakam.space/api/v1/workflows/daily-practice with header `X-API-Key` sourced from env `SELEMENE_API_KEY`. If not Purnima, exit silently.\n2. **Udana Activation:** \n   - 4s inhale (Udana: upward to crown)\n   - 7s hold (Samana: integration at peak fullness)  \n   - 8s exhale (Vyana: circulation throughout subtle body)\n   - Witness completion in stillness\n3. **Octave Assessment:** Review last 30 days of progress. Identify what frequency band you're leaving.\n4. **Rupture Declaration:** Post to #prana-feed (1470203492877602990): \"🌕 Purnima Octave Jump | [Date] | Departing [old frequency] → Entering [new octave] | Udana Vayu at peak illumination\"\n5. **Anchor New Frequency:** Document the octave jump in `memory/koshas/anandamaya/octave-jumps/YYYY-MM-Purnima.md`.\n6. **Sattva Confirmation:** 8-point check — all must be Sattvic to proceed with jump.\n7. **Dashboard Sync:** Write event to `~/.openclaw/workspace/brahman-darshanam/public/cron-events.json`.\n\n**Substrate:** Anandamaya | **Vayu:** Udana | **Guna:** Sattva (peak) | **Faculty:** Aham (witness fullness)"
+      },
+      "delivery": {
+        "mode": "announce",
+        "channel": "discord",
+        "to": "1470203492877602990"
+      },
+      "state": {
+        "nextRunAtMs": 1772564400000,
+        "lastRunAtMs": 1772487808142,
+        "lastStatus": "ok",
+        "lastDurationMs": 14649,
+        "consecutiveErrors": 0,
+        "lastRunStatus": "ok",
+        "lastDeliveryStatus": "delivered",
+        "lastDelivered": true
+      }
+    },
+    {
+      "id": "179a40b3-b0ab-4f31-92df-f244e77896b5",
+      "agentId": "noesis-vishwakarma",
+      "name": "New Moon Rupture Audit",
+      "enabled": true,
+      "createdAtMs": 1771206268497,
+      "updatedAtMs": 1772487847499,
+      "schedule": {
+        "expr": "30 0 * * *",
+        "kind": "cron",
+        "tz": "Asia/Kolkata"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Perform **Anandamaya Apana Amavasya Rupture** (New Moon One-Shot).\n1. **Phase Verification:** Confirm Tithi = 30 or 1 via Selemene Engine https://selemene.tryambakam.space/api/v1/workflows/daily-practice with header `X-API-Key` sourced from env `SELEMENE_API_KEY`. If not Amavasya, exit silently.\n2. **Apana Activation (Death Breath):**\n   - Minimal inhale (3 counts, receptive only)\n   - No retention (this is release, not accumulation)\n   - Extended exhale (10 counts, full expulsion, Apana dominant)\n   - Extended pause (8 counts, dwell in void, witness emptiness)\n3. **Morphogenetic Audit:** Review last lunar cycle (30 days). Identify deterministic patterns that must die.\n4. **Karmic Severance:** For each pattern:\n   - Name it explicitly\n   - Trace through koshas (Annamaya → Pranamaya → Manomaya → Vijnanamaya → Anandamaya)\n   - Sever at Layer 0 (Anandamaya/bliss sheath)\n   - Release attachment\n5. **Rupture Declaration:** Post to #prana-feed (1470203492877602990): \"🌑 Amavasya Rupture Audit | [Date] | [N] patterns severed | Apana Vayu dissolving karmic vectors | Entering fertile void\"\n6. **Document Liberation:** Log severed patterns to `memory/koshas/anandamaya/rupture-audits/YYYY-MM-Amavasya.md`.\n7. **Dashboard Sync:** Write event to `~/.openclaw/workspace/brahman-darshanam/public/cron-events.json`.\n\n**Substrate:** Anandamaya/Layer 0 | **Vayu:** Apana | **Guna:** Tamas→Sattva transition | **Faculty:** Aham (witness dissolution)"
+      },
+      "delivery": {
+        "mode": "announce",
+        "channel": "discord",
+        "to": "1470203492877602990"
+      },
+      "state": {
+        "nextRunAtMs": 1772564400000,
+        "lastRunAtMs": 1772487822791,
+        "lastStatus": "ok",
+        "lastDurationMs": 24708,
+        "consecutiveErrors": 0,
+        "lastRunStatus": "ok",
+        "lastDelivered": true,
+        "lastDeliveryStatus": "delivered"
+      }
+    },
+    {
+      "id": "b8962e8a-14d0-45d7-9c23-41f39ee955e1",
+      "agentId": "noesis-vishwakarma",
+      "name": "Ritual Preparation (Samskara Scanner)",
+      "enabled": true,
+      "createdAtMs": 1771245026712,
+      "updatedAtMs": 1772487873049,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 3 * * *",
+        "tz": "Asia/Kolkata"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Perform **Ritual Phase 0: Preparation** (Daily 3 AM).\n\n1. **Vault Scan:** Check /Volumes/madara/2026/twc-vault/ for files modified in last 24h\n   - 01-Projects/ — Recent builds, commits\n   - 03-Resources/ — New reading notes\n   - Content-Engine/_processing/ — Pending drafts\n\n2. **GitHub Activity:** Check github.com/Sheshiyer/Selemene-engine for commits\n\n3. **Voice Memo Check:** See if any new files in Content-Engine/_inbox/voice-memos/\n\n4. **Theme Synthesis:** Identify 3 emergent themes from all sources\n\n5. **Create Ritual Inbox:** Write to `memory/koshas/manomaya/ritual-inbox/daily-emergent-themes-YYYY-MM-DD.md`\n\n**Output:** Summary for human review when they start their day.\n\n**Kosha:** Annamaya | **Vayu:** Vyana | **Guna:** Sattva"
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "state": {
+        "nextRunAtMs": 1772573400000,
+        "lastRunAtMs": 1772487847499,
+        "lastStatus": "ok",
+        "lastDurationMs": 25550,
+        "consecutiveErrors": 0,
+        "lastRunStatus": "ok",
+        "lastDelivered": false,
+        "lastDeliveryStatus": "not-delivered"
+      }
+    },
+    {
+      "id": "42edc9c9-9b09-4409-b994-5d813a100977",
+      "agentId": "noesis-vishwakarma",
+      "name": "Ritual Integration (Memory Distillation)",
+      "enabled": true,
+      "createdAtMs": 1771245026727,
+      "updatedAtMs": 1772487903162,
+      "schedule": {
+        "kind": "cron",
+        "expr": "30 23 * * *",
+        "tz": "Asia/Kolkata"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Perform **Ritual Phase 5: Integration** (Daily 11:30 PM).\n\n1. **Archive Daily Log:** Move completed daily log from ritual-inbox/ to memory/daily-logs/YYYY/MM/\n\n2. **Extract Patterns:** \n   - What theme emerged today?\n   - What was the technical metaphor used?\n   - What content was created?\n\n3. **Update Content Matrix:** If high-confidence content created, note in content-matrix.md\n\n4. **Tomorrow Suggestion:** Based on today's pattern + vault state, suggest focus for tomorrow\n\n5. **Weekly Compilation:** If Sunday, compile week summary\n\n**Kosha:** Vijnanamaya→Anandamaya | **Vayu:** Vyana | **Guna:** Sattva"
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "state": {
+        "nextRunAtMs": 1772560800000,
+        "lastRunAtMs": 1772487873049,
+        "lastStatus": "ok",
+        "lastDurationMs": 30113,
+        "consecutiveErrors": 0,
+        "lastRunStatus": "ok",
+        "lastDelivered": false,
+        "lastDeliveryStatus": "not-delivered"
+      }
+    },
+    {
+      "id": "c2c65e70-8973-433b-a72b-a2b8616c3d85",
+      "agentId": "noesis-vishwakarma",
+      "name": "Swarm Check-Agents",
+      "enabled": true,
+      "createdAtMs": 1771893868687,
+      "updatedAtMs": 1772552680659,
+      "schedule": {
+        "kind": "every",
+        "everyMs": 900000,
+        "anchorMs": 1771893868687
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Run deterministic swarm monitor loop without model polling.\\n1. Execute `python -m noesis orchestration check-agents --registry .clawdbot/active-tasks.json --max-respawns 1 --max-base 6`.\\n2. If exit code indicates attention-required, post summary in operator channel and keep registry unchanged except monitor fields.\\n3. If DoD gate fails, include missing checks in alert payload.\\n4. Keep run token-efficient and deterministic."
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "state": {
+        "consecutiveErrors": 0,
+        "nextRunAtMs": 1772553576778,
+        "lastRunAtMs": 1772552676778,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 3881,
+        "lastDeliveryStatus": "not-delivered",
+        "lastDelivered": false
+      }
+    },
+    {
+      "id": "62d44a85-84d4-4617-9702-9ed30fb6e346",
+      "agentId": "noesis-vishwakarma",
+      "name": "Strategic Pressure Audit",
+      "enabled": true,
+      "createdAtMs": 1771895037237,
+      "updatedAtMs": 1772549252562,
+      "schedule": {
+        "kind": "every",
+        "everyMs": 21600000,
+        "anchorMs": 1771895037237
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Run proactive Strategic Pressure Audit.\\n1. Execute `python -m noesis orchestration pressure-run --registry .clawdbot/active-tasks.json`.\\n2. If a proposal is created, append a compact audit line in `memory/logs/strategic_pressure.md` with timestamp, prompt IDs, proposal ID, and mission ID.\\n3. If skipped, append skip reason with timestamp.\\n4. Do not execute direct side effects from the prompt set; route through proposal->mission->step only."
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "state": {
+        "consecutiveErrors": 0,
+        "nextRunAtMs": 1772570839122,
+        "lastRunAtMs": 1772549239122,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 13440,
+        "lastDelivered": false,
+        "lastDeliveryStatus": "not-delivered"
+      }
+    },
+    {
+      "id": "91fc3c50-8fa6-4c2d-be2f-a16da459e413",
+      "agentId": "noesis-vishwakarma",
+      "name": "Weekly Vault Maintenance",
+      "enabled": true,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 2 * * 0",
+        "tz": "Asia/Kolkata"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "next-heartbeat",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "🧭 EXECUTE WEEKLY MAINTENANCE\\n\\nRun the production vault maintenance script to update indices, bridge orphans, and audit drift.\\n\\nCommand:\\n`bash -lc \"/Users/sheshnarayaniyer/.openclaw/tasks/maintenance/weekly_maintenance.py\"`"
+      },
+      "state": {
+        "nextRunAtMs": 1772915400000
+      },
+      "delivery": {
+        "mode": "announce",
+        "channel": "telegram",
+        "to": "tg:1371522080"
+      },
+      "updatedAtMs": 1772348662983
+    },
+    {
+      "id": "f3ab1cc8-7cab-4440-9cd1-e203a74b3b95",
+      "agentId": "noesis-vishwakarma",
+      "name": "Orchestration Dashboard Feed Sync",
+      "enabled": true,
+      "createdAtMs": 1771896262043,
+      "updatedAtMs": 1772552368179,
+      "schedule": {
+        "kind": "every",
+        "everyMs": 900000,
+        "anchorMs": 1771896262043
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Run local orchestration dashboard feed sync.\\n1. Execute `python -m noesis orchestration dashboard-sync --feed workspace/brahman-darshanam/public/cron-events.json --max-events 200 --window-minutes 60 --stale-seconds 300 --agent noesis-orchestration`.\\n2. Exit nonzero if sync fails.\\n3. Keep output compact and deterministic."
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "state": {
+        "consecutiveErrors": 0,
+        "nextRunAtMs": 1772553262087,
+        "lastRunAtMs": 1772552362087,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 6092,
+        "lastDeliveryStatus": "not-delivered",
+        "lastDelivered": false
+      }
+    },
+    {
+      "id": "5C8063DC-0C22-43F1-A6A9-8FC5777497A9",
+      "agentId": "noesis-vishwakarma",
+      "name": "Meru Nightly Vault Build",
+      "enabled": true,
+      "createdAtMs": 1771974300000,
+      "updatedAtMs": 1772487960334,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 1 * * *",
+        "tz": "Asia/Kolkata"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "🧭 EXECUTE MERU NIGHTLY BUILD\n\nRun the Meru headless indexing pipeline for the full 54GB vault.\n\nCommand:\n`bash -lc \"/Volumes/madara/2026/twc-vault/_System/scripts/memory/run_headless.sh\"`"
+      },
+      "delivery": {
+        "mode": "announce",
+        "channel": "telegram",
+        "to": "tg:1371522080"
+      },
+      "state": {
+        "nextRunAtMs": 1772566200000,
+        "lastRunAtMs": 1772487937379,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 22955,
+        "lastDeliveryStatus": "delivered",
+        "consecutiveErrors": 0,
+        "lastDelivered": true
+      }
+    },
+    {
+      "id": "6deca86f-da11-4ea4-bf5f-40795bb79d50",
+      "agentId": "noesis-vishwakarma",
+      "name": "Satsang Council Listener",
+      "enabled": true,
+      "createdAtMs": 1772301638483,
+      "updatedAtMs": 1772552745109,
+      "schedule": {
+        "kind": "every",
+        "everyMs": 300000,
+        "anchorMs": 1772301638483
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "You are the Satsang Council Dyad router.\\n1. Read `memory/state/satsang_cursor.json` for `last_message_id`.\\n2. Fetch latest messages from #satsang-council (channel 1472239083307925721).\\n3. For each valid new human message after cursor, route through proposal ingress via `python -m noesis orchestration route-event --channel satsang-council --message-id <id> --author <author> --content <text>`.\\n4. Do not execute side effects directly in router path.\\n5. Persist cursor only after successful route-event call.\\nInvariant: every topic becomes Dyad mission steps (Aletheos vs Pichet) with synthesis output."
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "state": {
+        "consecutiveErrors": 0,
+        "nextRunAtMs": 1772553038848,
+        "lastRunAtMs": 1772552738848,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 6261,
+        "lastDelivered": false,
+        "lastDeliveryStatus": "not-delivered"
+      }
+    },
+    {
+      "id": "6aacf0e1-d2e1-4f39-97ba-ba900d6976f2",
+      "agentId": "noesis-vishwakarma",
+      "name": "Orchestration Worker Run Loop",
+      "enabled": true,
+      "createdAtMs": 1772309228768,
+      "updatedAtMs": 1772552718729,
+      "schedule": {
+        "kind": "every",
+        "everyMs": 120000,
+        "anchorMs": 1772309228768
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Run deterministic orchestration worker loop.\n1) Execute: PYTHONPATH=$HOME/.openclaw python3 -m noesis orchestration worker-run --count 25 --worker-id cron-loop --rollout-stage full\n2) Keep output compact JSON only.\n3) Do not add extra narration."
+      },
+      "delivery": {
+        "mode": "none",
+        "channel": "last"
+      },
+      "state": {
+        "nextRunAtMs": 1772552834647,
+        "lastRunAtMs": 1772552714647,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 4082,
+        "lastDelivered": false,
+        "lastDeliveryStatus": "not-delivered",
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "6045ed4b-e3be-4cf1-ba32-db323530f5f2",
+      "agentId": "noesis-vishwakarma",
+      "name": "Init Audio Courier (TG)",
+      "enabled": true,
+      "createdAtMs": 1772348662983,
+      "updatedAtMs": 1772552675973,
+      "schedule": {
+        "kind": "every",
+        "everyMs": 300000,
+        "anchorMs": 1772348662983
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "You are the .init audio courier for Telegram.\n\nGoal:\n- Watch /Volumes/madara/2026/twc-vault/01-Projects/Content-Engine/assets/audio/ for NEW audio assets.\n- Deliver new assets to Telegram bot destination `tg:1371522080` as **playable audio** (voice playback), not file links.\n\nProtocol:\n1) Ensure cursor file exists at `memory/state/init_audio_cursor.json` with shape:\n   {\"last_processed_epoch_ms\": 0, \"sent_files\": []}\n2) Scan the audio directory recursively for files with extensions: mp3, m4a, wav, aac, flac, ogg, opus.\n3) Select files modified after `last_processed_epoch_ms`, sorted oldest->newest.\n4) For each new file (max 5 per run):\n   - Read bytes and send via message tool with `asVoice: true` so Telegram renders playable audio.\n   - Required fields:\n     action=send, channel=telegram, target=tg:1371522080,\n     buffer=<base64>, filename=<basename>, contentType=<mime>, asVoice=true,\n     message includes filename + mtime + size + tag '#init-audio'.\n5) After each successful send, append path into sent_files and move cursor forward.\n6) Persist updated cursor atomically.\n7) If no new files, send nothing.\n\nGuards:\n- Never post URLs or transcript content in this pipeline.\n- If an item contains only a URL, skip it.\n- Idempotent delivery, no duplicate sends, no destructive file operations.\n"
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "state": {
+        "consecutiveErrors": 0,
+        "nextRunAtMs": 1772552970022,
+        "lastRunAtMs": 1772552670022,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 5951,
+        "lastDelivered": false,
+        "lastDeliveryStatus": "not-delivered"
+      }
+    }
+  ]
+}

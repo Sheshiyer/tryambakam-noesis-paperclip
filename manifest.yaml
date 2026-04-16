@@ -1,0 +1,228 @@
+# Thoughtseed Labs Organization Manifest
+# This file defines the complete agent organization structure.
+# Used by the org-bootstrap skill to self-assemble the deployment.
+
+version: "2.0.0"
+schema: "org-manifest/v2"
+
+org:
+  name: "Thoughtseed Labs"
+  description: "Multi-agent autonomous organization for product development, research, creative production, and engineering"
+
+  hierarchy:
+    chief:
+      agent: jarvis
+      role: "Chief Strategy Officer"
+      capabilities:
+        - strategic-planning
+        - task-orchestration
+      delegates_to:
+        - research
+        - content
+        - creative
+        - engineering
+
+    departments:
+      research:
+        name: "Research"
+        icon: "magnifying-glass"
+        lead: atlas
+        members:
+          - trendy
+        shared_vault: true
+        description: "Deep research, web intelligence, and trend analysis"
+
+      content:
+        name: "Content"
+        icon: "pencil"
+        lead: sage
+        members:
+          - scribe
+        shared_vault: true
+        description: "Content creation, user success, messaging, and editorial direction"
+
+      creative:
+        name: "Creative"
+        icon: "palette"
+        lead: pixel
+        members:
+          - nova
+          - vibe
+          - clip
+        shared_vault: true
+        description: "Visual design, video production, motion graphics, and content clipping"
+
+      engineering:
+        name: "Engineering"
+        icon: "terminal"
+        lead: clawd
+        members:
+          - sentinel
+        shared_vault: true
+        description: "Full-stack development, code review, QA, and quality assurance"
+
+      leadership:
+        name: "Leadership"
+        icon: "trident"
+        lead: jarvis
+        members: []
+        shared_vault: true
+        description: "Strategic oversight, cross-department coordination, and owner interface"
+
+  coordination:
+    method: "shared-vault"
+    heartbeat: "5m"
+    escalation_chain:
+      - department-lead
+      - jarvis
+      - owner
+    task_routing:
+      default: jarvis
+      by_tag:
+        research: research
+        content: content
+        code: engineering
+        design: creative
+        video: creative
+        product: leadership
+        ops: leadership
+        strategy: leadership
+        trend: research
+        qa: engineering
+        copy: content
+        brand: content
+
+  models:
+    default:
+      primary: "gpt-5.4"
+      fallback: "google-gemini-cli/gemini-2.5-flash"
+      thinking: "high"
+
+# Stage 2: Autonomous Loop Infrastructure
+  loop:
+    enabled: true
+    description: "Cron-triggered short cycles — agents read tasks, work one step, write results, skip on block"
+    intervals:
+      tier_1: "5m"        # Chief (JARVIS): 96 runs/8h
+      tier_2_lead: "10m"  # Department leads: 48 runs/8h
+      tier_2_member: "15m" # Members: 32 runs/8h
+    resilience:
+      on_blocked: log_and_skip
+      on_failure: log_skip_continue
+      retry_blocked_after: 3
+      error_becomes_context: true
+    agent_files:
+      stage_1: [MANIFEST.yaml, IDENTITY.md, SOUL.md, MEMORY.md]
+      stage_2: [TASKS.md, CONTEXT.md, TOOLS.md, USER.md, HEARTBEAT.md, AGENTS.md, EVOLVE.md, SELF.md, INBOX.md]
+
+  evolution:
+    enabled: true
+    schedule: "weekly"
+    cron: "0 0 * * 0"
+    questions_per_cycle: 20
+    pressure_prompts: 25
+    description: "Weekly self-evolution — pressure prompts + interaction questions = continuous refinement"
+
+  vault:
+    enabled: true
+    description: "Shared file-based vault for cross-agent deliverables and handoffs"
+    base_path: "vault/"
+    departments:
+      research: "vault/research/"
+      content: "vault/content/"
+      creative: "vault/creative/"
+      engineering: "vault/engineering/"
+      leadership: "vault/leadership/"
+    handoffs: "vault/handoffs/"
+    routing:
+      description: "Agents write deliverables to their department vault. Cross-department handoffs go to vault/handoffs/"
+      inbox_pattern: "Each agent has INBOX.md — other agents append tasks there for cross-agent assignment"
+
+  paperclip:
+    api_url: "http://127.0.0.1:3100/api"
+    company_id: "d89420ba-ce5a-45f6-bd0a-e735d2e02740"
+    sync:
+      issues_to_inbox: true
+      heartbeat_reporting: true
+
+  teamforge:
+    expected_schema_version: "agent_feed/v1"
+    feed_url: "http://127.0.0.1:4310/api/agent-feed/export"
+    feed_limit: 500
+    dispatch_enabled: true
+    snapshots_path: "vault/leadership/teamforge-feed"
+    retention_days: 30
+    role_slice_max_items: 25
+    quality_drift_threshold_seconds: 21600
+    cooldown_info_minutes: 120
+    cooldown_warn_minutes: 60
+    cooldown_critical_minutes: 0
+    health_max_lag_warn_seconds: 3600
+    health_failure_rate_warn: 0.20
+    health_min_coverage_warn: 0.66
+
+  standup:
+    enabled: true
+    time: "18:00"
+    timezone: "Asia/Kolkata"
+    cron: "30 12 * * 1-5"
+    format: "markdown"
+    output: "vault/standups/"
+    aggregator: jarvis
+    compliance_monitor: sentinel
+    notify_channel: "telegram"
+    deadline_minutes: 30
+    consecutive_miss_threshold: 3
+
+  huly:
+    description: "Thoughtseed Integrated Huly System — operational framework for project management"
+    knowledge_files:
+      - "memory/huly-system-overview.md"
+      - "memory/client-management.md"
+      - "memory/sprint-workflow.md"
+      - "memory/standup-process.md"
+      - "memory/team-planner.md"
+      - "memory/huly-relations.md"
+    task_naming: "[PROJECT]-[TYPE]-[COMPONENT]-[ID]: Description"
+    project_codes:
+      AXT: "Axtech"
+      TUY: "Tuya"
+      BZL: "Bezly"
+      VBX: "Vibrasonix"
+      OAS: "OASIS R&D"
+      INT: "Internal"
+    sprint:
+      cadence: "2-week"
+      planning_day: "monday"
+      planning_time: "10:00"
+      retrospective_day: "friday"
+      capacity_target: 0.9
+
+  openclaw:
+    gateway:
+      url: "ws://127.0.0.1:18789/"
+      mode: "local"
+      bind: "loopback"
+      auth_mode: "token"
+    config_path: "~/.openclaw/openclaw.json"
+    cron:
+      jobs_file: "cron/jobs.json"
+      total_jobs: 18
+      agent: "noesis-vishwakarma"
+      timezone: "Asia/Kolkata"
+    workspace_paths:
+      noesis_vishwakarma: "~/.openclaw/workspace-noesis-vishwakarma"
+    integration_surfaces:
+      brahman_darshanam: "~/.openclaw/ANNAMAYA/brahman-darshanam-tauri/"
+      control_center: "~/.openclaw/ANNAMAYA/openorca-control-center/"
+      samsclawra: "/Volumes/madara/2026/twc-vault/01-Projects/samsclawra/"
+    agents:
+      gateway:
+        - name: "OpenClaw"
+          role: "operator"
+          scopes: ["operator.admin"]
+        - name: "Noesis Vishwakarma"
+          role: "operator"
+          title: "Nexus Architect"
+          scopes: ["operator.admin"]
+          workspace: "~/.openclaw/workspace-noesis-vishwakarma"

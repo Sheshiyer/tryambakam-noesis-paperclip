@@ -1,0 +1,58 @@
+name: Daily Standup
+description: "End-of-day standup ceremony — each agent reports completed work, tomorrow's plan, and blockers"
+version: "1.0.0"
+
+triggers:
+  - type: scheduled
+    cron: "30 12 * * 1-5"  # 6 PM IST (12:30 UTC), weekdays only
+    description: "Daily at 6 PM IST"
+  - type: manual
+    command: "./scripts/standup-runner.sh"
+    description: "Manual trigger for ad-hoc standups"
+
+config:
+  timezone: "Asia/Kolkata"
+  time: "18:00"
+  output_dir: "vault/standups/"
+  format: "markdown"
+  aggregator: "jarvis"
+  notify_channel: "telegram"
+
+steps:
+  agent_standup:
+    description: "Each agent generates individual standup from state files"
+    agents: all  # All active agents participate
+    timeout: 5m
+    action: "standup-template"
+    reads:
+      - "agents/{agent}/TASKS.md"
+      - "agents/{agent}/HEARTBEAT.md"
+      - "agents/{agent}/INBOX.md"
+    writes:
+      - "vault/standups/{date}/{agent}.md"
+
+  aggregate:
+    description: "JARVIS aggregates all standups into org summary"
+    agent: jarvis
+    timeout: 5m
+    depends_on: [agent_standup]
+    action: "standup-aggregate"
+    reads:
+      - "vault/standups/{date}/*.md"
+    writes:
+      - "vault/standups/{date}/org-summary.md"
+
+  escalate:
+    description: "Auto-escalate unresolved blockers"
+    agent: jarvis
+    timeout: 2m
+    depends_on: [aggregate]
+    action: "blocker-triage"
+    condition: "blockers_found == true"
+
+compliance:
+  deadline_minutes: 30  # Must complete within 30 min of trigger
+  monitor: sentinel
+  missing_standup_action: "flag in org-summary"
+  consecutive_miss_threshold: 3
+  escalate_to: jarvis

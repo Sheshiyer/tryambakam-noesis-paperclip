@@ -1,0 +1,25 @@
+# Runtime state
+.thoughtseed/task-registry.json
+logs/
+*.log
+
+# Node
+node_modules/
+pnpm-lock.yaml
+package-lock.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+*.swp
+*.swo
+*~
+
+# Archive
+_archive-*/
+
+# Secrets
+.env
+.env.*

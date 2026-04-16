@@ -1,0 +1,57 @@
+# Leadership Department Coordination
+# JARVIS (lead) -- no direct members
+# Strategic oversight, cross-department coordination, and escalation resolution.
+# JARVIS oversees all departments but does not belong to any single one.
+
+name: Leadership
+lead: jarvis
+members: []
+
+coordination:
+  shared_vault: true
+  vault_path: "shared/leadership/"
+
+  roles:
+    jarvis:
+      focus: "Strategic oversight, cross-department coordination, escalation resolution, resource allocation, product vision"
+      authority: "Final decision on all escalations, cross-department priorities, budget allocation, strategic direction"
+
+  communication:
+    internal: "JARVIS reads from all department shared vaults for situational awareness"
+    external: "Reports to owner. Receives escalations from all department leads."
+
+  oversight:
+    departments:
+      - department: research
+        lead: atlas
+        interaction: "Receive intelligence summaries, assign research priorities"
+      - department: content
+        lead: sage
+        interaction: "Receive content performance reports, set messaging direction"
+      - department: creative
+        lead: pixel
+        interaction: "Receive creative output reviews, approve brand identity changes"
+      - department: engineering
+        lead: clawd
+        interaction: "Receive development progress reports, approve architecture decisions"
+
+  escalation:
+    chain: [jarvis, owner]
+    triggers:
+      - "Cross-department conflict requiring arbitration"
+      - "Strategic decision with org-wide impact"
+      - "Resource contention between departments"
+      - "Critical failure in any department"
+      - "Budget or licensing decisions"
+
+  task_routing:
+    incoming_tags: [strategy, ops, product, planning, budget]
+    default_assignee: jarvis
+
+  quality:
+    review_required: false
+    standards:
+      - "All strategic decisions documented with rationale"
+      - "Cross-department coordination logged in shared vault"
+      - "Escalation resolutions include root cause and prevention measures"
+      - "Weekly status synthesis across all departments"

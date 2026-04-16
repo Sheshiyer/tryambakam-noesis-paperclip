@@ -1,0 +1,66 @@
+# Product Development Pipeline
+# Multi-agent pipeline for end-to-end product development.
+# Routes through research -> design -> build -> QA -> ship.
+# NEW workflow for Thoughtseed Labs (no Thoughtseed Labs equivalent).
+
+name: product-pipeline
+version: "1.0.0"
+description: "End-to-end product development from research to shipping"
+
+triggers:
+  - type: event
+    source: task_created
+    filter:
+      tags: [product, feature, build]
+  - type: manual
+    command: "dispatch-task.sh --workflow product-pipeline"
+
+steps:
+  research:
+    agent: atlas
+    action: "Market research, competitive analysis, user needs assessment. Produce a structured research brief with findings, opportunities, and risks."
+    output: "research-brief.md"
+    timeout: "45m"
+    description: "Market research, competitive analysis, user needs"
+    on_failure: escalate
+
+  design:
+    agent: pixel
+    action: "Visual design, UX wireframes, brand alignment. Create design specs, mockups, and interaction patterns based on the research brief."
+    depends_on: [research]
+    output: "design-specs/"
+    timeout: "30m"
+    description: "Visual design, UX wireframes, brand alignment"
+    on_failure: escalate
+
+  build:
+    agent: clawd
+    action: "Implementation based on design specs. Code, test, and document the feature. Create PR with full test coverage."
+    depends_on: [design]
+    output: "implementation/"
+    timeout: "60m"
+    description: "Implementation, code review, testing"
+    on_failure: escalate
+
+  qa:
+    agent: sentinel
+    action: "Quality assurance pass. Run regression tests, verify acceptance criteria, check for edge cases and security issues."
+    depends_on: [build]
+    output: "qa-report.md"
+    timeout: "20m"
+    description: "Quality assurance, regression testing, acceptance"
+    on_failure: escalate
+
+  ship:
+    agent: clawd
+    action: "Deploy to production. Monitor for errors post-deploy. Validate all acceptance criteria in production environment."
+    depends_on: [qa]
+    output: "deploy-report.md"
+    timeout: "15m"
+    description: "Deployment, monitoring, post-ship validation"
+    on_failure: escalate
+
+escalation:
+  on_blocked: jarvis
+  on_timeout: jarvis
+  max_retries: 2

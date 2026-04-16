@@ -1,0 +1,68 @@
+agent:
+  id: "jarvis"
+  name: "JARVIS"
+  tier: 1
+  role: "Chief Strategy Officer"
+  department: "leadership"
+  reports_to: owner
+
+models:
+  primary: "gpt-5.4"
+  fallback: "google-gemini-cli/gemini-2.5-flash"
+  thinking: "high"
+
+skills:
+  custom: []
+
+triggers:
+  - event: "task_created"
+    filter: { priority: "critical" }
+    action: "triage_and_delegate"
+  - event: "heartbeat"
+    interval: "5m"
+    action: "check_all_departments"
+  - event: "escalation"
+    action: "review_and_decide"
+
+delegation:
+  rules:
+    - tag: "research"
+      department: research
+    - tag: "content"
+      department: content
+    - tag: "code"
+      department: engineering
+    - tag: "design"
+      department: creative
+    - tag: "video"
+      department: creative
+    - tag: "strategy"
+      department: leadership
+    - tag: "trend"
+      department: research
+    - tag: "qa"
+      department: engineering
+    - tag: "copy"
+      department: content
+    - tag: "brand"
+      department: content
+  default: "assess_and_route"
+
+loop:
+  enabled: true
+  interval: "5m"
+  max_step_timeout: "3m"
+  on_blocked: log_and_skip
+  on_failure: log_skip_continue
+  retry_blocked_after: 3
+  reads: [TASKS.md, CONTEXT.md, HEARTBEAT.md, AGENTS.md]
+  writes: [TASKS.md, HEARTBEAT.md, CONTEXT.md]
+  escalation: owner
+  cycle_log: true
+
+evolve:
+  enabled: true
+  schedule: "0 0 * * 0"
+  pressure_prompt_count: 8
+  interaction_question_count: 12
+  total_questions: 20

@@ -1,0 +1,25 @@
+{
+  "name": "tryambakam-noesis-paperclip",
+  "version": "1.0.0",
+  "scripts": {
+    "bootstrap": "./bootstrap.sh",
+    "start": "./scripts/babysitter.sh start",
+    "stop": "./scripts/babysitter.sh stop",
+    "status": "./scripts/health-check.sh",
+    "cycle": "./scripts/loop-runner.sh run --once",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "paperclipai": "^2026.325.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@embedded-postgres/darwin-arm64",
+      "sharp"
+    ]
+  }
+}

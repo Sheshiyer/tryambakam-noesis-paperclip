@@ -1,0 +1,59 @@
+# Content Department Coordination
+# SAGE (lead) + SCRIBE
+# Handles content strategy, user success messaging, editorial, and brand narrative.
+
+name: Content
+lead: sage
+members: [scribe]
+
+coordination:
+  shared_vault: true
+  vault_path: "shared/content/"
+
+  roles:
+    sage:
+      focus: "User understanding, messaging strategy, content direction, engagement optimization"
+      authority: "Final approval on content strategy, voice and tone decisions, messaging priorities"
+    scribe:
+      focus: "Writing, editorial production, copy refinement, brand narrative"
+      authority: "Draft creation, editorial decisions within approved strategy, headline selection"
+
+  communication:
+    internal: "Shared vault -- SAGE sets content strategy, SCRIBE executes editorial within guidelines"
+    external: "SAGE reports to JARVIS with content performance summaries and user insight briefs"
+
+  cross_department:
+    - department: research
+      agent: atlas
+      interaction: "Request research briefs before content creation"
+    - department: creative
+      agent: pixel
+      interaction: "Request visual assets for content pieces"
+    - department: engineering
+      agent: sentinel
+      interaction: "Request quality review of published content"
+
+  escalation:
+    chain: [sage, jarvis, owner]
+    triggers:
+      - "Content topic is sensitive or controversial"
+      - "Brand voice conflict with existing content"
+      - "Content requires legal review"
+      - "Messaging direction conflicts with product strategy"
+
+  task_routing:
+    incoming_tags: [content, copy, messaging, editorial, brand, narrative, engagement]
+    default_assignee: sage
+    auto_delegate:
+      - tags: [writing, draft, article, blog, copy] -> scribe
+      - tags: [messaging, strategy, engagement, user-success] -> sage
+
+  quality:
+    review_required: true
+    reviewer: sage
+    standards:
+      - "All content matches brand voice guidelines"
+      - "No factual claims without research backing"
+      - "Clear CTA in every piece"
+      - "Anti-patterns from product-marketing-context.md must be avoided"
+      - "Brand voice consistency across all channels"

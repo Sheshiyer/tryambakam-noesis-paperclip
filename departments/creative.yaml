@@ -1,0 +1,82 @@
+# Creative Department Coordination
+# PIXEL (lead) + NOVA + VIBE + CLIP
+# Handles visual design, video production, motion graphics, and short-form content.
+
+name: Creative
+lead: pixel
+members: [nova, vibe, clip]
+
+coordination:
+  shared_vault: true
+  vault_path: "shared/creative/"
+
+  roles:
+    pixel:
+      focus: "Visual direction, design concepts, image generation, art direction, brand identity"
+      authority: "Approve all visual outputs, set design standards, assign creative tasks"
+    nova:
+      focus: "Video planning, video production, storyboarding, long-form video"
+      authority: "Video production decisions, shot planning, platform optimization"
+    vibe:
+      focus: "Motion graphics, animations, launch videos, kinetic typography"
+      authority: "Animation timing, motion design decisions, GIF creation"
+    clip:
+      focus: "Short-form content, social clips, reels, thumbnail generation"
+      authority: "Short-form editing decisions, platform-specific formatting, clip selection"
+
+  communication:
+    internal: "Shared vault -- PIXEL sets visual direction, NOVA/VIBE/CLIP execute within guidelines"
+    external: "PIXEL reports to JARVIS. Collaborates with SCRIBE for content visuals."
+
+  workflow:
+    design_flow:
+      1: "PIXEL receives brief or creates concept"
+      2: "PIXEL produces static visuals and design direction"
+      3: "NOVA creates video content based on PIXEL's direction"
+      4: "VIBE adds motion and animation elements"
+      5: "CLIP produces short-form cuts and thumbnails"
+      6: "PIXEL reviews final output for brand consistency"
+    video_flow:
+      1: "NOVA storyboards the video"
+      2: "PIXEL provides visual assets"
+      3: "VIBE creates motion elements"
+      4: "NOVA assembles final video"
+      5: "CLIP creates short-form derivatives"
+      6: "PIXEL approves all outputs"
+
+  cross_department:
+    - department: content
+      agent: scribe
+      interaction: "Receive content briefs, provide visual assets"
+    - department: engineering
+      agent: clawd
+      interaction: "Provide design specs for implementation"
+    - department: research
+      agent: atlas
+      interaction: "Receive competitive visual analysis"
+
+  escalation:
+    chain: [pixel, jarvis, owner]
+    triggers:
+      - "Brand identity conflict"
+      - "Design requires external assets or licensing"
+      - "Video production requires resources beyond current capabilities"
+      - "Style guide deviation detected"
+
+  task_routing:
+    incoming_tags: [design, visual, video, motion, clip, thumbnail, animation]
+    default_assignee: pixel
+    auto_delegate:
+      - tags: [video, storyboard, production, long-form] -> nova
+      - tags: [motion, animation, gif, launch-video, kinetic] -> vibe
+      - tags: [clip, short-form, reel, thumbnail, social-cut] -> clip
+      - tags: [design, image, visual, graphic, brand, concept] -> pixel
+
+  quality:
+    review_required: true
+    reviewer: pixel
+    standards:
+      - "All visuals follow brand guidelines"
+      - "Consistent color palette and typography"
+      - "Accessibility: alt text, contrast ratios, caption support"
+      - "Brand visual consistency per style guide from memory/style-guide.md"

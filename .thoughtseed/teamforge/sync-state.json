@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "teamforge-sync/v1",
+  "expectedFeedSchemaVersion": "agent_feed/v1",
+  "cursor": null,
+  "lastRunAt": "2026-04-16T18:26:03Z",
+  "lastError": "Unable to resolve TeamForge feed payload. Configure feed_url/export_file/export_cmd.",
+  "latestSnapshotPath": null,
+  "runs": {
+    "total": 1206,
+    "success": 0,
+    "failed": 1206
+  },
+  "suppression": {
+    "total": 0,
+    "lastRun": 0
+  },
+  "seenSyncKeys": {},
+  "cooldowns": {},
+  "actions": {},
+  "outcomes": {
+    "resolved": 0,
+    "partial": 0,
+    "noChange": 0,
+    "regressed": 0,
+    "validatedSignals": 0,
+    "avgTimeToResolutionSeconds": null,
+    "recurrenceSignals": 0
+  },
+  "quality": {
+    "score": 100,
+    "findingCount": 0
+  }
+}
