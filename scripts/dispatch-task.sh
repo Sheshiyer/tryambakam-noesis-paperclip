@@ -13,6 +13,7 @@ set -euo pipefail
 REPO_ROOT="${REPO_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
 MANIFEST="$REPO_ROOT/manifest.yaml"
 TASK_REGISTRY="$REPO_ROOT/scripts/task-registry.sh"
+TASK_REGISTRY_FILE="$REPO_ROOT/.thoughtseed/task-registry.json"
 
 # ---- Dependency Check ----
 
@@ -335,6 +336,51 @@ main() {
     target_lead="$(echo "$routing" | cut -d'|' -f3)"
 
     echo "Routing: tag='${tag:-none}' -> department='$target_department' -> agent='$target_agent'" >&2
+  fi
+
+  if [[ -n "$sync_key" ]]; then
+    local active_tasks_json
+    active_tasks_json="$("$TASK_REGISTRY" find-active-by-sync-key "$sync_key" 2>/dev/null || echo "[]")"
+    local existing_task_id existing_agent existing_department
+    existing_task_id="$(jq -r '.[0].id // empty' <<< "$active_tasks_json")"
+    if [[ -n "$existing_task_id" ]]; then
+      existing_agent="$(jq -r '.[0].assigned_agent // empty' <<< "$active_tasks_json")"
+      existing_department="$(jq -r '.[0].department // empty' <<< "$active_tasks_json")"
+      if [[ -z "$existing_agent" ]]; then existing_agent="$target_agent"; fi
+      if [[ -z "$existing_department" ]]; then existing_department="$target_department"; fi
+
+      echo "Registry: active task already exists for sync_key '$sync_key' -> $existing_task_id" >&2
+      echo ""
+      echo "Dispatched: $existing_task_id -> $existing_agent ($existing_department)"
+      return 0
+    fi
+
+    if [[ "$source" == "review-intent" && -f "$TASK_REGISTRY_FILE" ]]; then
+      local existing_review_json
+      existing_review_json="$(jq --arg key "$sync_key" '
+        [ .tasks[]?
+          | select((.source_sync_key // "") == $key)
+          | select((.source // "") == "review-intent")
+          | select(.status == "completed" or .status == "archived")
+        ]
+        | sort_by(.updated_at // .created_at // "")
+        | last
+      ' "$TASK_REGISTRY_FILE" 2>/dev/null || echo "null")"
+
+      local existing_review_id existing_review_agent existing_review_department
+      existing_review_id="$(jq -r '.id // empty' <<< "$existing_review_json")"
+      if [[ -n "$existing_review_id" ]]; then
+        existing_review_agent="$(jq -r '.assigned_agent // empty' <<< "$existing_review_json")"
+        existing_review_department="$(jq -r '.department // empty' <<< "$existing_review_json")"
+        if [[ -z "$existing_review_agent" ]]; then existing_review_agent="$target_agent"; fi
+        if [[ -z "$existing_review_department" ]]; then existing_review_department="$target_department"; fi
+
+        echo "Registry: completed review-intent task already exists for sync_key '$sync_key' -> $existing_review_id" >&2
+        echo ""
+        echo "Dispatched: $existing_review_id -> $existing_review_agent ($existing_review_department)"
+        return 0
+      fi
+    fi
   fi
 
   local registry_args=("$title" --priority "$priority" --agent "$target_agent" --department "$target_department" --source "$source")

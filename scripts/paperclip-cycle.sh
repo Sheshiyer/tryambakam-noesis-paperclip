@@ -4,7 +4,8 @@
 # 1) sync TeamForge operational feed into local projections/slices
 # 2) sync unresolved issues from Paperclip (with TeamForge enrichment)
 # 3) reconcile local registry + inbox state
-# 4) optionally report heartbeats back to Paperclip
+# 4) scan the reflective signal lane and optionally dispatch intents
+# 5) optionally report heartbeats back to Paperclip
 #
 # Usage:
 #   ./scripts/paperclip-cycle.sh
@@ -17,13 +18,20 @@ REPO_ROOT="${REPO_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
 SYNC_SCRIPT="$REPO_ROOT/scripts/paperclip-sync.sh"
 RECON_SCRIPT="$REPO_ROOT/scripts/paperclip-reconcile-local.sh"
 TEAMFORGE_SYNC_SCRIPT="$REPO_ROOT/scripts/teamforge-sync.sh"
+SIGNAL_LANE_SCRIPT="$REPO_ROOT/scripts/signal-lane-scan.sh"
+MANIFEST_FILE="$REPO_ROOT/manifest.yaml"
 LOCK_DIR="${PAPERCLIP_CYCLE_LOCK_DIR:-/tmp/thoughtseed-paperclip-cycle.lock}"
 LOCK_PID_FILE="$LOCK_DIR/pid"
 
-WITH_HEARTBEATS=false
+WITH_HEARTBEATS="${PAPERCLIP_CYCLE_WITH_HEARTBEATS:-false}"
 RECON_DRY_RUN=false
 WITH_TEAMFORGE=true
 TEAMFORGE_DRY_RUN=false
+WITH_SIGNAL_LANE=true
+SIGNAL_LANE_DISPATCH_ENABLED=true
+SIGNAL_LANE_COOLDOWN_MINUTES="${PAPERCLIP_CYCLE_SIGNAL_LANE_COOLDOWN_MINUTES:-}"
+SIGNAL_LANE_READY_THRESHOLD="${PAPERCLIP_CYCLE_SIGNAL_LANE_READY_THRESHOLD:-}"
+SIGNAL_LANE_EXPERIMENT_THRESHOLD="${PAPERCLIP_CYCLE_SIGNAL_LANE_EXPERIMENT_THRESHOLD:-}"
 
 log() {
   local level="$1"
@@ -46,6 +54,74 @@ Options:
   -h, --help           Show this help
 USAGE
 }
+
+manifest_value() {
+  local block="$1"
+  local key="$2"
+
+  if [[ ! -f "$MANIFEST_FILE" ]]; then
+    return 0
+  fi
+
+  awk -v block="$block" -v key="$key" '
+    $0 ~ "^  " block ":" {
+      in_block = 1
+      next
+    }
+    in_block && $0 ~ "^  [^[:space:]][^:]*:" {
+      exit
+    }
+    in_block && $0 ~ "^[[:space:]]+" key ":" {
+      line = $0
+      sub(/^[[:space:]]*[^:]+:[[:space:]]*/, "", line)
+      gsub(/"/, "", line)
+      gsub(/[[:space:]]+$/, "", line)
+      print line
+      exit
+    }
+  ' "$MANIFEST_FILE"
+}
+
+load_config() {
+  local heartbeat_reporting signal_lane_enabled signal_lane_dispatch_enabled
+  local signal_lane_cooldown signal_lane_ready_threshold signal_lane_experiment_threshold
+
+  heartbeat_reporting="$(manifest_value "paperclip" "heartbeat_reporting")"
+  if [[ -z "${PAPERCLIP_CYCLE_WITH_HEARTBEATS+x}" ]] && [[ "$heartbeat_reporting" == "true" || "$heartbeat_reporting" == "false" ]]; then
+    WITH_HEARTBEATS="$heartbeat_reporting"
+  fi
+
+  signal_lane_enabled="$(manifest_value "signal_lane" "enabled")"
+  if [[ -z "${PAPERCLIP_CYCLE_SIGNAL_LANE_ENABLED+x}" ]] && [[ "$signal_lane_enabled" == "true" || "$signal_lane_enabled" == "false" ]]; then
+    WITH_SIGNAL_LANE="$signal_lane_enabled"
+  else
+    WITH_SIGNAL_LANE="${PAPERCLIP_CYCLE_SIGNAL_LANE_ENABLED:-$WITH_SIGNAL_LANE}"
+  fi
+
+  signal_lane_dispatch_enabled="$(manifest_value "signal_lane" "dispatch_enabled")"
+  if [[ -z "${PAPERCLIP_CYCLE_SIGNAL_LANE_DISPATCH_ENABLED+x}" ]] && [[ "$signal_lane_dispatch_enabled" == "true" || "$signal_lane_dispatch_enabled" == "false" ]]; then
+    SIGNAL_LANE_DISPATCH_ENABLED="$signal_lane_dispatch_enabled"
+  else
+    SIGNAL_LANE_DISPATCH_ENABLED="${PAPERCLIP_CYCLE_SIGNAL_LANE_DISPATCH_ENABLED:-$SIGNAL_LANE_DISPATCH_ENABLED}"
+  fi
+
+  signal_lane_cooldown="$(manifest_value "signal_lane" "cooldown_minutes")"
+  if [[ -z "${PAPERCLIP_CYCLE_SIGNAL_LANE_COOLDOWN_MINUTES+x}" ]] && [[ -n "$signal_lane_cooldown" ]]; then
+    SIGNAL_LANE_COOLDOWN_MINUTES="$signal_lane_cooldown"
+  fi
+
+  signal_lane_ready_threshold="$(manifest_value "signal_lane" "ready_threshold")"
+  if [[ -z "${PAPERCLIP_CYCLE_SIGNAL_LANE_READY_THRESHOLD+x}" ]] && [[ -n "$signal_lane_ready_threshold" ]]; then
+    SIGNAL_LANE_READY_THRESHOLD="$signal_lane_ready_threshold"
+  fi
+
+  signal_lane_experiment_threshold="$(manifest_value "signal_lane" "experiment_threshold")"
+  if [[ -z "${PAPERCLIP_CYCLE_SIGNAL_LANE_EXPERIMENT_THRESHOLD+x}" ]] && [[ -n "$signal_lane_experiment_threshold" ]]; then
+    SIGNAL_LANE_EXPERIMENT_THRESHOLD="$signal_lane_experiment_threshold"
+  fi
+}
+
+load_config
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -92,7 +168,13 @@ if [[ "$WITH_TEAMFORGE" == "true" ]] && [[ ! -x "$TEAMFORGE_SYNC_SCRIPT" ]]; the
   exit 1
 fi
 
+if [[ "$WITH_SIGNAL_LANE" == "true" ]] && [[ ! -x "$SIGNAL_LANE_SCRIPT" ]]; then
+  echo "ERROR: Missing executable signal lane script at $SIGNAL_LANE_SCRIPT" >&2
+  exit 1
+fi
+
 acquire_lock() {
+  mkdir -p "$(dirname "$LOCK_DIR")"
   if mkdir "$LOCK_DIR" 2>/dev/null; then
     echo "$$" > "$LOCK_PID_FILE"
     return 0
@@ -159,6 +241,22 @@ if [[ "$RECON_DRY_RUN" == "true" ]]; then
   run_step "reconcile-local(dry-run)" "$RECON_SCRIPT" --dry-run
 else
   run_step "reconcile-local" "$RECON_SCRIPT"
+fi
+
+if [[ "$WITH_SIGNAL_LANE" == "true" ]]; then
+  run_step "signal-lane-scan" env \
+    SIGNAL_LANE_COOLDOWN_MINUTES="$SIGNAL_LANE_COOLDOWN_MINUTES" \
+    SIGNAL_LANE_READY_THRESHOLD="$SIGNAL_LANE_READY_THRESHOLD" \
+    SIGNAL_LANE_EXPERIMENT_THRESHOLD="$SIGNAL_LANE_EXPERIMENT_THRESHOLD" \
+    "$SIGNAL_LANE_SCRIPT" scan
+
+  if [[ "$SIGNAL_LANE_DISPATCH_ENABLED" == "true" ]]; then
+    run_step "signal-lane-dispatch" env \
+      SIGNAL_LANE_COOLDOWN_MINUTES="$SIGNAL_LANE_COOLDOWN_MINUTES" \
+      SIGNAL_LANE_READY_THRESHOLD="$SIGNAL_LANE_READY_THRESHOLD" \
+      SIGNAL_LANE_EXPERIMENT_THRESHOLD="$SIGNAL_LANE_EXPERIMENT_THRESHOLD" \
+      "$SIGNAL_LANE_SCRIPT" dispatch
+  fi
 fi
 
 if [[ "$WITH_HEARTBEATS" == "true" ]]; then

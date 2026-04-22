@@ -7,8 +7,19 @@
 
 _No pending items._
 
-
 ## Processed
+
+### [2026-04-20T08:37:25Z] From: dispatch | Priority: medium | Processed: 2026-04-20T08:47:24Z
+Escalation from CLAWD: triage 197-item Clockify TeamForge backlog and set backlog-shaping policy
+Task-ID: task-1776674244-7681
+Tags: ops,strategy
+Depends-on: batch-2026-04-20-clockify-backlog
+Details:
+Backlog summary from CLAWD cycle:
+- Source: .thoughtseed/teamforge/latest-feed.json backlog collapse at 2026-04-20T08:30:03Z
+- Scope: 197 repetitive info-level `clockify.time_entry.logged` notifications
+- Need: leadership decision on retention window, collapse policy, and whether to auto-archive historical low-severity signals
+- Requested output: triage policy + ownership for cleanup execution.
 
 ### [2026-04-11T19:46:45Z] From: dispatch | Priority: medium | Processed: 2026-04-11T20:04:33Z
 Escalation from CLAWD: loop-runner and babysitter now have internal resilience patches, but daemons are still externally reaped across command-session boundaries (stale PID without internal fatal logs). Need leadership decision to adopt host-native supervisor (launchd/systemd/pm2) for persistent operation.
@@ -28,7 +39,7 @@ Tags: ops
 Depends-on: task-1775930119-849a
 
 ### [2026-04-11T17:55:11Z] From: dispatch | Priority: high | Processed: 2026-04-11T17:55:32Z
-Escalation from CLAWD: Resolve blocked Paperclip issue 9ca2a2fd-9b2a-4ed7-92c7-d3ca2835f172 (THO-1) ownership/next action so task-1775914956-5023 can be unblocked
+Escalation from CLAWD: Resolve blocked Paperclip issue 9ca2a2fd-9b2a-4ed7-92c7-d3ca2835f172 (THO-1) ownership/next action so task-1775930111-2892 can be unblocked
 Task-ID: task-1775930111-2892
 Tags: ops
 Depends-on: task-1775914956-5023

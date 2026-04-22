@@ -2001,3 +2001,1195 @@ _Weekly aggregates populated by the evolution cycle._
 - Summary: Checked the SAGE inbox and active task queue; no pending inbox items or actionable tasks were available, so the cycle remained idle.
 
 | 2026-04-16T18:19:44Z | cycle-1776363540 | completed | 44s | tokens=0 |
+
+### 2026-04-16T18:29:05Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 8 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items or actionable tasks were available, so the cycle remained idle.
+
+| 2026-04-16T18:29:31Z | cycle-1776364145 | completed | 25s | tokens=0 |
+
+### 2026-04-16T18:39:17Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 8 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items or actionable tasks were available, so the cycle remained idle.
+
+| 2026-04-16T18:39:39Z | cycle-1776364756 | completed | 22s | tokens=0 |
+
+### 2026-04-16T18:49:21Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 8 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items or actionable tasks were available, so the cycle remained idle.
+
+| 2026-04-16T18:49:43Z | cycle-1776365361 | completed | 21s | tokens=0 |
+
+### 2026-04-16T18:59:27Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 8 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items or actionable tasks were available, so the cycle remained idle.
+
+| 2026-04-16T18:59:47Z | cycle-1776365967 | completed | 20s | tokens=0 |
+
+### 2026-04-16T19:09:32Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 8 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items or actionable tasks were available, so the cycle remained idle.
+
+| 2026-04-16T19:09:56Z | cycle-1776366571 | completed | 24s | tokens=0 |
+
+### 2026-04-20T08:18:35Z Cycle Result
+- Step: task-1776672861-310b
+- Outcome: completed
+- Duration: 178 seconds
+- Summary: Processed the stale Meru handoff review, verified the live bridge state, and decided to hold candidate restaging until TeamForge is repaired and a fresh Meru run exists.
+
+| 2026-04-20T08:22:19Z | cycle-1776673115 | completed | 222s | tokens=0 |
+
+### 2026-04-20T08:30:03Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 8 seconds
+- Summary: Checked the SAGE inbox and active task queue and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T08:30:42Z | cycle-1776673803 | completed | 39s | tokens=0 |
+
+### 2026-04-20T08:45:09Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 34 seconds
+- Summary: Checked the SAGE inbox and active task queue and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T08:46:18Z | cycle-1776674709 | completed | 68s | tokens=0 |
+
+### 2026-04-20T09:00:44Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 24 seconds
+- Summary: Checked the SAGE inbox and active task queue and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T09:02:02Z | cycle-1776675644 | completed | 78s | tokens=0 |
+
+### 2026-04-20T09:21:40Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-20T09:21:40Z | cycle-1776676659 | timeout | 240s | tokens=0 |
+
+### 2026-04-20T09:28:37Z Cycle Result
+- Step: task-1776676304-1df5
+- Outcome: completed
+- Duration: 112 seconds
+- Summary: Rechecked the live runtime-root, TeamForge sync state, and Meru latest-run snapshot, then closed the stale-handoff review with a decision to queue a fresh Meru rerun.
+
+| 2026-04-20T09:32:13Z | cycle-1776677317 | completed | 215s | tokens=0 |
+
+### 2026-04-20T09:39:23Z Cycle Result
+- Step: Step 3
+- Outcome: blocked
+- Duration: 96 seconds
+- Summary: Attempted the canonical Meru candidate restage, but the staging script was blocked by sandbox permissions when it tried to create a new run under the vault `_System/memory/archetypal-candidates/` path.
+
+| 2026-04-20T09:39:23Z | cycle-1776677963 | blocked | 96s | tokens=0 |
+
+### 2026-04-20T09:43:24Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-20T09:43:24Z | cycle-1776677963 | timeout | 241s | tokens=0 |
+
+### 2026-04-20T09:50:50Z Cycle Result
+- Step: Step 4
+- Outcome: completed
+- Duration: 118 seconds
+- Summary: Confirmed the repeated Paperclip hiring-plan request was already resolved in Engineering and founder review, then closed SAGE’s copy as a misrouted duplicate.
+
+| 2026-04-20T09:53:24Z | cycle-1776678650 | completed | 153s | tokens=0 |
+
+### 2026-04-20T10:01:32Z Cycle Result
+- Step: task-1776679079-cf43
+- Outcome: completed
+- Duration: 95 seconds
+- Summary: Rechecked the live stale-Meru signal and closed it as a duplicate because TeamForge is healthy, the Apr 8 Meru snapshot is still stale, and the only remaining action is the already-blocked Step 3 restage.
+
+| 2026-04-20T10:04:15Z | cycle-1776679292 | completed | 163s | tokens=0 |
+
+### 2026-04-20T10:12:36Z Cycle Result
+- Step: task-1776679955-dba1
+- Outcome: completed
+- Duration: 86 seconds
+- Summary: Rechecked the live stale-Meru signal and closed it as a duplicate because TeamForge is healthy, the Apr 8 Meru snapshot is still stale, and the only remaining action is the already-blocked Step 3 restage.
+
+| 2026-04-20T10:15:19Z | cycle-1776679955 | completed | 163s | tokens=0 |
+
+### 2026-04-20T10:23:18Z Cycle Result
+- Step: task-1776680248-0e1a
+- Outcome: completed
+- Duration: 104 seconds
+- Summary: Rechecked the live stale-Meru signal and closed it as a duplicate because TeamForge is healthy, the Apr 8 Meru snapshot is still stale, and the only remaining action is the already-blocked Step 3 restage.
+
+| 2026-04-20T10:23:18Z | cycle-1776680598 | completed | 104s | tokens=0 |
+
+### 2026-04-20T10:27:19Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-20T10:27:19Z | cycle-1776680598 | timeout | 241s | tokens=0 |
+
+### 2026-04-20T10:38:59Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-20T10:38:59Z | cycle-1776681298 | timeout | 240s | tokens=0 |
+
+### 2026-04-20T10:47:13Z Cycle Result
+- Step: task-1776681972-3ff7
+- Outcome: completed
+- Duration: 102 seconds
+- Summary: Ingested the 10-item stale-Meru inbox burst, revalidated live runtime-root, TeamForge sync, and Meru latest-run state, then closed the newest redispatch as a duplicate because the only remaining action is the still-blocked Step 3 restage.
+
+| 2026-04-20T10:51:04Z | cycle-1776682033 | completed | 230s | tokens=0 |
+
+### 2026-04-20T11:04:22Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-20T11:04:22Z | cycle-1776682821 | timeout | 241s | tokens=0 |
+
+### 2026-04-20T11:17:20Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-20T11:17:20Z | cycle-1776683599 | timeout | 241s | tokens=0 |
+
+### 2026-04-20T11:29:20Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-20T11:29:20Z | cycle-1776684318 | timeout | 240s | tokens=0 |
+
+### 2026-04-20T11:41:39Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-20T11:41:39Z | cycle-1776685058 | timeout | 240s | tokens=0 |
+
+### 2026-04-20T11:48:58Z Cycle Result
+- Step: Step 9
+- Outcome: completed
+- Duration: 95 seconds
+- Summary: Revalidated the live stale-Meru signal and closed it as a duplicate because TeamForge is healthy, the Apr 8 Meru snapshot is still stale, and the only remaining action is the already-blocked Step 3 restage.
+
+### 2026-04-20T11:52:58Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-20T11:52:58Z | cycle-1776685738 | timeout | 240s | tokens=0 |
+
+### 2026-04-20T12:02:18Z Cycle Result
+- Step: Step 10
+- Outcome: completed
+- Duration: 95 seconds
+- Summary: Revalidated runtime-root, TeamForge sync, and the stale Apr 8 Meru snapshot, then closed Step 10 as a duplicate because the only remaining action is the still-blocked Step 3 restage.
+
+| 2026-04-20T12:05:30Z | cycle-1776686538 | completed | 192s | tokens=0 |
+
+### 2026-04-20T12:14:33Z Cycle Result
+- Step: Step 11
+- Outcome: completed
+- Duration: 90 seconds
+- Summary: Revalidated runtime-root, TeamForge sync, and the stale Apr 8 Meru snapshot, then closed Step 11 as a duplicate because the only remaining action is the still-blocked Step 3 restage.
+
+### 2026-04-20T14:10:08Z Cycle Result
+- Step: Step 12
+- Outcome: completed
+- Duration: 90 seconds
+- Summary: Revalidated runtime-root, TeamForge sync, and the stale Apr 8 Meru snapshot, then closed Step 12 as a duplicate because the only remaining action is the still-blocked Step 3 restage.
+
+| 2026-04-20T14:13:22Z | cycle-1776694208 | completed | 194s | tokens=0 |
+
+### 2026-04-20T14:20:28Z Cycle Result
+- Step: Step 13
+- Outcome: completed
+- Duration: 90 seconds
+- Summary: Revalidated runtime-root, TeamForge sync, and the stale Apr 8 Meru snapshot, then closed Step 13 as a duplicate because the only remaining action is the still-blocked Step 3 restage.
+
+### 2026-04-20T14:24:28Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-20T14:24:28Z | cycle-1776694828 | timeout | 240s | tokens=0 |
+
+### 2026-04-20T14:31:49Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-20T14:31:50Z | cycle-1776695466 | failed | 42s | tokens=0 |
+
+### 2026-04-20T14:43:44Z Cycle Result
+- Step: Step 14
+- Outcome: completed
+- Duration: 90 seconds
+- Summary: Revalidated runtime-root, TeamForge sync, and the stale Apr 8 Meru snapshot, then closed Step 14 as a duplicate because the only remaining action is the still-blocked Step 3 restage.
+
+### 2026-04-20T14:43:44Z Cycle Result
+- Step: Step 14
+- Outcome: completed
+- Duration: 90 seconds
+- Summary: Revalidated runtime-root, TeamForge sync, and the stale Apr 8 Meru snapshot, then closed Step 14 as a duplicate because the only remaining action is the still-blocked Step 3 restage.
+
+| 2026-04-20T14:47:39Z | cycle-1776696224 | completed | 235s | tokens=0 |
+
+### 2026-04-20T14:54:27Z Cycle Result
+- Step: Step 15
+- Outcome: completed
+- Duration: 90 seconds
+- Summary: Revalidated runtime-root, TeamForge sync, and the stale Apr 8 Meru snapshot, then closed Step 15 as a duplicate because the only remaining action is the still-blocked Step 3 restage.
+
+### 2026-04-20T14:58:28Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-20T14:58:28Z | cycle-1776696867 | timeout | 240s | tokens=0 |
+
+### 2026-04-20T15:04:53Z Cycle Result
+- Step: Step 16
+- Outcome: completed
+- Duration: 90 seconds
+- Summary: Revalidated runtime-root, TeamForge sync, and the stale Apr 8 Meru snapshot, then closed Step 16 as a duplicate because the only remaining action is the still-blocked Step 3 restage.
+
+### 2026-04-20T15:08:53Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-20T15:08:53Z | cycle-1776697493 | timeout | 240s | tokens=0 |
+
+### 2026-04-20T15:16:39Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-20T15:16:39Z | cycle-1776698137 | failed | 62s | tokens=0 |
+
+### 2026-04-20T15:26:03Z Cycle Result
+- Step: Step 17
+- Outcome: completed
+- Duration: 90 seconds
+- Summary: Revalidated runtime-root, TeamForge sync, and the stale Apr 8 Meru snapshot, then closed Step 17 as a duplicate because the only remaining action is the still-blocked Step 3 restage.
+
+| 2026-04-20T15:29:49Z | cycle-1776698762 | completed | 226s | tokens=0 |
+
+### 2026-04-20T15:38:09Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-20T15:38:09Z | cycle-1776699466 | failed | 23s | tokens=0 |
+
+### 2026-04-20T15:52:31Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-20T15:52:31Z | cycle-1776700110 | timeout | 240s | tokens=0 |
+
+### 2026-04-20T15:58:52Z Cycle Result
+- Step: Step 18
+- Outcome: completed
+- Duration: 90 seconds
+- Summary: Revalidated runtime-root, TeamForge sync, and the stale Apr 8 Meru snapshot, then closed Step 18 as a duplicate because the only remaining action is the still-blocked Step 3 restage.
+
+### 2026-04-20T16:02:52Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-20T16:02:52Z | cycle-1776700732 | timeout | 240s | tokens=0 |
+
+### 2026-04-20T16:12:35Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 8 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items or actionable steps were available, so the cycle remained idle.
+
+| 2026-04-20T16:15:37Z | cycle-1776701554 | completed | 181s | tokens=0 |
+
+### 2026-04-20T16:24:18Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-20T16:28:11Z | cycle-1776702258 | completed | 233s | tokens=0 |
+
+### 2026-04-20T16:36:02Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 24 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-20T16:39:49Z | cycle-1776702961 | completed | 227s | tokens=0 |
+
+### 2026-04-20T16:46:48Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 8 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-20T16:50:31Z | cycle-1776703608 | completed | 223s | tokens=0 |
+
+### 2026-04-20T16:57:13Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 8 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-20T17:00:15Z | cycle-1776704233 | completed | 182s | tokens=0 |
+
+### 2026-04-20T17:08:57Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 8 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-20T17:12:04Z | cycle-1776704937 | completed | 187s | tokens=0 |
+
+### 2026-04-20T17:19:33Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 8 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-20T17:22:30Z | cycle-1776705573 | completed | 177s | tokens=0 |
+
+### 2026-04-20T17:30:49Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+### 2026-04-20T17:30:49Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-20T17:34:40Z | cycle-1776706249 | completed | 231s | tokens=0 |
+
+### 2026-04-20T17:40:51Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-20T17:44:49Z | cycle-1776706851 | completed | 238s | tokens=0 |
+
+### 2026-04-20T17:51:08Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 75 seconds
+- Summary: Checked the live SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-20T17:54:49Z | cycle-1776707468 | completed | 221s | tokens=0 |
+
+### 2026-04-20T18:02:29Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 20 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-20T18:06:20Z | cycle-1776708149 | completed | 231s | tokens=0 |
+
+### 2026-04-20T18:16:03Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-20T18:18:50Z | cycle-1776708963 | completed | 167s | tokens=0 |
+
+### 2026-04-20T18:27:20Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-20T18:30:44Z | cycle-1776709640 | completed | 203s | tokens=0 |
+
+### 2026-04-20T18:37:22Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-20T18:40:22Z | cycle-1776710242 | completed | 180s | tokens=0 |
+
+### 2026-04-21T07:17:28Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 8 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-21T07:20:17Z | cycle-1776755848 | completed | 169s | tokens=0 |
+
+### 2026-04-21T07:34:02Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-21T07:34:02Z | cycle-1776756601 | timeout | 240s | tokens=0 |
+
+### 2026-04-21T07:41:54Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 52 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-21T07:45:38Z | cycle-1776757314 | completed | 224s | tokens=0 |
+
+### 2026-04-21T07:55:30Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 52 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-21T07:59:07Z | cycle-1776758130 | completed | 216s | tokens=0 |
+
+### 2026-04-21T08:08:25Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 54 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-21T08:11:55Z | cycle-1776758905 | completed | 210s | tokens=0 |
+
+### 2026-04-21T08:28:50Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-21T08:31:42Z | cycle-1776760130 | completed | 171s | tokens=0 |
+
+### 2026-04-21T08:41:51Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-21T08:44:47Z | cycle-1776760911 | completed | 175s | tokens=0 |
+
+### 2026-04-21T08:56:10Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-21T09:00:02Z | cycle-1776761770 | completed | 231s | tokens=0 |
+
+### 2026-04-21T09:08:22Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-21T09:12:06Z | cycle-1776762502 | completed | 223s | tokens=0 |
+
+### 2026-04-21T09:23:43Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-21T09:27:17Z | cycle-1776763423 | completed | 213s | tokens=0 |
+
+### 2026-04-21T09:36:01Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-21T09:38:56Z | cycle-1776764161 | completed | 175s | tokens=0 |
+
+### 2026-04-21T09:48:13Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-21T09:51:04Z | cycle-1776764893 | completed | 170s | tokens=0 |
+
+### 2026-04-21T10:01:29Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-21T10:04:35Z | cycle-1776765689 | completed | 185s | tokens=0 |
+
+### 2026-04-21T10:13:02Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-21T10:16:24Z | cycle-1776766382 | completed | 201s | tokens=0 |
+
+### 2026-04-21T10:24:18Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-21T10:27:42Z | cycle-1776767058 | completed | 203s | tokens=0 |
+
+### 2026-04-21T10:35:59Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T10:35:59Z | cycle-1776767758 | failed | 1s | tokens=0 |
+
+### 2026-04-21T10:46:53Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T10:46:53Z | cycle-1776768412 | failed | 0s | tokens=0 |
+
+### 2026-04-21T10:56:55Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T10:56:55Z | cycle-1776769014 | failed | 1s | tokens=0 |
+
+### 2026-04-21T11:08:19Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T11:08:19Z | cycle-1776769699 | failed | 0s | tokens=0 |
+
+### 2026-04-21T11:21:04Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T11:21:04Z | cycle-1776770463 | failed | 0s | tokens=0 |
+
+### 2026-04-21T11:32:06Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T11:32:06Z | cycle-1776771125 | failed | 1s | tokens=0 |
+
+### 2026-04-21T11:42:08Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T11:42:08Z | cycle-1776771728 | failed | 0s | tokens=0 |
+
+### 2026-04-21T11:53:23Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T11:53:23Z | cycle-1776772403 | failed | 0s | tokens=0 |
+
+### 2026-04-21T12:04:24Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T12:04:24Z | cycle-1776773063 | failed | 0s | tokens=0 |
+
+### 2026-04-21T12:15:42Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T12:15:42Z | cycle-1776773741 | failed | 1s | tokens=0 |
+
+### 2026-04-21T12:26:45Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T12:26:45Z | cycle-1776774404 | failed | 1s | tokens=0 |
+
+### 2026-04-21T12:38:27Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T12:38:27Z | cycle-1776775107 | failed | 0s | tokens=0 |
+
+### 2026-04-21T12:51:22Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T12:51:22Z | cycle-1776775881 | failed | 0s | tokens=0 |
+
+### 2026-04-21T13:03:48Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T13:03:48Z | cycle-1776776627 | failed | 1s | tokens=0 |
+
+### 2026-04-21T13:14:59Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T13:14:59Z | cycle-1776777298 | failed | 1s | tokens=0 |
+
+### 2026-04-21T13:26:40Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T13:26:40Z | cycle-1776777999 | failed | 1s | tokens=0 |
+
+### 2026-04-21T13:37:44Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T13:37:44Z | cycle-1776778663 | failed | 0s | tokens=0 |
+
+### 2026-04-21T13:47:47Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T13:47:47Z | cycle-1776779266 | failed | 1s | tokens=0 |
+
+### 2026-04-21T13:58:50Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T13:58:50Z | cycle-1776779930 | failed | 0s | tokens=0 |
+
+### 2026-04-21T14:09:58Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T14:09:58Z | cycle-1776780574 | failed | 23s | tokens=0 |
+
+### 2026-04-21T14:35:52Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T14:35:52Z | cycle-1776782151 | failed | 1s | tokens=0 |
+
+### 2026-04-21T15:01:53Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T15:01:53Z | cycle-1776783711 | failed | 2s | tokens=0 |
+
+### 2026-04-21T15:42:47Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T15:42:47Z | cycle-1776786166 | failed | 1s | tokens=0 |
+
+### 2026-04-21T16:13:45Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T16:13:45Z | cycle-1776788024 | failed | 0s | tokens=0 |
+
+### 2026-04-21T16:55:50Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T16:55:50Z | cycle-1776790549 | failed | 0s | tokens=0 |
+
+### 2026-04-21T17:06:02Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T17:06:02Z | cycle-1776791161 | failed | 1s | tokens=0 |
+
+### 2026-04-21T17:17:31Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T17:17:31Z | cycle-1776791851 | failed | 0s | tokens=0 |
+
+### 2026-04-21T17:28:03Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T17:28:03Z | cycle-1776792482 | failed | 0s | tokens=0 |
+
+### 2026-04-21T17:38:52Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T17:38:52Z | cycle-1776793132 | failed | 0s | tokens=0 |
+
+### 2026-04-21T17:49:39Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T17:49:39Z | cycle-1776793778 | failed | 0s | tokens=0 |
+
+### 2026-04-21T18:00:45Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T18:00:45Z | cycle-1776794445 | failed | 0s | tokens=0 |
+
+### 2026-04-21T18:11:39Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T18:11:39Z | cycle-1776795098 | failed | 1s | tokens=0 |
+
+### 2026-04-21T18:22:25Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T18:22:25Z | cycle-1776795745 | failed | 0s | tokens=0 |
+
+### 2026-04-21T18:33:12Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T18:33:12Z | cycle-1776796391 | failed | 1s | tokens=0 |
+
+### 2026-04-21T18:44:41Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T18:44:41Z | cycle-1776797080 | failed | 0s | tokens=0 |
+
+### 2026-04-21T18:55:24Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T18:55:24Z | cycle-1776797723 | failed | 1s | tokens=0 |
+
+### 2026-04-21T19:06:29Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T19:06:29Z | cycle-1776798389 | failed | 0s | tokens=0 |
+
+### 2026-04-21T19:17:15Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T19:17:15Z | cycle-1776799034 | failed | 1s | tokens=0 |
+
+### 2026-04-21T19:28:13Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T19:28:13Z | cycle-1776799692 | failed | 1s | tokens=0 |
+
+### 2026-04-21T19:35:33Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T19:35:33Z | cycle-1776800132 | failed | 1s | tokens=0 |
+
+### 2026-04-21T19:46:32Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T19:46:32Z | cycle-1776800792 | failed | 0s | tokens=0 |
+
+### 2026-04-21T19:57:09Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T19:57:09Z | cycle-1776801429 | failed | 0s | tokens=0 |
+
+### 2026-04-21T20:08:07Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T20:08:07Z | cycle-1776802086 | failed | 1s | tokens=0 |
+
+### 2026-04-21T20:18:48Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T20:18:48Z | cycle-1776802727 | failed | 0s | tokens=0 |
+
+### 2026-04-21T20:29:47Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T20:29:47Z | cycle-1776803387 | failed | 0s | tokens=0 |
+
+### 2026-04-21T20:40:23Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T20:40:23Z | cycle-1776804023 | failed | 0s | tokens=0 |
+
+### 2026-04-21T20:51:27Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T20:51:27Z | cycle-1776804687 | failed | 0s | tokens=0 |
+
+### 2026-04-22T09:12:24Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-22T09:12:24Z | cycle-1776849144 | failed | 0s | tokens=0 |
+
+### 2026-04-22T09:22:52Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-22T09:22:52Z | cycle-1776849771 | failed | 1s | tokens=0 |
+
+### 2026-04-22T09:33:00Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-22T09:33:00Z | cycle-1776850380 | failed | 0s | tokens=0 |
+
+### 2026-04-22T09:43:26Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-22T09:43:26Z | cycle-1776851006 | failed | 0s | tokens=0 |
+
+### 2026-04-22T09:53:36Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-22T09:53:36Z | cycle-1776851615 | failed | 1s | tokens=0 |
+
+### 2026-04-22T10:04:12Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 75 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-22T10:07:56Z | cycle-1776852251 | completed | 223s | tokens=0 |
+
+### 2026-04-22T10:27:31Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-22T10:31:09Z | cycle-1776853651 | completed | 218s | tokens=0 |
+
+### 2026-04-22T10:40:13Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-22T10:43:11Z | cycle-1776854413 | completed | 178s | tokens=0 |
+
+### 2026-04-22T10:55:08Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-22T10:57:48Z | cycle-1776855307 | completed | 159s | tokens=0 |
+
+### 2026-04-22T11:02:39Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-22T11:05:18Z | cycle-1776855759 | completed | 158s | tokens=0 |
+
+### 2026-04-22T11:14:05Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-22T11:16:43Z | cycle-1776856445 | completed | 158s | tokens=0 |
+
+### 2026-04-22T11:24:54Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-22T11:25:08Z | cycle-1776857094 | completed | 13s | tokens=0 |
+
+### 2026-04-22T11:36:03Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-22T11:36:14Z | cycle-1776857762 | completed | 11s | tokens=0 |
+
+### 2026-04-22T11:46:54Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-22T11:47:11Z | cycle-1776858414 | completed | 17s | tokens=0 |
+
+### 2026-04-22T11:58:02Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-22T11:58:17Z | cycle-1776859082 | completed | 14s | tokens=0 |
+
+### 2026-04-22T12:08:50Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-22T12:09:03Z | cycle-1776859730 | completed | 12s | tokens=0 |
+
+### 2026-04-22T12:20:14Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-22T12:20:29Z | cycle-1776860414 | completed | 15s | tokens=0 |
+
+### 2026-04-22T12:31:02Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-22T12:31:17Z | cycle-1776861062 | completed | 14s | tokens=0 |
+
+### 2026-04-22T12:42:16Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-22T12:42:30Z | cycle-1776861736 | completed | 14s | tokens=0 |
+
+### 2026-04-22T12:54:29Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-22T12:54:43Z | cycle-1776862468 | completed | 14s | tokens=0 |
+
+### 2026-04-22T13:04:57Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-22T13:05:12Z | cycle-1776863097 | completed | 15s | tokens=0 |
+
+### 2026-04-22T13:16:19Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-22T13:16:32Z | cycle-1776863778 | completed | 12s | tokens=0 |
+
+### 2026-04-22T13:27:07Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-22T13:27:37Z | cycle-1776864427 | completed | 28s | tokens=0 |
+
+### 2026-04-22T13:37:57Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-22T13:38:10Z | cycle-1776865076 | completed | 13s | tokens=0 |
+
+### 2026-04-22T13:48:09Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-22T13:48:30Z | cycle-1776865689 | completed | 20s | tokens=0 |
+
+### 2026-04-22T14:04:42Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-22T14:05:18Z | cycle-1776866680 | completed | 34s | tokens=0 |
+
+### 2026-04-22T14:17:51Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-22T14:18:13Z | cycle-1776867470 | completed | 21s | tokens=0 |
+
+### 2026-04-22T14:36:08Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-22T14:36:25Z | cycle-1776868568 | completed | 16s | tokens=0 |
+
+### 2026-04-22T14:47:00Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-22T14:47:16Z | cycle-1776869220 | completed | 16s | tokens=0 |
+
+### 2026-04-22T15:00:26Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 18 seconds
+- Summary: Checked the SAGE inbox and active task queue; no pending inbox items existed and the only active step remained blocked below its retry threshold, so the cycle remained idle.
+
+| 2026-04-22T15:00:54Z | cycle-1776870026 | completed | 27s | tokens=0 |

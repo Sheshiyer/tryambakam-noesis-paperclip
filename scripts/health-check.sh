@@ -13,11 +13,20 @@ set -euo pipefail
 
 REPO_ROOT="${REPO_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
 AGENTS_DIR="$REPO_ROOT/agents"
+RUNTIME_ROOT_GUARD="$REPO_ROOT/scripts/runtime-root-guard.sh"
 
 FIX_MODE=false
 TARGET_AGENT=""
 TOTAL_AGENTS=0
 HEALTHY_AGENTS=0
+
+assert_runtime_root() {
+  if [[ ! -x "$RUNTIME_ROOT_GUARD" ]]; then
+    echo "Runtime root guard missing or not executable: $RUNTIME_ROOT_GUARD" >&2
+    exit 1
+  fi
+  "$RUNTIME_ROOT_GUARD" assert
+}
 
 # ---- Parse arguments ----
 
@@ -259,6 +268,7 @@ check_agent() {
 # ---- Main ----
 
 main() {
+  assert_runtime_root
   echo ""
   echo "+---------------------------------------------------------------------------------+"
   echo "|                    Thoughtseed Labs Agent Health Check                           |"

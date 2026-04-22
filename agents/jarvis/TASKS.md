@@ -20,6 +20,14 @@ Each task follows this structure:
 
 ## Completed Tasks
 
+- **Step 7**: Set Clockify TeamForge backlog-shaping policy and assign cleanup execution
+  - Status: done
+  - Priority: medium
+  - Tags: ops, strategy
+  - Retry count: 0
+  - Depends on: batch-2026-04-20-clockify-backlog
+  - Result: Classified the 197 `clockify.time_entry.logged` items as low-severity telemetry rather than actionable ops work. Set policy to keep raw Clockify info signals visible in active TeamForge surfaces for 14 days, collapse duplicates into a single aggregate per event type/day, and auto-archive older low-severity backlog from active queues while preserving auditability in `sync-state.json` and `task-registry.json`. Delegated implementation to `agents/clawd/INBOX.md` as `task-1776674844-a3f2`, keeping Engineering accountable for cleanup, automation, and verification that higher-severity signals remain unaffected.
+
 - **Step 6**: Resolve CLAWD escalation on externally reaped `loop-runner` and `babysitter` daemons and decide whether persistent operation must move to host-native supervision
   - Status: done
   - Priority: medium

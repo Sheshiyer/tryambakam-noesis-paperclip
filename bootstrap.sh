@@ -177,8 +177,9 @@ if [[ $ERRORS -eq 0 ]]; then
   echo "  2. Run one cycle:    ./scripts/loop-runner.sh run --once --agent jarvis"
   echo "  3. Run Paperclip:    ./scripts/paperclip-cycle.sh"
   echo "  4. Install cron:     ./scripts/paperclip-cron.sh install"
-  echo "  5. Start the swarm:  ./scripts/babysitter.sh start"
-  echo "  6. Check status:     ./scripts/health-check.sh"
+  echo "  5. Install host svc: ./scripts/host-supervisor.sh install"
+  echo "  6. Check status:     ./scripts/host-supervisor.sh status"
+  echo "  7. Health check:     ./scripts/health-check.sh"
 else
   printf "${RED}Bootstrap found $ERRORS critical error(s)${NC}\n"
   echo "Fix the errors above and re-run: ./bootstrap.sh"

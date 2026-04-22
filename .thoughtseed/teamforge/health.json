@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "teamforge-health/v1",
+  "generatedAt": "2026-04-22T15:02:27Z",
+  "metrics": {
+    "newSignals": 0,
+    "skippedSignals": 0,
+    "suppressedSignals": 0,
+    "dispatchedSignals": 0,
+    "errors": 0,
+    "lag": {
+      "projectionLagSeconds": null,
+      "maxSourceLagSeconds": null,
+      "sources": [
+        {
+          "source": "agent_feed",
+          "entity": "projection",
+          "lastSyncAt": "2026-04-22T12:56:12",
+          "lagSeconds": null
+        },
+        {
+          "source": "clockify",
+          "entity": "time_entries",
+          "lastSyncAt": "2026-04-22T12:52:20Z",
+          "lagSeconds": null
+        },
+        {
+          "source": "huly",
+          "entity": "issues",
+          "lastSyncAt": "2026-04-22T12:56:06",
+          "lagSeconds": null
+        }
+      ]
+    },
+    "coverage": {
+      "expectedSources": [
+        "clockify",
+        "huly",
+        "slack"
+      ],
+      "seenSources": [],
+      "ratio": null,
+      "evaluated": false
+    },
+    "quality": {
+      "score": 100,
+      "findingCount": 0,
+      "findingsByType": []
+    },
+    "failureRate": 0.6172224987555998,
+    "failureRateCurrent": 0,
+    "failureRateScope": "historical_lifetime_runs",
+    "runs": {
+      "total": 2009,
+      "success": 769,
+      "failed": 1240
+    },
+    "outcomes": {
+      "resolved": 3,
+      "partial": 0,
+      "noChange": 197,
+      "regressed": 0,
+      "validatedSignals": 200,
+      "avgTimeToResolutionSeconds": 2530.3333333333335,
+      "recurrenceSignals": 0
+    }
+  },
+  "alerts": {
+    "maxLagWarning": false,
+    "failureRateWarning": false,
+    "coverageWarning": false
+  }
+}

@@ -19,6 +19,15 @@ Each task follows this structure:
 
 ## Completed Tasks
 
+- **Step 4**: Review intent: reconcile task registry drift
+  - Status: done
+  - Priority: medium
+  - Tags: qa
+  - Task-ID: task-1776672865-e1cc
+  - Retry count: 0
+  - Depends on: —
+  - Result: Validated the live registry against agent task files instead of trusting the drifted-runtime fixture. `./scripts/runtime-root-guard.sh print` now reports `status: ok`, the live `.thoughtseed/signal-lane/state.json` no longer includes `signal:task_registry_drift`, and the registry is actively updating in the real runtime. The real drift is semantic: the registry still marks completed work as `pending`, including JARVIS `task-1775936805-00e9` and SAGE `task-1776672861-310b`, so the stale-timestamp heuristic produced a false-positive review intent while masking per-task reconciliation gaps.
+
 - **Step 3**: QA review: assignee-aware Paperclip sync and blocked-issue skip behavior
   - Status: done
   - Priority: medium

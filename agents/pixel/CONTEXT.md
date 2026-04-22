@@ -35,3 +35,75 @@ Structured pipeline for UI/visual generation tasks:
 6. **Track** — Log the decision: project ID, draft IDs, selected variant, rationale
 
 Each design decision maps to `templates/decision.md` for organizational memory.
+
+- [2026-04-20T14:34:27Z] Loop cycle error: empty_structured_output -- agent output was not parseable. Check logs for raw output.
+
+- [2026-04-21T09:17:53Z] Loop cycle error: empty_structured_output -- agent output was not parseable. Check logs for raw output.
+
+- [2026-04-21T10:28:17Z] Loop cycle error: empty_output -- agent output was not parseable. Check logs for raw output.
+
+- [2026-04-21T10:45:52Z] Loop cycle error: empty_output -- agent output was not parseable. Check logs for raw output.
+
+- [2026-04-21T11:01:58Z] Loop cycle error: empty_output -- agent output was not parseable. Check logs for raw output.
+
+- [2026-04-21T11:21:04Z] Loop cycle error: empty_output -- agent output was not parseable. Check logs for raw output.
+
+- [2026-04-21T11:38:26Z] Loop cycle error: empty_output -- agent output was not parseable. Check logs for raw output.
+
+- [2026-04-21T11:54:25Z] Loop cycle error: empty_output -- agent output was not parseable. Check logs for raw output.
+
+- [2026-04-21T12:12:00Z] Loop cycle error: empty_output -- agent output was not parseable. Check logs for raw output.
+
+- [2026-04-21T12:28:21Z] Loop cycle error: empty_output -- agent output was not parseable. Check logs for raw output.
+
+- [2026-04-21T12:44:39Z] Loop cycle error: empty_output -- agent output was not parseable. Check logs for raw output.
+
+- [2026-04-21T13:01:28Z] Loop cycle error: empty_output -- agent output was not parseable. Check logs for raw output.
+
+- [2026-04-21T13:17:40Z] Loop cycle error: empty_output -- agent output was not parseable. Check logs for raw output.
+
+- [2026-04-21T13:34:02Z] Loop cycle error: empty_output -- agent output was not parseable. Check logs for raw output.
+
+- [2026-04-21T13:50:07Z] Loop cycle error: empty_output -- agent output was not parseable. Check logs for raw output.
+
+- [2026-04-21T14:05:59Z] Loop cycle error: empty_output -- agent output was not parseable. Check logs for raw output.
+
+- [2026-04-21T14:56:39Z] Loop cycle error: empty_output -- agent output was not parseable. Check logs for raw output.
+
+- [2026-04-21T17:01:08Z] Loop cycle error: empty_output -- agent output was not parseable. Check logs for raw output.
+
+- [2026-04-21T17:17:31Z] Loop cycle error: empty_output -- agent output was not parseable. Check logs for raw output.
+
+- [2026-04-21T17:34:14Z] Loop cycle error: empty_output -- agent output was not parseable. Check logs for raw output.
+
+- [2026-04-21T17:49:39Z] Loop cycle error: empty_output -- agent output was not parseable. Check logs for raw output.
+
+- [2026-04-21T18:06:42Z] Loop cycle error: empty_output -- agent output was not parseable. Check logs for raw output.
+
+- [2026-04-21T18:22:25Z] Loop cycle error: empty_output -- agent output was not parseable. Check logs for raw output.
+
+- [2026-04-21T18:39:48Z] Loop cycle error: empty_output -- agent output was not parseable. Check logs for raw output.
+
+- [2026-04-21T18:55:24Z] Loop cycle error: empty_output -- agent output was not parseable. Check logs for raw output.
+
+- [2026-04-21T19:12:21Z] Loop cycle error: empty_output -- agent output was not parseable. Check logs for raw output.
+
+- [2026-04-21T19:28:13Z] Loop cycle error: empty_output -- agent output was not parseable. Check logs for raw output.
+
+- [2026-04-21T19:36:59Z] Loop cycle error: empty_output -- agent output was not parseable. Check logs for raw output.
+
+- [2026-04-21T19:52:19Z] Loop cycle error: empty_output -- agent output was not parseable. Check logs for raw output.
+
+- [2026-04-21T20:09:07Z] Loop cycle error: empty_output -- agent output was not parseable. Check logs for raw output.
+
+- [2026-04-21T20:24:58Z] Loop cycle error: empty_output -- agent output was not parseable. Check logs for raw output.
+
+- [2026-04-21T20:41:47Z] Loop cycle error: empty_output -- agent output was not parseable. Check logs for raw output.
+
+- [2026-04-21T20:57:15Z] Loop cycle error: empty_output -- agent output was not parseable. Check logs for raw output.
+
+- [2026-04-22T09:13:42Z] Loop cycle error: empty_output -- agent output was not parseable. Check logs for raw output.
+
+- [2026-04-22T09:29:42Z] Loop cycle error: empty_output -- agent output was not parseable. Check logs for raw output.
+
+- [2026-04-22T09:45:44Z] Loop cycle error: empty_output -- agent output was not parseable. Check logs for raw output.

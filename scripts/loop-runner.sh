@@ -18,8 +18,31 @@ PID_FILE="$REPO_ROOT/.thoughtseed/loop-runner.pid"
 LOG_DIR="$REPO_ROOT/logs"
 LOG_FILE="$LOG_DIR/loop-runner.log"
 PAPERCLIP_CYCLE_SCRIPT="$SCRIPT_DIR/paperclip-cycle.sh"
+RUNTIME_ROOT_GUARD="$SCRIPT_DIR/runtime-root-guard.sh"
 
 CODEX_BIN="${CODEX_BIN:-$(command -v codex 2>/dev/null || echo "codex")}"
+CODEX_MODEL="${LOOP_CODEX_MODEL:-gpt-5.4}"
+CODEX_REASONING_EFFORT="${LOOP_CODEX_REASONING_EFFORT:-medium}"
+# Codex CLI 0.121+ expects `features.notify` to be a boolean. Some legacy
+# user configs still set it as an array, which makes `codex exec` exit before
+# producing any output. Keep a compatibility override at invocation time.
+CODEX_FEATURES_NOTIFY_OVERRIDE="${CODEX_FEATURES_NOTIFY_OVERRIDE:-true}"
+
+assert_runtime_root() {
+  if [[ ! -x "$RUNTIME_ROOT_GUARD" ]]; then
+    echo "Runtime root guard missing or not executable: $RUNTIME_ROOT_GUARD" >&2
+    exit 1
+  fi
+  "$RUNTIME_ROOT_GUARD" assert
+}
+
+check_runtime_root() {
+  if [[ ! -x "$RUNTIME_ROOT_GUARD" ]]; then
+    echo "Runtime root guard missing or not executable: $RUNTIME_ROOT_GUARD" >&2
+    return 1
+  fi
+  "$RUNTIME_ROOT_GUARD" check
+}
 
 # ---- Defaults ----
 
@@ -32,12 +55,38 @@ LOG_LEVEL="info"
 PAPERCLIP_CYCLE_ENABLED=true
 PAPERCLIP_CYCLE_INTERVAL=120
 PAPERCLIP_CYCLE_WITH_HEARTBEATS=false
+PAPERCLIP_SIGNAL_LANE_ENABLED=true
+PAPERCLIP_SIGNAL_LANE_DISPATCH_ENABLED=true
+PAPERCLIP_SIGNAL_LANE_COOLDOWN_MINUTES=180
+PAPERCLIP_SIGNAL_LANE_READY_THRESHOLD=70
+PAPERCLIP_SIGNAL_LANE_EXPERIMENT_THRESHOLD=50
 LAST_PAPERCLIP_CYCLE=0
+TIMEOUT_PROMPT_SIZE_STEP_BYTES=50000
+TIMEOUT_PROMPT_SIZE_STEP_SECONDS=60
+TIMEOUT_MAX_SECONDS=900
 
 # Tier intervals in seconds
 TIER_1_INTERVAL=300     # 5 minutes  -- Chief (JARVIS)
 TIER_2_LEAD_INTERVAL=600   # 10 minutes -- Department leads
 TIER_2_MEMBER_INTERVAL=900  # 15 minutes -- Members
+
+# ---- YAML Helpers ----
+
+YAML_HELPERS_SCRIPT="$SCRIPT_DIR/yaml-helpers.sh"
+if [[ ! -f "$YAML_HELPERS_SCRIPT" ]]; then
+  echo "YAML helpers script missing: $YAML_HELPERS_SCRIPT" >&2
+  exit 1
+fi
+# shellcheck disable=SC1090
+source "$YAML_HELPERS_SCRIPT"
+
+is_false_value() {
+  yaml_is_false "${1:-}"
+}
+
+is_true_value() {
+  yaml_is_true "${1:-}"
+}
 
 # ---- Load configuration ----
 
@@ -59,9 +108,9 @@ load_config() {
   local manifest="$REPO_ROOT/manifest.yaml"
   if [[ -f "$manifest" ]]; then
     local t1 t2l t2m
-    t1=$(grep -A5 "intervals:" "$manifest" | grep "tier_1:" | head -1 | sed 's/.*: *"\{0,1\}\([^"]*\)"\{0,1\}/\1/' | xargs 2>/dev/null || true)
-    t2l=$(grep -A5 "intervals:" "$manifest" | grep "tier_2_lead:" | head -1 | sed 's/.*: *"\{0,1\}\([^"]*\)"\{0,1\}/\1/' | xargs 2>/dev/null || true)
-    t2m=$(grep -A5 "intervals:" "$manifest" | grep "tier_2_member:" | head -1 | sed 's/.*: *"\{0,1\}\([^"]*\)"\{0,1\}/\1/' | xargs 2>/dev/null || true)
+    t1=$(yaml_path_get "$manifest" "intervals.tier_1")
+    t2l=$(yaml_path_get "$manifest" "intervals.tier_2_lead")
+    t2m=$(yaml_path_get "$manifest" "intervals.tier_2_member")
     case "$t1" in
       *m) TIER_1_INTERVAL=$(( ${t1%m} * 60 )) ;;
     esac
@@ -74,13 +123,56 @@ load_config() {
 
     # Paperclip sync settings from manifest.
     local issues_to_inbox heartbeat_reporting
-    issues_to_inbox=$(grep -A10 "^  paperclip:" "$manifest" | grep "issues_to_inbox:" | head -1 | awk '{print $2}' 2>/dev/null || true)
-    heartbeat_reporting=$(grep -A10 "^  paperclip:" "$manifest" | grep "heartbeat_reporting:" | head -1 | awk '{print $2}' 2>/dev/null || true)
-    if [[ "$issues_to_inbox" == "false" ]]; then
+    local signal_lane_enabled signal_lane_dispatch_enabled signal_lane_cooldown_minutes
+    local signal_lane_ready_threshold signal_lane_experiment_threshold
+    issues_to_inbox=$(yaml_path_get "$manifest" "org.paperclip.sync.issues_to_inbox")
+    if [[ -z "$issues_to_inbox" ]]; then
+      issues_to_inbox=$(yaml_path_get "$manifest" "org.paperclip.issues_to_inbox")
+    fi
+    heartbeat_reporting=$(yaml_path_get "$manifest" "org.paperclip.sync.heartbeat_reporting")
+    if [[ -z "$heartbeat_reporting" ]]; then
+      heartbeat_reporting=$(yaml_path_get "$manifest" "org.paperclip.heartbeat_reporting")
+    fi
+    signal_lane_enabled=$(yaml_path_get "$manifest" "org.signal_lane.enabled")
+    if [[ -z "$signal_lane_enabled" ]]; then
+      signal_lane_enabled=$(yaml_path_get "$manifest" "signal_lane.enabled")
+    fi
+    signal_lane_dispatch_enabled=$(yaml_path_get "$manifest" "org.signal_lane.dispatch_enabled")
+    if [[ -z "$signal_lane_dispatch_enabled" ]]; then
+      signal_lane_dispatch_enabled=$(yaml_path_get "$manifest" "signal_lane.dispatch_enabled")
+    fi
+    signal_lane_cooldown_minutes=$(yaml_path_get "$manifest" "org.signal_lane.cooldown_minutes")
+    if [[ -z "$signal_lane_cooldown_minutes" ]]; then
+      signal_lane_cooldown_minutes=$(yaml_path_get "$manifest" "signal_lane.cooldown_minutes")
+    fi
+    signal_lane_ready_threshold=$(yaml_path_get "$manifest" "org.signal_lane.ready_threshold")
+    if [[ -z "$signal_lane_ready_threshold" ]]; then
+      signal_lane_ready_threshold=$(yaml_path_get "$manifest" "signal_lane.ready_threshold")
+    fi
+    signal_lane_experiment_threshold=$(yaml_path_get "$manifest" "org.signal_lane.experiment_threshold")
+    if [[ -z "$signal_lane_experiment_threshold" ]]; then
+      signal_lane_experiment_threshold=$(yaml_path_get "$manifest" "signal_lane.experiment_threshold")
+    fi
+    if is_false_value "$issues_to_inbox"; then
       PAPERCLIP_CYCLE_ENABLED=false
     fi
-    if [[ "$heartbeat_reporting" == "true" ]]; then
+    if is_true_value "$heartbeat_reporting"; then
       PAPERCLIP_CYCLE_WITH_HEARTBEATS=true
+    fi
+    if is_false_value "$signal_lane_enabled"; then
+      PAPERCLIP_SIGNAL_LANE_ENABLED=false
+    fi
+    if is_false_value "$signal_lane_dispatch_enabled"; then
+      PAPERCLIP_SIGNAL_LANE_DISPATCH_ENABLED=false
+    fi
+    if [[ -n "$signal_lane_cooldown_minutes" ]]; then
+      PAPERCLIP_SIGNAL_LANE_COOLDOWN_MINUTES="$signal_lane_cooldown_minutes"
+    fi
+    if [[ -n "$signal_lane_ready_threshold" ]]; then
+      PAPERCLIP_SIGNAL_LANE_READY_THRESHOLD="$signal_lane_ready_threshold"
+    fi
+    if [[ -n "$signal_lane_experiment_threshold" ]]; then
+      PAPERCLIP_SIGNAL_LANE_EXPERIMENT_THRESHOLD="$signal_lane_experiment_threshold"
     fi
   fi
 
@@ -88,6 +180,14 @@ load_config() {
   PAPERCLIP_CYCLE_ENABLED="${LOOP_PAPERCLIP_CYCLE_ENABLED:-$PAPERCLIP_CYCLE_ENABLED}"
   PAPERCLIP_CYCLE_INTERVAL="${LOOP_PAPERCLIP_CYCLE_INTERVAL:-$PAPERCLIP_CYCLE_INTERVAL}"
   PAPERCLIP_CYCLE_WITH_HEARTBEATS="${LOOP_PAPERCLIP_CYCLE_WITH_HEARTBEATS:-$PAPERCLIP_CYCLE_WITH_HEARTBEATS}"
+  PAPERCLIP_SIGNAL_LANE_ENABLED="${LOOP_SIGNAL_LANE_ENABLED:-$PAPERCLIP_SIGNAL_LANE_ENABLED}"
+  PAPERCLIP_SIGNAL_LANE_DISPATCH_ENABLED="${LOOP_SIGNAL_LANE_DISPATCH_ENABLED:-$PAPERCLIP_SIGNAL_LANE_DISPATCH_ENABLED}"
+  PAPERCLIP_SIGNAL_LANE_COOLDOWN_MINUTES="${LOOP_SIGNAL_LANE_COOLDOWN_MINUTES:-$PAPERCLIP_SIGNAL_LANE_COOLDOWN_MINUTES}"
+  PAPERCLIP_SIGNAL_LANE_READY_THRESHOLD="${LOOP_SIGNAL_LANE_READY_THRESHOLD:-$PAPERCLIP_SIGNAL_LANE_READY_THRESHOLD}"
+  PAPERCLIP_SIGNAL_LANE_EXPERIMENT_THRESHOLD="${LOOP_SIGNAL_LANE_EXPERIMENT_THRESHOLD:-$PAPERCLIP_SIGNAL_LANE_EXPERIMENT_THRESHOLD}"
+  TIMEOUT_PROMPT_SIZE_STEP_BYTES="${LOOP_TIMEOUT_PROMPT_SIZE_STEP_BYTES:-$TIMEOUT_PROMPT_SIZE_STEP_BYTES}"
+  TIMEOUT_PROMPT_SIZE_STEP_SECONDS="${LOOP_TIMEOUT_PROMPT_SIZE_STEP_SECONDS:-$TIMEOUT_PROMPT_SIZE_STEP_SECONDS}"
+  TIMEOUT_MAX_SECONDS="${LOOP_TIMEOUT_MAX_SECONDS:-$TIMEOUT_MAX_SECONDS}"
 }
 
 # ---- Logging ----
@@ -103,6 +203,56 @@ log() {
   fi
 }
 
+process_is_alive() {
+  local pid="$1"
+  if [[ -z "$pid" ]]; then
+    return 1
+  fi
+  if kill -0 "$pid" 2>/dev/null; then
+    return 0
+  fi
+  ps -ax -o pid= 2>/dev/null | grep -Eq "^[[:space:]]*$pid$"
+}
+
+loop_runner_process_pids() {
+  local script_path="$SCRIPT_DIR/loop-runner.sh"
+  ps -ax -o pid= -o ppid= -o command= 2>/dev/null | awk -v script="$script_path" '
+    {
+      pid = $1
+      ppid = $2
+      $1 = ""
+      $2 = ""
+      sub(/^[[:space:]]+/, "", $0)
+      if ($0 ~ ("(^|[[:space:]])" script "([[:space:]]|$)") && $0 ~ /[[:space:]](_run|run)([[:space:]]|$)/) {
+        candidate_ppid[pid] = ppid
+      }
+    }
+    END {
+      # Keep only top-level runners (not shell children spawned per-agent).
+      for (pid in candidate_ppid) {
+        ppid = candidate_ppid[pid]
+        if (!(ppid in candidate_ppid)) {
+          print pid
+        }
+      }
+    }
+  '
+}
+
+collect_loop_runner_pids() {
+  local pid_file_pid=""
+  if [[ -f "$PID_FILE" ]]; then
+    pid_file_pid="$(cat "$PID_FILE" 2>/dev/null || true)"
+  fi
+
+  {
+    if process_is_alive "$pid_file_pid"; then
+      echo "$pid_file_pid"
+    fi
+    loop_runner_process_pids
+  } | awk 'NF && !seen[$0]++'
+}
+
 cleanup_pid_file() {
   if [[ -f "$PID_FILE" ]]; then
     local owner_pid
@@ -113,13 +263,26 @@ cleanup_pid_file() {
   fi
 }
 
+handle_termination() {
+  cleanup_pid_file
+  exit 0
+}
+
 claim_pid_file() {
   mkdir -p "$LOG_DIR" "$(dirname "$PID_FILE")"
+
+  # Detect any existing runner process, even if PID file drifted.
+  local existing_runner_pids
+  existing_runner_pids="$(loop_runner_process_pids | awk -v self="$$" '$0 != self')"
+  if [[ -n "$existing_runner_pids" ]]; then
+    echo "Loop runner already running (PID(s): $(echo "$existing_runner_pids" | tr '\n' ' ' | xargs))"
+    exit 1
+  fi
 
   local existing_pid=""
   if [[ -f "$PID_FILE" ]]; then
     existing_pid="$(cat "$PID_FILE" 2>/dev/null || true)"
-    if [[ -n "$existing_pid" ]] && kill -0 "$existing_pid" 2>/dev/null; then
+    if process_is_alive "$existing_pid"; then
       if [[ "$existing_pid" != "$$" ]]; then
         echo "Loop runner already running (PID $existing_pid)"
         exit 1
@@ -130,21 +293,25 @@ claim_pid_file() {
   fi
 
   printf '%s\n' "$$" > "$PID_FILE"
-  trap cleanup_pid_file EXIT INT TERM
+  trap cleanup_pid_file EXIT
+  trap handle_termination INT TERM
 }
 
 # ---- Agent Discovery ----
 
-declare -A AGENT_TIERS
-declare -A AGENT_LAST_RUN
-declare -A AGENT_INTERVALS
-declare -A AGENT_PIDS
+declare -A AGENT_TIERS=()
+declare -A AGENT_LAST_RUN=()
+declare -A AGENT_INTERVALS=()
+declare -A AGENT_PIDS=()
 
 discover_agents() {
   log "info" "Discovering agents from manifest..."
 
   local chief
-  chief=$(grep -A1 "chief:" "$REPO_ROOT/manifest.yaml" | grep "agent:" | awk '{print $2}' | head -1 2>/dev/null || true)
+  chief=$(yaml_path_get "$REPO_ROOT/manifest.yaml" "org.chief.agent")
+  if [[ -z "$chief" ]]; then
+    chief=$(yaml_path_get "$REPO_ROOT/manifest.yaml" "chief.agent")
+  fi
 
   if [[ -n "$chief" ]]; then
     AGENT_TIERS["$chief"]="tier_1"
@@ -153,7 +320,12 @@ discover_agents() {
     log "info" "  Chief: $chief (${TIER_1_INTERVAL}s interval)"
   fi
 
-  for agent_dir in "$REPO_ROOT"/agents/*/; do
+  local agent_dirs=()
+  shopt -s nullglob
+  agent_dirs=("$REPO_ROOT"/agents/*/)
+  shopt -u nullglob
+
+  for agent_dir in "${agent_dirs[@]}"; do
     local agent_id
     agent_id="$(basename "$agent_dir")"
 
@@ -168,7 +340,7 @@ discover_agents() {
     fi
 
     local interval
-    interval=$(grep -A5 "^loop:" "$manifest" | grep "interval:" | head -1 | sed 's/.*: *"\{0,1\}\([^"]*\)"\{0,1\}/\1/' | xargs 2>/dev/null || true)
+    interval=$(yaml_path_get "$manifest" "loop.interval")
 
     case "$interval" in
       "5m")
@@ -289,7 +461,8 @@ recover_structured_output_from_stderr() {
   fi
 
   local recovered_file="${output_file}.recovered"
-  python3 - "$error_file" "$recovered_file" <<'PY'
+python3 - "$error_file" "$recovered_file" <<'PY'
+import re
 import sys
 
 src = sys.argv[1]
@@ -313,13 +486,44 @@ if last_end == -1:
 
 block = text[last_start:last_end + len(end_marker)]
 
-# Guardrail: ignore prompt-template blocks that contain parser placeholders.
-disallowed_markers = [
-    "[Write the COMPLETE updated TASKS.md content here.",
-    "[Write the COMPLETE updated INBOX.md content here.",
-    "[ONLY if you have new pitfalls or learnings to add."
-]
-if any(marker in block for marker in disallowed_markers):
+pattern = r"---FILE_UPDATE:\s*([^-\n]+?)\s*---\n(.*?)---END_FILE_UPDATE---"
+matches = re.findall(pattern, block, re.DOTALL)
+if not matches:
+    open(dst, "w").close()
+    raise SystemExit(0)
+
+allowed_files = {"TASKS.md", "HEARTBEAT.md", "INBOX.md", "CONTEXT.md"}
+required_files = {"TASKS.md", "HEARTBEAT.md", "INBOX.md", "CONTEXT.md"}
+updates = {}
+
+for filename, content in matches:
+    fname = filename.strip()
+    body = content.strip()
+    if fname not in allowed_files:
+        open(dst, "w").close()
+        raise SystemExit(0)
+    if fname in updates:
+        open(dst, "w").close()
+        raise SystemExit(0)
+    updates[fname] = body
+
+if set(updates.keys()) != required_files:
+    open(dst, "w").close()
+    raise SystemExit(0)
+
+def looks_like_template_placeholder(filename: str, content: str) -> bool:
+    trimmed = content.strip()
+    if filename in {"TASKS.md", "INBOX.md", "CONTEXT.md"}:
+        # Prompt template placeholders are bracket-wrapped directives.
+        if trimmed.startswith("[") and trimmed.endswith("]"):
+            return True
+    if filename == "HEARTBEAT.md":
+        # Placeholder heartbeat uses bracketed tokens in these fields.
+        if "- Step: [" in trimmed or "- Outcome: [" in trimmed or "- Duration: [" in trimmed:
+            return True
+    return False
+
+if any(looks_like_template_placeholder(fname, body) for fname, body in updates.items()):
     open(dst, "w").close()
     raise SystemExit(0)
 
@@ -367,7 +571,7 @@ invoke_agent() {
       existing_pid="$(cat "$lock_pid_file" 2>/dev/null || true)"
     fi
 
-    if [[ -n "$existing_pid" ]] && kill -0 "$existing_pid" 2>/dev/null; then
+    if process_is_alive "$existing_pid"; then
       log "debug" "Skipping $agent_id -- already running (lock PID $existing_pid)"
       return
     fi
@@ -394,12 +598,26 @@ invoke_agent() {
   local timeout_val=240
   if [[ -f "$manifest" ]]; then
     local timeout_str
-    timeout_str=$(grep -A10 "^loop:" "$manifest" | grep "max_step_timeout:" | head -1 | sed 's/.*: *"\{0,1\}\([^"]*\)"\{0,1\}/\1/' | xargs 2>/dev/null || echo "")
+    timeout_str=$(yaml_path_get "$manifest" "loop.max_step_timeout")
     case "$timeout_str" in
       *m) timeout_val=$(( ${timeout_str%m} * 60 )) ;;
       *s) timeout_val=${timeout_str%s} ;;
     esac
   fi
+
+  local prompt_size_bytes
+  prompt_size_bytes=$(wc -c < "$prompt_file" | tr -d ' ')
+  local adaptive_timeout="$timeout_val"
+  if (( TIMEOUT_PROMPT_SIZE_STEP_BYTES > 0 && TIMEOUT_PROMPT_SIZE_STEP_SECONDS > 0 )); then
+    local timeout_extra_steps=$(( prompt_size_bytes / TIMEOUT_PROMPT_SIZE_STEP_BYTES ))
+    if (( timeout_extra_steps > 0 )); then
+      adaptive_timeout=$(( adaptive_timeout + (timeout_extra_steps * TIMEOUT_PROMPT_SIZE_STEP_SECONDS) ))
+    fi
+  fi
+  if (( TIMEOUT_MAX_SECONDS > 0 && adaptive_timeout > TIMEOUT_MAX_SECONDS )); then
+    adaptive_timeout="$TIMEOUT_MAX_SECONDS"
+  fi
+  log "info" "  Agent $agent_id prompt size: ${prompt_size_bytes}B, timeout: base=${timeout_val}s adaptive=${adaptive_timeout}s"
 
   AGENT_LAST_RUN["$agent_id"]=$(date +%s)
 
@@ -411,7 +629,14 @@ invoke_agent() {
     set +e
 
     # Run codex in non-interactive mode and capture only the final message.
-    run_with_timeout "$timeout_val" "$CODEX_BIN" exec --model gpt-5.4 --full-auto -C "$REPO_ROOT" --output-last-message "$output_file" - < "$prompt_file" 2>"$error_file"
+    local codex_compat_args=()
+    if [[ -n "$CODEX_FEATURES_NOTIFY_OVERRIDE" ]]; then
+      codex_compat_args=(-c "features.notify=$CODEX_FEATURES_NOTIFY_OVERRIDE")
+    fi
+    if [[ -n "$CODEX_REASONING_EFFORT" ]]; then
+      codex_compat_args+=(-c "model_reasoning_effort=$CODEX_REASONING_EFFORT")
+    fi
+    run_with_timeout "$adaptive_timeout" "$CODEX_BIN" exec "${codex_compat_args[@]}" --model "$CODEX_MODEL" --full-auto -C "$REPO_ROOT" --output-last-message "$output_file" - < "$prompt_file" 2>"$error_file"
     local exit_code=$?
     local end_time
     end_time=$(date +%s)
@@ -456,7 +681,7 @@ invoke_agent() {
   local child_pid=$!
   printf '%s\n' "$child_pid" > "$lock_pid_file" 2>/dev/null || true
   AGENT_PIDS["$agent_id"]=$child_pid
-  log "info" "  Agent $agent_id running as PID $child_pid (timeout: ${timeout_val}s)"
+  log "info" "  Agent $agent_id running as PID $child_pid (timeout: ${adaptive_timeout}s)"
 }
 
 # ---- Reap Finished Background Agents ----
@@ -464,7 +689,7 @@ invoke_agent() {
 reap_finished_agents() {
   for agent_id in "${!AGENT_PIDS[@]}"; do
     local pid=${AGENT_PIDS[$agent_id]}
-    if ! kill -0 "$pid" 2>/dev/null; then
+    if ! process_is_alive "$pid"; then
       # Child non-zero exits are handled in their own cycle logs; do not crash the daemon.
       wait "$pid" 2>/dev/null || true
       unset "AGENT_PIDS[$agent_id]"
@@ -495,7 +720,12 @@ run_paperclip_cycle_once() {
     cycle_args+=(--with-heartbeats)
   fi
 
-  log "info" "Running Paperclip cycle (with_heartbeats=$PAPERCLIP_CYCLE_WITH_HEARTBEATS)"
+  log "info" "Running Paperclip cycle (with_heartbeats=$PAPERCLIP_CYCLE_WITH_HEARTBEATS, signal_lane=$PAPERCLIP_SIGNAL_LANE_ENABLED, signal_lane_dispatch=$PAPERCLIP_SIGNAL_LANE_DISPATCH_ENABLED)"
+  PAPERCLIP_CYCLE_SIGNAL_LANE_ENABLED="$PAPERCLIP_SIGNAL_LANE_ENABLED" \
+  PAPERCLIP_CYCLE_SIGNAL_LANE_DISPATCH_ENABLED="$PAPERCLIP_SIGNAL_LANE_DISPATCH_ENABLED" \
+  PAPERCLIP_CYCLE_SIGNAL_LANE_COOLDOWN_MINUTES="$PAPERCLIP_SIGNAL_LANE_COOLDOWN_MINUTES" \
+  PAPERCLIP_CYCLE_SIGNAL_LANE_READY_THRESHOLD="$PAPERCLIP_SIGNAL_LANE_READY_THRESHOLD" \
+  PAPERCLIP_CYCLE_SIGNAL_LANE_EXPERIMENT_THRESHOLD="$PAPERCLIP_SIGNAL_LANE_EXPERIMENT_THRESHOLD" \
   "$PAPERCLIP_CYCLE_SCRIPT" "${cycle_args[@]}" >> "$LOG_FILE" 2>&1
 }
 
@@ -581,10 +811,20 @@ run_loop() {
 # ---- Daemon Control ----
 
 start_daemon() {
-  if [[ -f "$PID_FILE" ]] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null; then
-    echo "Loop runner already running (PID $(cat "$PID_FILE"))"
+  assert_runtime_root
+
+  local running_pids
+  running_pids="$(collect_loop_runner_pids)"
+  if [[ -n "$running_pids" ]]; then
+    local primary_pid
+    primary_pid="$(echo "$running_pids" | head -n 1)"
+    printf '%s\n' "$primary_pid" > "$PID_FILE"
+    echo "Loop runner already running (PID(s): $(echo "$running_pids" | tr '\n' ' ' | xargs))"
     exit 1
   fi
+
+  # Clean stale PID file before launch.
+  rm -f "$PID_FILE" 2>/dev/null || true
 
   mkdir -p "$LOG_DIR" "$(dirname "$PID_FILE")"
 
@@ -595,27 +835,64 @@ start_daemon() {
 }
 
 stop_daemon() {
-  if [[ ! -f "$PID_FILE" ]]; then
-    echo "No PID file found. Loop runner not running."
+  local running_pids
+  running_pids="$(collect_loop_runner_pids)"
+  if [[ -z "$running_pids" ]]; then
+    rm -f "$PID_FILE" 2>/dev/null || true
+    echo "Loop runner not running."
     exit 0
   fi
 
+  echo "Stopping loop runner (PID(s): $(echo "$running_pids" | tr '\n' ' ' | xargs))..."
   local pid
-  pid=$(cat "$PID_FILE")
-  if kill -0 "$pid" 2>/dev/null; then
-    echo "Stopping loop runner (PID $pid)..."
-    kill "$pid"
-    rm -f "$PID_FILE"
-    echo "Stopped."
+  while IFS= read -r pid; do
+    if process_is_alive "$pid"; then
+      kill "$pid" 2>/dev/null || true
+    fi
+  done <<< "$running_pids"
+
+  local wait_deadline=$(( $(date +%s) + 10 ))
+  local remaining_pids
+  while true; do
+    remaining_pids=""
+    while IFS= read -r pid; do
+      if process_is_alive "$pid"; then
+        remaining_pids="${remaining_pids}${pid}"$'\n'
+      fi
+    done <<< "$running_pids"
+
+    if [[ -z "$remaining_pids" ]] || (( $(date +%s) >= wait_deadline )); then
+      break
+    fi
+    sleep 1
+  done
+
+  rm -f "$PID_FILE" 2>/dev/null || true
+
+  # Re-check live process table so we also catch immediate supervisor respawns.
+  local post_stop_pids
+  post_stop_pids="$(collect_loop_runner_pids)"
+  if [[ -n "$post_stop_pids" ]]; then
+    echo "Stopped with warning: runner process(es) still alive: $(echo "$post_stop_pids" | tr '\n' ' ' | xargs)"
+    echo "This can happen when an external supervisor auto-restarts loop-runner."
   else
-    echo "PID $pid not running. Cleaning up stale PID file."
-    rm -f "$PID_FILE"
+    echo "Stopped."
   fi
 }
 
 show_status() {
-  if [[ -f "$PID_FILE" ]] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null; then
-    echo "Loop runner: RUNNING (PID $(cat "$PID_FILE"))"
+  if ! check_runtime_root; then
+    return 1
+  fi
+
+  local running_pids
+  running_pids="$(collect_loop_runner_pids)"
+
+  if [[ -n "$running_pids" ]]; then
+    local primary_pid
+    primary_pid="$(echo "$running_pids" | head -n 1)"
+    printf '%s\n' "$primary_pid" > "$PID_FILE"
+    echo "Loop runner: RUNNING (PID(s): $(echo "$running_pids" | tr '\n' ' ' | xargs))"
     echo "Log file: $LOG_FILE"
     if [[ -f "$LOG_FILE" ]]; then
       echo ""
@@ -642,6 +919,7 @@ case "${1:-help}" in
   run)
     mkdir -p "$LOG_DIR" "$(dirname "$PID_FILE")"
     load_config
+    assert_runtime_root
     discover_agents
 
     # Check for --once --agent flags
@@ -666,6 +944,7 @@ case "${1:-help}" in
   paperclip-cycle)
     mkdir -p "$LOG_DIR" "$(dirname "$PID_FILE")"
     load_config
+    assert_runtime_root
     if run_paperclip_cycle_once; then
       echo "Paperclip cycle completed."
     else
@@ -676,6 +955,7 @@ case "${1:-help}" in
   _run)
     mkdir -p "$LOG_DIR" "$(dirname "$PID_FILE")"
     load_config
+    assert_runtime_root
     discover_agents
     claim_pid_file
     run_loop

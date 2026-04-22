@@ -7,7 +7,20 @@
 
 _No pending items._
 
+
+
 ## Processed
+
+### [2026-04-20T08:14:25Z] From: dispatch | Priority: medium | Processed: 2026-04-20T08:25:14Z
+Review intent: reconcile task registry drift
+Task-ID: task-1776672865-e1cc
+Tags: qa
+Sync-Key: signal:task_registry_drift
+Source-Ref: /Volumes/madara/2026/twc-vault/01-Projects/tryambakam-noesis/tryambakamnoesis-paperclip/tests/fixtures/signal-lane/drifted-runtime/task-registry.json
+Score-Rationale: task_registry_drift
+Details:
+Pending tasks are stale relative to the registry's last update timestamp.
+Reconcile task-registry state against current agent task files after root normalization.
 
 ### [2026-04-11T18:34:08Z] From: dispatch | Priority: medium
 Processed: 2026-04-11T18:41:36Z

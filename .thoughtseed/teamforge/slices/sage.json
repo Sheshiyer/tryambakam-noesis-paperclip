@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "teamforge-slice/v1",
+  "feedSchemaVersion": "agent_feed/v1",
+  "role": "sage",
+  "generatedAt": "2026-04-22T15:02:27Z",
+  "overlapPolicy": "Signals may exist in multiple role slices; routeOwner remains canonical dispatch owner.",
+  "fallbackRole": "jarvis",
+  "sourceSnapshot": "/Volumes/madara/2026/twc-vault/01-Projects/tryambakam-noesis/tryambakamnoesis-paperclip/vault/leadership/teamforge-feed/2026/04/22/teamforge-feed-20260422T150227Z-1776870147.json",
+  "itemCount": 0,
+  "items": []
+}

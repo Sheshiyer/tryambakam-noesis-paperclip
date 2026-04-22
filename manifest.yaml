@@ -145,9 +145,17 @@ org:
       issues_to_inbox: true
       heartbeat_reporting: true
 
+  signal_lane:
+    enabled: true
+    dispatch_enabled: true
+    cooldown_minutes: 180
+    ready_threshold: 70
+    experiment_threshold: 50
+
   teamforge:
     expected_schema_version: "agent_feed/v1"
-    feed_url: "http://127.0.0.1:4310/api/agent-feed/export"
+    feed_url: "http://127.0.0.1:8787/v1/agent-feed/export"
+    export_cmd: "./scripts/teamforge-export-local.sh"
     feed_limit: 500
     dispatch_enabled: true
     snapshots_path: "vault/leadership/teamforge-feed"
@@ -157,6 +165,7 @@ org:
     cooldown_info_minutes: 120
     cooldown_warn_minutes: 60
     cooldown_critical_minutes: 0
+    clockify_info_active_days: 14
     health_max_lag_warn_seconds: 3600
     health_failure_rate_warn: 0.20
     health_min_coverage_warn: 0.66

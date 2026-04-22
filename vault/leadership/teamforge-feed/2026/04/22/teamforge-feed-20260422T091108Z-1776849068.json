@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "teamforge-ingest/v1",
+  "feedSchemaVersion": "agent_feed/v1",
+  "generatedAt": "2026-04-22T09:11:08Z",
+  "sourceWindow": {
+    "sinceCursor": "2026-04-21T19:27:07.374266+00:00|ops:v1:clockify:clockify.time_entry.logged:clockify_time_entry:69d3633bd3a55820609e568c:67ce7d3a9b6d8d778e65dcdd:67ce7d3a9b6d8d778e65dcdd:na:na:2026-04-06t03_50_00z",
+    "nextCursor": null,
+    "hasMore": false
+  },
+  "lag": {
+    "projectionLagSeconds": null,
+    "maxSourceLagSeconds": null,
+    "sources": [
+      {
+        "source": "agent_feed",
+        "entity": "projection",
+        "lastSyncAt": "2026-04-21T19:28:33",
+        "lagSeconds": null
+      },
+      {
+        "source": "clockify",
+        "entity": "time_entries",
+        "lastSyncAt": "2026-04-21T19:27:04Z",
+        "lagSeconds": null
+      },
+      {
+        "source": "huly",
+        "entity": "issues",
+        "lastSyncAt": "2026-04-21T19:27:07",
+        "lagSeconds": null
+      }
+    ]
+  },
+  "quality": {
+    "score": 100,
+    "findingCount": 0,
+    "findingsByType": []
+  },
+  "items": []
+}

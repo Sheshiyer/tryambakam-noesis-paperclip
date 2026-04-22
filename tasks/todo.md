@@ -1,3 +1,651 @@
+## CLAWD Loop Cycle - 2026-04-22T14:46:17Z
+
+- [x] Add guardrails to fixture-helper copy API for invalid invocation shapes
+- [x] Expand helper regression coverage for usage and missing-source-directory failures
+- [x] Verify runtime-root guard stub behavior directly in helper regression
+- [x] Re-run representative dependent suites and runtime health
+
+## Review
+
+- Updated `tests/lib/fixture-helpers.sh`:
+  - `copy_scripts_from_repo` now validates:
+    - minimum arguments (`<source_repo> <target_dir> <script_name...>`)
+    - source scripts directory existence
+  - existing missing-script validation remains
+- Expanded `tests/test_fixture_helpers_copy_scripts.sh` with:
+  - usage-failure assertion
+  - missing-scripts-directory assertion
+  - `write_runtime_root_guard_stub` executable/exit-path assertions
+- Verification:
+  - `bash -n tests/lib/fixture-helpers.sh tests/test_fixture_helpers_copy_scripts.sh`
+  - `bash tests/test_fixture_helpers_copy_scripts.sh`
+  - `bash tests/test_loop_runner_signal_lane_config.sh`
+  - `bash tests/test_write_back_no_changes.sh`
+  - `./scripts/health-check.sh` (`11/11 healthy`)
+
+## CLAWD Loop Cycle - 2026-04-22T14:33:25Z
+
+- [x] Harden shared fixture-helper copy behavior for missing source scripts
+- [x] Add dedicated regression coverage for helper success + failure paths
+- [x] Re-run representative dependent regressions that rely on helper staging
+- [x] Re-verify runtime health
+
+## Review
+
+- Updated `tests/lib/fixture-helpers.sh`:
+  - `copy_scripts_from_repo` now validates source script existence and fails with `Missing source script: ...` when absent.
+- Added `tests/test_fixture_helpers_copy_scripts.sh`:
+  - validates successful multi-script copy
+  - validates expected non-zero + explicit diagnostic for missing script
+- Verification:
+  - `bash -n tests/lib/fixture-helpers.sh tests/test_fixture_helpers_copy_scripts.sh`
+  - `bash tests/test_fixture_helpers_copy_scripts.sh`
+  - `bash tests/test_loop_runner_signal_lane_config.sh`
+  - `bash tests/test_teamforge_export_cmd_manifest.sh`
+  - `bash tests/test_write_back_no_changes.sh`
+  - `./scripts/health-check.sh` (`11/11 healthy`)
+
+## CLAWD Loop Cycle - 2026-04-22T14:20:38Z
+
+- [x] Identify remaining write-back/TeamForge status tests with manual script staging
+- [x] Refactor those suites to shared fixture-helper script staging
+- [x] Re-run touched write-back + TeamForge status regressions
+- [x] Re-verify runtime health
+
+## Review
+
+- Refactored to `tests/lib/fixture-helpers.sh` `copy_scripts_from_repo`:
+  - `tests/test_write_back_no_changes.sh`
+  - `tests/test_write_back_marker_collision.sh`
+  - `tests/test_write_back_malformed_json.sh`
+  - `tests/test_teamforge_status_failure_rate_backfill.sh`
+- Verification:
+  - `bash -n tests/lib/fixture-helpers.sh tests/test_write_back_no_changes.sh tests/test_write_back_marker_collision.sh tests/test_write_back_malformed_json.sh tests/test_teamforge_status_failure_rate_backfill.sh`
+  - `bash tests/test_write_back_no_changes.sh`
+  - `bash tests/test_write_back_marker_collision.sh`
+  - `bash tests/test_write_back_malformed_json.sh`
+  - `bash tests/test_teamforge_status_failure_rate_backfill.sh`
+  - `./scripts/health-check.sh` (`11/11 healthy`)
+
+## CLAWD Loop Cycle - 2026-04-22T14:06:02Z
+
+- [x] Identify remaining signal-lane regressions using manual script-copy staging
+- [x] Refactor signal-lane tests to shared fixture-helper script staging
+- [x] Re-run touched signal-lane regression suite
+- [x] Re-check runtime health and capture non-code runtime flags
+
+## Review
+
+- Refactored to `tests/lib/fixture-helpers.sh` `copy_scripts_from_repo`:
+  - `tests/test_signal_lane_gating.sh`
+  - `tests/test_paperclip_cycle_signal_lane.sh`
+- Verification:
+  - `bash -n tests/lib/fixture-helpers.sh tests/test_signal_lane_gating.sh tests/test_paperclip_cycle_signal_lane.sh`
+  - `bash tests/test_paperclip_cycle_signal_lane.sh`
+  - `bash tests/test_signal_lane_gating.sh`
+  - `bash tests/test_signal_lane_detection.sh`
+  - `./scripts/health-check.sh` (initial run: `10/11 healthy`, transient `jarvis` `[STALE]`)
+  - `./scripts/health-check.sh` (follow-up run: `11/11 healthy`)
+
+## CLAWD Loop Cycle - 2026-04-22T13:52:20Z
+
+- [x] Identify additional TeamForge regressions still using manual script-copy setup
+- [x] Refactor TeamForge tests to shared fixture-helper script staging
+- [x] Re-run touched TeamForge suite and dependent export regression
+- [x] Re-verify runtime health
+
+## Review
+
+- Refactored to `tests/lib/fixture-helpers.sh` `copy_scripts_from_repo`:
+  - `tests/test_teamforge_reconcile_inbox_hook.sh`
+  - `tests/test_teamforge_clockify_policy.sh`
+- Verification:
+  - `bash -n tests/lib/fixture-helpers.sh tests/test_teamforge_reconcile_inbox_hook.sh tests/test_teamforge_clockify_policy.sh`
+  - `bash tests/test_teamforge_reconcile_inbox_hook.sh`
+  - `bash tests/test_teamforge_clockify_policy.sh`
+  - `bash tests/test_teamforge_export_cmd_manifest.sh`
+  - `./scripts/health-check.sh` (`11/11 healthy`)
+
+## CLAWD Loop Cycle - 2026-04-22T13:39:09Z
+
+- [x] Identify remaining temp-root tests still using manual script-copy boilerplate
+- [x] Refactor selected registry/teamforge regressions to shared fixture helper usage
+- [x] Re-run touched regression suite plus dependent TeamForge policy test
+- [x] Re-verify runtime health
+
+## Review
+
+- Refactored to `tests/lib/fixture-helpers.sh` `copy_scripts_from_repo`:
+  - `tests/test_task_registry_reconcile_inbox.sh`
+  - `tests/test_dispatch_task_sync_key_dedupe.sh`
+  - `tests/test_teamforge_export_cmd_manifest.sh`
+- Verification:
+  - `bash -n tests/lib/fixture-helpers.sh tests/test_task_registry_reconcile_inbox.sh tests/test_dispatch_task_sync_key_dedupe.sh tests/test_teamforge_export_cmd_manifest.sh`
+  - `bash tests/test_task_registry_reconcile_inbox.sh`
+  - `bash tests/test_dispatch_task_sync_key_dedupe.sh`
+  - `bash tests/test_teamforge_export_cmd_manifest.sh`
+  - `bash tests/test_teamforge_clockify_policy.sh`
+  - `./scripts/health-check.sh` (`11/11 healthy`)
+
+## CLAWD Loop Cycle - 2026-04-22T13:25:08Z
+
+- [x] Identify the next reliability lane after shared fixture-helper rollout
+- [x] Harden boolean normalization in shared YAML helper for whitespace-padded tokens
+- [x] Extend helper and loop-runner manifest parsing regressions for spaced quoted booleans
+- [x] Re-run touched regression suite and runtime health checks
+
+## Review
+
+- Updated `scripts/yaml-helpers.sh`:
+  - `yaml_is_true` and `yaml_is_false` now trim leading/trailing whitespace before lowercasing and token matching.
+- Expanded `tests/test_yaml_helpers_parsing.sh` with whitespace-padded true/false token cases.
+- Updated `tests/test_loop_runner_manifest_yaml_parsing.sh` fixtures to use whitespace-padded quoted booleans and keep expected behavior intact:
+  - `heartbeat_reporting: " true "`
+  - signal-lane toggles and disable gate with `" false "`
+  - `issues_to_inbox: " false "` still disables the paperclip cycle
+- Verification:
+  - `bash -n scripts/yaml-helpers.sh tests/test_yaml_helpers_parsing.sh tests/test_loop_runner_manifest_yaml_parsing.sh`
+  - `bash tests/test_yaml_helpers_parsing.sh`
+  - `bash tests/test_loop_runner_manifest_yaml_parsing.sh`
+  - `bash tests/test_loop_runner_signal_lane_config.sh`
+  - `bash tests/test_agent_prompt_manifest_yaml_parsing.sh`
+  - `./scripts/health-check.sh` (`11/11 healthy`)
+
+## CLAWD Loop Cycle - 2026-04-22T13:18:38Z
+
+- [x] Create shared fixture helper for temp-root regression setup
+- [x] Refactor loop-runner and prompt-assembler temp-root tests to use shared helper
+- [x] Re-run impacted regression set after harness refactor
+- [x] Re-verify runtime health
+
+## Review
+
+- Added `tests/lib/fixture-helpers.sh`:
+  - `copy_scripts_from_repo`
+  - `write_runtime_root_guard_stub`
+- Refactored tests to use helper:
+  - `tests/test_loop_runner_signal_lane_config.sh`
+  - `tests/test_loop_runner_manifest_yaml_parsing.sh`
+  - `tests/test_loop_runner_stderr_recovery_validation.sh`
+  - `tests/test_agent_prompt_no_changes_contract.sh`
+  - `tests/test_agent_prompt_manifest_yaml_parsing.sh`
+- Verification:
+  - `bash -n tests/lib/fixture-helpers.sh`
+  - `bash tests/test_loop_runner_signal_lane_config.sh`
+  - `bash tests/test_loop_runner_manifest_yaml_parsing.sh`
+  - `bash tests/test_loop_runner_stderr_recovery_validation.sh`
+  - `bash tests/test_agent_prompt_no_changes_contract.sh`
+  - `bash tests/test_agent_prompt_manifest_yaml_parsing.sh`
+  - `bash tests/test_yaml_helpers_parsing.sh`
+  - `./scripts/health-check.sh` (`11/11 healthy`)
+
+## CLAWD Loop Cycle - 2026-04-22T13:04:05Z
+
+- [x] Add direct smoke coverage for shared YAML helper parser semantics
+- [x] Validate quote/comment/hash/path edge-cases in one isolated test
+- [x] Re-run downstream manifest parser regressions for assembler and loop-runner
+- [x] Re-verify runtime health after parser-test expansion
+
+## Review
+
+- Added `tests/test_yaml_helpers_parsing.sh` for `scripts/yaml-helpers.sh` covering:
+  - quoted string parsing
+  - inline comment stripping for bare values
+  - preserving `#` inside quoted strings
+  - nested dot-path extraction
+  - missing-path empty return
+  - boolean helper normalization (`yaml_is_true` / `yaml_is_false`)
+- Verification:
+  - `bash -n scripts/yaml-helpers.sh`
+  - `bash tests/test_yaml_helpers_parsing.sh`
+  - `bash tests/test_agent_prompt_manifest_yaml_parsing.sh`
+  - `bash tests/test_loop_runner_manifest_yaml_parsing.sh`
+  - `./scripts/health-check.sh` (`11/11 healthy`)
+
+## CLAWD Loop Cycle - 2026-04-22T12:51:03Z
+
+- [x] Consolidate duplicated YAML scalar parsing into shared script
+- [x] Wire `loop-runner` and `agent-prompt-assembler` to source shared helper
+- [x] Update temp-root regressions to stage helper dependency
+- [x] Re-run syntax + targeted regression suite + runtime health
+
+## Review
+
+- Added `scripts/yaml-helpers.sh` exposing:
+  - `yaml_path_get`
+  - `yaml_is_true`
+  - `yaml_is_false`
+- Updated:
+  - `scripts/loop-runner.sh` to source shared helper and keep wrapper compatibility (`is_true_value`/`is_false_value`)
+  - `scripts/agent-prompt-assembler.sh` to source shared helper
+- Updated tests that copy scripts into temp roots to also copy `scripts/yaml-helpers.sh`:
+  - `tests/test_loop_runner_signal_lane_config.sh`
+  - `tests/test_loop_runner_stderr_recovery_validation.sh`
+  - `tests/test_loop_runner_manifest_yaml_parsing.sh`
+  - `tests/test_agent_prompt_no_changes_contract.sh`
+  - `tests/test_agent_prompt_manifest_yaml_parsing.sh`
+- Verification:
+  - `bash -n scripts/yaml-helpers.sh`
+  - `bash -n scripts/loop-runner.sh`
+  - `bash -n scripts/agent-prompt-assembler.sh`
+  - `bash tests/test_agent_prompt_manifest_yaml_parsing.sh`
+  - `bash tests/test_agent_prompt_no_changes_contract.sh`
+  - `bash tests/test_loop_runner_manifest_yaml_parsing.sh`
+  - `bash tests/test_loop_runner_signal_lane_config.sh`
+  - `bash tests/test_loop_runner_stderr_recovery_validation.sh`
+  - `./scripts/health-check.sh` (`11/11 healthy`)
+
+## CLAWD Loop Cycle - 2026-04-22T12:36:08Z
+
+- [x] Replace agent-prompt-assembler MANIFEST `grep -A` parsing with path-based YAML reads
+- [x] Preserve policy defaults while accepting quoted/reordered manifest values
+- [x] Add focused assembler regression for quoted/reordered MANIFEST rendering
+- [x] Re-run assembler + loop-runner regression suite and health checks
+
+## Review
+
+- Added `yaml_path_get` to `scripts/agent-prompt-assembler.sh`.
+- Replaced manifest extraction for:
+  - `role`
+  - `reports_to`
+  - `tier`
+  - `loop.max_step_timeout`
+  - `loop.on_blocked`
+  - `loop.on_failure`
+  - `loop.retry_blocked_after`
+- Added `tests/test_agent_prompt_manifest_yaml_parsing.sh` to assert quoted/reordered manifest values render correctly in the prompt policy section.
+- Verification:
+  - `bash -n scripts/agent-prompt-assembler.sh`
+  - `bash tests/test_agent_prompt_manifest_yaml_parsing.sh`
+  - `bash tests/test_agent_prompt_no_changes_contract.sh`
+  - `bash tests/test_loop_runner_manifest_yaml_parsing.sh`
+  - `bash tests/test_loop_runner_stderr_recovery_validation.sh`
+  - `./scripts/health-check.sh` (`11/11 healthy`)
+
+## CLAWD Loop Cycle - 2026-04-22T12:21:54Z
+
+- [x] Replace loop-runner `grep -A` manifest window parsing with path-based YAML reads
+- [x] Normalize quoted boolean config handling for paperclip/signal-lane toggles
+- [x] Route chief/interval/timeout reads through the new YAML path helper
+- [x] Add regression coverage for quoted YAML values and disabled cycle semantics
+- [x] Re-run loop-runner recovery/config regression suite and health checks
+
+## Review
+
+- Added `yaml_path_get` + `is_true_value`/`is_false_value` to `scripts/loop-runner.sh`.
+- Replaced manifest reads for:
+  - intervals (`intervals.tier_1`, `tier_2_lead`, `tier_2_member`)
+  - Paperclip sync flags (`org.paperclip.sync.*`, fallback `org.paperclip.*`)
+  - signal-lane settings (`org.signal_lane.*`, fallback `signal_lane.*`)
+  - chief lookup (`org.chief.agent`, fallback `chief.agent`)
+  - agent loop interval (`loop.interval`) and timeout (`loop.max_step_timeout`)
+- Added `tests/test_loop_runner_manifest_yaml_parsing.sh` validating quoted booleans/numbers and quoted disable behavior (`issues_to_inbox: "false"`).
+- Verification:
+  - `bash -n scripts/loop-runner.sh`
+  - `bash tests/test_loop_runner_manifest_yaml_parsing.sh`
+  - `bash tests/test_loop_runner_signal_lane_config.sh`
+  - `bash tests/test_loop_runner_stderr_recovery_validation.sh`
+  - `./scripts/health-check.sh` (`11/11 healthy`)
+
+## CLAWD Loop Cycle - 2026-04-22T12:06:46Z
+
+- [x] Replace brittle stderr recovery marker-text guards with structural validation
+- [x] Enforce expected `FILE_UPDATE` key set for recovered stderr blocks
+- [x] Reject template-shaped placeholder blocks by content-shape checks
+- [x] Add integration regression for reject-template / accept-valid stderr recovery
+- [x] Re-run loop-runner + write-back regression suite and runtime health checks
+
+## Review
+
+- Updated `scripts/loop-runner.sh` `recover_structured_output_from_stderr()` to parse recovered blocks and validate:
+  - update blocks exist
+  - keys are exactly `TASKS.md`, `HEARTBEAT.md`, `INBOX.md`, `CONTEXT.md`
+  - no duplicate or unknown keys
+  - template placeholder shapes are rejected
+- Added `tests/test_loop_runner_stderr_recovery_validation.sh`:
+  - case A: template echo on stderr is rejected (no accidental write-back)
+  - case B: valid structured stderr output is recovered and applied
+- Verification:
+  - `bash -n scripts/loop-runner.sh`
+  - `bash tests/test_loop_runner_stderr_recovery_validation.sh`
+  - `bash tests/test_loop_runner_signal_lane_config.sh`
+  - `bash tests/test_write_back_no_changes.sh`
+  - `bash tests/test_write_back_marker_collision.sh`
+  - `bash tests/test_write_back_malformed_json.sh`
+  - `bash tests/test_agent_prompt_no_changes_contract.sh`
+  - `./scripts/health-check.sh` (`11/11 healthy`)
+
+## CLAWD Loop Cycle - 2026-04-22T11:49:27Z
+
+- [x] Validate SENTINEL-reported write-back reliability gaps against this active repo
+- [x] Harden malformed JSON handling in `scripts/write-back.sh` to avoid hard exits
+- [x] Replace marker-delimited update streaming with collision-safe content transport
+- [x] Add regression tests for marker-collision payloads and malformed JSON input
+- [x] Re-run targeted write-back and loop-runner regression suite
+
+## Review
+
+- Updated `scripts/write-back.sh` to treat malformed JSON as a controlled `invalid_json` failure path, appending context+heartbeat diagnostics and exiting cleanly.
+- Replaced marker-delimited update parsing with `filename<TAB>base64(content)` records generated from parsed JSON, eliminating delimiter-collision truncation risk when payload text contains sentinel tokens.
+- Added:
+  - `tests/test_write_back_marker_collision.sh`
+  - `tests/test_write_back_malformed_json.sh`
+- Verification:
+  - `bash -n scripts/write-back.sh`
+  - `bash tests/test_write_back_no_changes.sh`
+  - `bash tests/test_write_back_marker_collision.sh`
+  - `bash tests/test_write_back_malformed_json.sh`
+  - `bash tests/test_agent_prompt_no_changes_contract.sh`
+  - `bash tests/test_loop_runner_signal_lane_config.sh`
+  - `./scripts/health-check.sh` (`11/11 healthy`)
+
+## CLAWD Loop Cycle - 2026-04-22T11:41:35Z
+
+- [x] Add regression test coverage for write-back `NO_CHANGES` semantics
+- [x] Add regression test coverage for prompt-assembler `NO_CHANGES` contract text
+- [x] Re-run relevant loop-runner regression (`signal_lane_config`) after test additions
+- [x] Verify runtime health remains green after verification suite
+
+## Review
+
+- Added `tests/test_write_back_no_changes.sh` to prove `write-back.sh` preserves `TASKS.md` and `INBOX.md` on `NO_CHANGES` while still appending `HEARTBEAT.md`; also asserts `CONTEXT.md` no-op behavior and no-change log lines.
+- Added `tests/test_agent_prompt_no_changes_contract.sh` to assert `agent-prompt-assembler.sh` still requires `NO_CHANGES` for unchanged `TASKS.md`, `INBOX.md`, and empty `CONTEXT.md` additions.
+- Verified with:
+  - `bash tests/test_write_back_no_changes.sh`
+  - `bash tests/test_agent_prompt_no_changes_contract.sh`
+  - `bash tests/test_loop_runner_signal_lane_config.sh`
+  - `./scripts/health-check.sh` (`11/11 healthy`)
+
+## CLAWD Loop Cycle - 2026-04-22T11:26:12Z
+
+- [x] Diagnose why CLAWD still timed out after adaptive timeout scaling
+- [x] Patch loop prompt contract to allow `NO_CHANGES` for unchanged `TASKS.md`/`INBOX.md`
+- [x] Patch write-back to honor `NO_CHANGES` for TASKS/INBOX and keep existing files untouched
+- [x] Keep stderr-recovery template guards aligned with updated prompt placeholders
+- [x] Validate with syntax checks, write-back harness, direct CLAWD codex run, and live daemon cycle evidence
+
+## Review
+
+- Root cause for ongoing CLAWD timeout lane was response-size overhead: full-file rewrites for large `TASKS.md`/`INBOX.md` were being required even on idle cycles.
+- Updated `scripts/agent-prompt-assembler.sh` output contract so unchanged `TASKS.md`/`INBOX.md` blocks can emit exact `NO_CHANGES`.
+- Updated `scripts/write-back.sh` so `TASKS.md` and `INBOX.md` are skipped when block content is `NO_CHANGES`, while full overwrite remains for changed content.
+- Updated `scripts/loop-runner.sh` stderr-recovery disallowed template markers to match the new output template text.
+- Verified with:
+  - `bash -n scripts/agent-prompt-assembler.sh scripts/write-back.sh scripts/loop-runner.sh`
+  - write-back harness proving SHA stability for unchanged `TASKS.md`/`INBOX.md`
+  - direct CLAWD `codex exec` test producing parseable `NO_CHANGES` structured output
+  - live loop-runner result: after the pre-patch timeout at `2026-04-22T11:20:31Z`, the next CLAWD cycle at `2026-04-22T11:23:53Z` completed cleanly in ~14s
+  - `./scripts/health-check.sh` now reports `11/11 healthy`
+
+## CLAWD Loop Cycle - 2026-04-22T10:56:24Z
+
+- [x] Reproduce SENTINEL-reported zero-agent `set -u` crash behavior in `loop-runner.sh`
+- [x] Patch associative runner state initialization so empty discovery cannot trigger unbound-array exits
+- [x] Remove zero-agent discovery noise from literal-glob `*` matches
+- [x] Re-verify syntax, loop-runner regression coverage, and a no-agent harness run
+- [x] Record continuity updates for future loop-runner hardening
+
+## Review
+
+- Initialized loop-runner scheduler maps as explicitly empty associative arrays (`declare -A ...=()`) so `${#...[@]}` and `"${!...[@]}"` expansions are safe with `set -u` when zero agents are discovered.
+- Switched discovery glob handling to a `nullglob`-resolved agent directory list to prevent fake `No MANIFEST.yaml for *` warnings in empty-agent harnesses.
+- Verified `bash -n scripts/loop-runner.sh` and `bash tests/test_loop_runner_signal_lane_config.sh`.
+- Ran a zero-agent temp harness (`REPO_ROOT=<tmp> bash scripts/loop-runner.sh _run`) and confirmed clean startup with `Discovered 0 agents` and no `unbound variable` output.
+
+## CLAWD Loop Cycle - 2026-04-22T10:17:38Z
+
+- [x] Analyze loop-runner daemon-control behavior after Step 102 rollout
+- [x] Patch loop-runner to reconcile real runner processes instead of trusting PID file only
+- [x] Validate `start/status/stop` behavior with duplicate/stale runner scenarios
+- [x] Record continuity updates for supervised-restart caveat
+
+## Review
+
+- Added process-aware runner discovery (`loop_runner_process_pids`, `collect_loop_runner_pids`) in `scripts/loop-runner.sh`.
+- Refined runner discovery to include only top-level daemon roots (excluding per-agent child worker shells that share the same script command line).
+- `claim_pid_file`, `start_daemon`, and `show_status` now detect running daemons even when PID file drift exists.
+- Fixed TERM/INT handling so signal traps cleanup and exit, then updated `stop_daemon` to re-check for immediate supervisor respawns and emit an explicit warning when a survivor remains.
+- Verified with `bash -n scripts/loop-runner.sh`, `./scripts/loop-runner.sh start`, `./scripts/loop-runner.sh status`, and `./scripts/loop-runner.sh stop`.
+
+## CLAWD Loop Cycle - 2026-04-22T09:54:28Z
+
+- [x] Trace recurring parse-error failures from agent heartbeats to loop-runner execution logs
+- [x] Isolate Codex startup failure mode and reproduce it with direct `codex exec` calls
+- [x] Patch loop-runner agent invocation with a compatibility override for `features.notify`
+- [x] Re-verify syntax and `codex exec` output path after the fix
+- [x] Restart loop-runner and validate fresh cycle logs are free of `config.toml` type errors
+- [x] Record continuity updates in CLAWD task/context and engineering notes
+
+## Review
+
+- Root cause was not parser logic; `codex exec` was exiting before model execution due to global config parse failure (`features.notify` typed as sequence instead of boolean).
+- Added loop-runner compatibility control `CODEX_FEATURES_NOTIFY_OVERRIDE` (default `true`) and injected `-c "features.notify=..."` into each agent `codex exec` call.
+- Verified `bash -n scripts/loop-runner.sh` and a loop-runner-equivalent direct codex smoke run (`exit=0`, output produced, no config parse error).
+- Restarted loop-runner on the patched script, removed stale long-lived runner process drift, and confirmed fresh `10:00Z+` log entries no longer include `Error loading config.toml`.
+- Captured implementation and ops guidance in `vault/engineering/2026-04-22-loop-runner-codex-notify-compat.md`.
+
+## CLAWD Loop Cycle - 2026-04-22T09:39:11Z
+
+- [x] Review `agents/clawd/INBOX.md`, `TASKS.md`, and registry state for pending actionable work
+- [x] Run live TeamForge sync/status checks to confirm current signal and alert health
+- [x] Validate runtime health via `scripts/health-check.sh`
+- [x] Record this cycle outcome in `agents/clawd/HEARTBEAT.md`
+
+## Review
+
+- `agents/clawd/INBOX.md` has no pending items and `agents/clawd/TASKS.md` has no active tasks.
+- `./scripts/task-registry.sh stats` reports `Pending: 0`, `In Progress: 0`, `Blocked: 0`, `Failed: 0`.
+- `./scripts/teamforge-sync.sh sync` returned `new=0 skipped=0 suppressed=0 dispatched=0 errors=0`.
+- `./scripts/teamforge-sync.sh status` and `./scripts/health-check.sh` both report healthy runtime and no active TeamForge alerts.
+- This cycle result is `idle`; no new implementation lane was opened.
+
+## CLAWD Loop Cycle - 2026-04-21T09:18:30Z
+
+- [x] Review `tasks/lessons.md` plus the live `agents/clawd/INBOX.md`, `TASKS.md`, `CONTEXT.md`, and `HEARTBEAT.md`
+- [x] Move the pending TeamForge feed-down dispatch into the processed queue and create the corresponding task step
+- [x] Re-verify live TeamForge sync health with state snapshots, `status`, a dry-run sync, and the export manifest regression test
+- [x] Close the TeamForge feed-down lane as a stale signal because live ingestion and slice materialization are already healthy
+- [x] Prepare the scheduler payload updates for `agents/clawd/{TASKS,INBOX,HEARTBEAT,CONTEXT}.md`
+
+## Review
+
+- `agents/clawd/INBOX.md` had one pending high-priority dispatch for `signal:teamforge_feed_down`; it was processed in this cycle.
+- `agents/clawd/TASKS.md` gained `Step 54` and that step was completed in the same cycle.
+- Live verification showed `.thoughtseed/teamforge/latest-feed.json` and `.thoughtseed/teamforge/health.json` were current and healthy, `./scripts/teamforge-sync.sh status` reported `errors=0`, and `./scripts/teamforge-sync.sh sync --dry-run --no-dispatch` completed with `new=0 skipped=195 suppressed=195 dispatched=0 errors=0`.
+- `bash -n scripts/teamforge-sync.sh && ./tests/test_teamforge_export_cmd_manifest.sh` passed, so no code change was required.
+- Added one new context note so future cycles verify current health before treating historical TeamForge failure counts as an active outage.
+
+## TRENDY Loop Cycle - 2026-04-21T08:38:51Z
+
+- [x] Review `tasks/lessons.md` plus the live `agents/trendy/INBOX.md`, `TASKS.md`, `CONTEXT.md`, and `HEARTBEAT.md`
+- [x] Apply the scheduler inbox and step-selection rules to determine whether TRENDY has actionable work
+- [x] Confirm this cycle is `idle` because there are no pending inbox items or active retry-eligible blocked steps
+- [x] Append the idle cycle record to `agents/trendy/HEARTBEAT.md`
+- [x] Prepare the exact scheduler payload with unchanged `INBOX.md`, unchanged `TASKS.md`, and no context additions
+
+## Review
+
+- `agents/trendy/INBOX.md` had no pending items, so nothing moved into the queue.
+- `agents/trendy/TASKS.md` had no active open, in-progress, or retry-eligible blocked steps.
+- This cycle result is `idle`; no delegation, escalation, or context updates were required.
+- The scheduler payload leaves `TASKS.md` and `INBOX.md` unchanged, appends one idle entry to `HEARTBEAT.md`, and makes no `CONTEXT.md` additions.
+
+## NOVA Loop Cycle - 2026-04-21T08:21:35Z
+
+- [x] Review `tasks/lessons.md` plus the live `agents/nova/INBOX.md`, `TASKS.md`, `CONTEXT.md`, and `HEARTBEAT.md`
+- [x] Apply the scheduler inbox and step-selection rules to determine whether NOVA has actionable work
+- [x] Confirm this cycle is `idle` because there are no pending inbox items or active retry-eligible steps
+- [x] Append the idle cycle record to `agents/nova/HEARTBEAT.md`
+- [x] Prepare the exact scheduler payload with unchanged `INBOX.md`, unchanged `TASKS.md`, and no context additions
+
+## Review
+
+- `agents/nova/INBOX.md` had no pending items, so nothing moved into the queue.
+- `agents/nova/TASKS.md` had no active open, in-progress, or retry-eligible blocked steps.
+- This cycle result is `idle`; no delegation, escalation, or context updates were required.
+- The scheduler payload leaves `TASKS.md` and `INBOX.md` unchanged, appends one idle entry to `HEARTBEAT.md`, and makes no `CONTEXT.md` additions.
+
+## JARVIS Loop Cycle - 2026-04-21T07:50:55Z
+
+- [x] Review `tasks/lessons.md` plus the live `agents/jarvis/INBOX.md`, `TASKS.md`, `CONTEXT.md`, and `HEARTBEAT.md`
+- [x] Apply the scheduler inbox and step-selection rules to determine whether JARVIS has actionable work
+- [x] Confirm this cycle is `idle` because there are no pending inbox items or active retry-eligible steps
+- [x] Prepare the exact scheduler payload with unchanged `INBOX.md`, unchanged `TASKS.md`, a heartbeat append only, and no context additions
+
+## Review
+
+- `agents/jarvis/INBOX.md` had no pending items, so nothing moved into the queue.
+- `agents/jarvis/TASKS.md` had no active open, in-progress, or retry-eligible blocked steps.
+- This cycle result is `idle`; no delegation, escalation, or context updates were required.
+- The scheduler payload leaves `TASKS.md` and `INBOX.md` unchanged, appends one idle entry to `HEARTBEAT.md`, and makes no `CONTEXT.md` additions.
+
+## JARVIS Loop Cycle - 2026-04-21T08:08:25Z
+
+- [x] Review `tasks/lessons.md` plus the live `agents/jarvis/INBOX.md`, `TASKS.md`, `CONTEXT.md`, and `HEARTBEAT.md`
+- [x] Apply the scheduler inbox and step-selection rules to determine whether JARVIS has actionable work
+- [x] Confirm this cycle is `idle` because there are no pending inbox items or active retry-eligible steps
+- [x] Append the idle cycle record to `agents/jarvis/HEARTBEAT.md`
+- [x] Prepare the exact scheduler payload with unchanged `INBOX.md`, unchanged `TASKS.md`, and no context additions
+
+## Review
+
+- `agents/jarvis/INBOX.md` had no pending items, so nothing moved into the queue.
+- `agents/jarvis/TASKS.md` had no active open, in-progress, or retry-eligible blocked steps.
+- This cycle result is `idle`; no delegation, escalation, or context updates were required.
+- The scheduler payload leaves `TASKS.md` and `INBOX.md` unchanged, appends one idle entry to `HEARTBEAT.md`, and makes no `CONTEXT.md` additions.
+
+## ATLAS Loop Cycle - 2026-04-20T18:11:32Z
+
+- [x] Review `tasks/lessons.md` plus the live `agents/atlas/INBOX.md`, `TASKS.md`, `CONTEXT.md`, and `HEARTBEAT.md`
+- [x] Apply the scheduler inbox and step-selection rules to determine whether ATLAS has actionable work
+- [x] Confirm this cycle is `idle` because there are no pending inbox items or active retry-eligible steps
+- [x] Prepare the exact scheduler payload with unchanged `INBOX.md`, unchanged `TASKS.md`, a heartbeat append only, and no context additions
+
+## Review
+
+- `agents/atlas/INBOX.md` had no pending items, so nothing moved into the queue.
+- `agents/atlas/TASKS.md` had no active open, in-progress, or retry-eligible blocked steps.
+- This cycle result is `idle`; no delegation, escalation, or context updates were required.
+- The scheduler payload leaves `TASKS.md` and `INBOX.md` unchanged, appends one idle entry to `HEARTBEAT.md`, and makes no `CONTEXT.md` additions.
+
+## JARVIS Loop Cycle - 2026-04-20T18:03:30Z
+
+- [x] Review `tasks/lessons.md` plus the live `agents/jarvis/INBOX.md`, `TASKS.md`, `CONTEXT.md`, and `HEARTBEAT.md`
+- [x] Apply the scheduler inbox and step-selection rules to determine whether JARVIS has actionable work
+- [x] Confirm this cycle is `idle` because there are no pending inbox items or active retry-eligible steps
+- [x] Prepare the exact scheduler payload with unchanged `INBOX.md`, unchanged `TASKS.md`, a heartbeat append only, and no context additions
+
+## Review
+
+- `agents/jarvis/INBOX.md` had no pending items, so nothing moved into the queue.
+- `agents/jarvis/TASKS.md` had no active open, in-progress, or retry-eligible blocked steps.
+- This cycle result is `idle`; no delegation, escalation, or context updates were required.
+- The scheduler payload leaves `TASKS.md` and `INBOX.md` unchanged, appends one idle entry to `HEARTBEAT.md`, and makes no `CONTEXT.md` additions.
+
+## ATLAS Loop Cycle - 2026-04-20T15:34:25Z
+
+- [x] Review `tasks/lessons.md` plus the live `agents/atlas/INBOX.md`, `TASKS.md`, and `CONTEXT.md`
+- [x] Apply the scheduler inbox and step-selection rules to determine whether ATLAS has actionable work
+- [x] Record the idle outcome in `agents/atlas/HEARTBEAT.md`
+- [x] Prepare the exact scheduler payload with unchanged `INBOX.md`, unchanged `TASKS.md`, and no context additions
+
+## Review
+
+- `agents/atlas/INBOX.md` had no pending items, so nothing was moved into the queue.
+- `agents/atlas/TASKS.md` had no active open, in-progress, or retry-eligible blocked steps.
+- This cycle result is `idle`; no delegation, escalation, or context updates were required.
+- The scheduler payload leaves `TASKS.md` and `INBOX.md` unchanged, appends one idle entry to `HEARTBEAT.md`, and makes no `CONTEXT.md` additions.
+
+## SAGE Loop Cycle - 2026-04-20T11:37:38Z
+
+- [ ] Review `agents/sage/INBOX.md` and move the pending stale-Meru redispatch into the processed queue plus active tasks
+- [ ] Select the first retry-safe actionable step from `agents/sage/TASKS.md`
+- [ ] Re-validate live runtime-root, TeamForge sync, and Meru latest-run state for the selected stale-Meru step
+- [ ] Update the scheduler payload files for the completed duplicate-triage cycle
+
+## Review
+
+- Processed the one pending SAGE inbox item for `task-1776682396-ee9b` into the cycle payload without mutating the live agent files.
+- Selected `Step 9` as the first retry-safe open medium-priority task because `Step 3` remains blocked with `retry_count: 1`.
+- Revalidated `./scripts/runtime-root-guard.sh print`, `.thoughtseed/teamforge/sync-state.json`, and `/Volumes/madara/2026/twc-vault/_System/memory/archetypal-candidates/latest-run.json`.
+- Confirmed the live decision boundary still holds: TeamForge sync is healthy, the Meru snapshot is still the stale Apr 8 run, and the correct outcome is to close `Step 9` as a duplicate while leaving the canonical restage blocked.
+
+## SENTINEL Loop Cycle - 2026-04-20T11:27:33Z
+
+- [x] Review `agents/sentinel/INBOX.md` and confirm there are no pending assignments
+- [x] Review `agents/sentinel/TASKS.md` and confirm there are no actionable open or retry-eligible blocked steps
+- [x] Verify `agents/sentinel/CONTEXT.md` constraints before selecting the cycle outcome
+- [x] Append the idle cycle record to `agents/sentinel/HEARTBEAT.md`
+- [x] Prepare the scheduler payload for this cycle
+
+## Review
+
+- `agents/sentinel/INBOX.md` contained no pending items, so no new tasks were created.
+- `agents/sentinel/TASKS.md` contained no active open, in-progress, or retry-eligible blocked steps.
+- This cycle result is `idle`; no delegation, escalation, or context updates were required.
+- The scheduler payload leaves `TASKS.md` and `INBOX.md` unchanged, appends one idle entry to `HEARTBEAT.md`, and makes no `CONTEXT.md` additions.
+
+## PIXEL Loop Cycle - 2026-04-20T11:05:55Z
+
+- [x] Review `agents/pixel/INBOX.md` and confirm there are no pending assignments
+- [x] Review `agents/pixel/TASKS.md` and confirm there are no actionable open or retry-eligible blocked steps
+- [x] Verify `agents/pixel/CONTEXT.md` constraints before selecting the cycle outcome
+- [x] Record the idle cycle result in `agents/pixel/HEARTBEAT.md`
+- [x] Prepare the scheduler payload for this cycle
+
+## Review
+
+- `agents/pixel/INBOX.md` contained no pending items, so no new tasks were created.
+- `agents/pixel/TASKS.md` contained no active open, in-progress, or retry-eligible blocked steps.
+- This cycle result is `idle`; no delegation, escalation, or context updates were required.
+- The scheduler payload leaves `TASKS.md` and `INBOX.md` unchanged, appends one idle entry to `HEARTBEAT.md`, and makes no `CONTEXT.md` additions.
+
+## SAGE Loop Cycle - 2026-04-20T09:39:23Z
+
+- [x] Review `agents/sage/INBOX.md` and confirm there are no new pending items
+- [x] Verify the selected actionable step in `agents/sage/TASKS.md`
+- [x] Confirm the canonical Meru restage command and output surfaces
+- [x] Attempt the canonical Meru candidate staging pass to refresh `latest-run.json`
+- [x] Verify the execution result and summarize the blocker for the loop state update
+
+## Review
+
+- The canonical restage path is `_System/scripts/memory/run_paperclip_bridge.sh --stage-only`, which stages a fresh `latest-run.json` plus handoff manifests.
+- This loop runtime can read the vault, but it cannot write to `/Volumes/madara/2026/twc-vault/_System/memory/archetypal-candidates/`.
+- The staging attempt failed immediately with `PermissionError: [Errno 1] Operation not permitted` while creating `runs/meru-candidates-20260420-151128`.
+- `agents/sage/TASKS.md` now marks Step 3 as blocked so the loop can retry only after the runtime gets the required write access.
+
+## NOVA Loop Cycle - 2026-04-22T10:16:11Z
+
+- [x] Review `tasks/lessons.md` plus the live `agents/nova/INBOX.md`, `TASKS.md`, `CONTEXT.md`, and `HEARTBEAT.md`
+- [x] Apply the scheduler inbox and step-selection rules to determine whether NOVA has actionable work
+- [x] Confirm this cycle is `idle` because there are no pending inbox items or active retry-eligible steps
+- [x] Append the idle cycle record to `agents/nova/HEARTBEAT.md`
+- [x] Prepare the exact scheduler payload with unchanged `INBOX.md`, unchanged `TASKS.md`, and no context additions
+
+## Review
+
+- `agents/nova/INBOX.md` had no pending items, so nothing moved into the queue.
+- `agents/nova/TASKS.md` had no active open, in-progress, or retry-eligible blocked steps.
+- This cycle result is `idle`; no delegation, escalation, or context updates were required.
+- The scheduler payload leaves `TASKS.md` and `INBOX.md` unchanged, appends one idle entry to `HEARTBEAT.md`, and makes no `CONTEXT.md` additions.
+
+## CLAWD Loop Cycle - 2026-04-20T08:57:07Z
+
+- [x] Review `agents/clawd/INBOX.md` and move the new Clockify backlog policy assignment into the active queue
+- [x] Inspect `scripts/teamforge-sync.sh`, `scripts/task-registry.sh`, and the live TeamForge state to locate the feed-shaping and backlog-clearing path
+- [ ] Write a failing TeamForge policy regression test covering 14-day visibility, per-day Clockify batching, registry archiving, and higher-severity passthrough
+- [ ] Implement the Clockify info-level batching/retention/archive rule in TeamForge sync and registry handling
+- [ ] Run the targeted TeamForge regression test plus a live sync to clear the current backlog under the new policy
+- [ ] Document the policy and verification evidence for the engineering record
+
+## Review
+
+- Added TeamForge Clockify policy regression coverage in `tests/test_teamforge_clockify_policy.sh`.
+- Fixed TeamForge temp harnesses to pin `REPO_ROOT` to fixture repos so they cannot bleed into the live runtime.
+- Updated `scripts/teamforge-sync.sh` to materialize daily Clockify aggregates in active feeds, archive low-severity Clockify registry tasks with explicit reasons, and persist policy counters in `sync-state.json`.
+- Verified with targeted tests plus a live `./scripts/teamforge-sync.sh sync --no-dispatch` run.
+
 ## NOVA Loop Cycle - 2026-04-16T13:27:54Z
 
 - [x] Verify `agents/nova/INBOX.md` for pending items
@@ -9,6 +657,35 @@
 
 - `agents/nova/INBOX.md` had no pending items.
 - `agents/nova/TASKS.md` had no active open, in-progress, or retry-eligible blocked steps.
+- This cycle result is `idle`; no delegation, escalation, or context updates were required.
+- The scheduler payload leaves `TASKS.md` and `INBOX.md` unchanged, appends one idle entry to `HEARTBEAT.md`, and makes no `CONTEXT.md` additions.
+
+## VIBE Loop Cycle - 2026-04-20T08:58:07Z
+
+- [x] Verify `agents/vibe/INBOX.md` for pending items
+- [x] Verify `agents/vibe/TASKS.md` for actionable steps
+- [x] Apply the loop selection rules to determine the cycle outcome
+- [x] Append the idle cycle record to `agents/vibe/HEARTBEAT.md`
+- [x] Prepare the structured scheduler payload for this cycle
+
+## Review
+
+- `agents/vibe/INBOX.md` had no pending items.
+- `agents/vibe/TASKS.md` had no active open, in-progress, or retry-eligible blocked steps.
+- This cycle result is `idle`; no delegation, escalation, or context updates were required.
+- The scheduler payload leaves `TASKS.md` and `INBOX.md` unchanged, appends one idle entry to `HEARTBEAT.md`, and makes no `CONTEXT.md` additions.
+
+## TRENDY Loop Cycle - 2026-04-20T14:59:10Z
+
+- [x] Review `tasks/lessons.md` plus the live `agents/trendy/INBOX.md`, `TASKS.md`, and `CONTEXT.md`
+- [x] Apply the scheduler inbox and step-selection rules to determine whether TRENDY has actionable work
+- [x] Record the idle outcome in `agents/trendy/HEARTBEAT.md`
+- [x] Prepare the exact scheduler payload with unchanged `INBOX.md`, unchanged `TASKS.md`, and no context additions
+
+## Review
+
+- `agents/trendy/INBOX.md` had no pending items, so nothing was moved into the queue.
+- `agents/trendy/TASKS.md` had no active open, in-progress, or retry-eligible blocked steps.
 - This cycle result is `idle`; no delegation, escalation, or context updates were required.
 - The scheduler payload leaves `TASKS.md` and `INBOX.md` unchanged, appends one idle entry to `HEARTBEAT.md`, and makes no `CONTEXT.md` additions.
 
@@ -685,3 +1362,32 @@
 - Added `docs/tryambakam-noesis-skill-map.md`, `docs/tryambakam-noesis-install.md`, and `scripts/seed-product-marketing-context.sh`.
 - Verified the touched manifests parse as YAML, all mapped custom skills and seed files exist, and the context seeding helper writes `.agents/product-marketing-context.md` into a target workspace.
 - Found unrelated pre-existing VelvetClaw memory gaps that still affect `pixel`, `nova`, and `vibe`; those were not part of this install pass.
+
+## JARVIS Loop Cycle - 2026-04-20T08:47:24Z
+
+- [x] Review `agents/jarvis/INBOX.md` for pending items
+- [x] Convert the pending Clockify backlog escalation into a tracked JARVIS step
+- [x] Decide backlog-shaping policy for low-severity Clockify TeamForge signals
+- [x] Delegate cleanup execution to `agents/clawd/INBOX.md`
+- [x] Prepare the structured scheduler payload for this cycle
+
+## Review
+
+- `agents/jarvis/INBOX.md` contained one pending medium-priority escalation from CLAWD about a collapsed 197-item Clockify backlog.
+- The selected step was strategic rather than specialist: classify the backlog, set retention/collapse/archive policy, and assign the execution owner.
+- Policy chosen: raw info-level Clockify signals stay in active TeamForge surfaces for 14 days, duplicates collapse to one aggregate per event type/day, and older low-severity items are auto-archived out of active queues while remaining auditable in `sync-state.json` and `task-registry.json`.
+- Execution ownership was delegated to Engineering in `agents/clawd/INBOX.md` as `task-1776674844-a3f2` because this is feed-shaping and runtime-budget hygiene, not a cross-department build.
+
+## VIBE Loop Cycle - 2026-04-20T10:52:01Z
+
+- [x] Review `tasks/lessons.md` and the live `agents/vibe/*` state files
+- [x] Verify `agents/vibe/INBOX.md` for pending assignments
+- [x] Verify `agents/vibe/TASKS.md` for actionable steps under the loop selection rules
+- [x] Append the idle cycle record and prepare the scheduler payload
+
+## Review
+
+- `agents/vibe/INBOX.md` had no pending items.
+- `agents/vibe/TASKS.md` had no active open, in-progress, or retry-eligible blocked steps.
+- This cycle result is `idle`; no delegation, escalation, or context updates were required.
+- The scheduler payload leaves `TASKS.md` and `INBOX.md` unchanged, appends one idle entry to `HEARTBEAT.md`, and makes no `CONTEXT.md` additions.

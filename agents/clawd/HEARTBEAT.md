@@ -2035,3 +2035,1357 @@ _Weekly aggregates populated by the evolution cycle._
 - Summary: Checked the provided inbox, task queue, context, and heartbeat state and found no pending inbox items or actionable active tasks, so the cycle remained idle.
 
 | 2026-04-16T18:18:05Z | cycle-1776363419 | completed | 65s | tokens=0 |
+
+### 2026-04-16T18:27:04Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 72s
+- Summary: Checked the live inbox, task queue, context, and heartbeat state and found no pending inbox items or actionable active tasks, so the cycle remained idle.
+
+| 2026-04-16T18:28:53Z | cycle-1776364024 | completed | 108s | tokens=0 |
+
+### 2026-04-16T18:37:16Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 5s
+- Summary: Checked the provided inbox, task queue, context, and heartbeat state and found no pending inbox items or actionable active tasks, so the cycle remained idle.
+
+| 2026-04-16T18:38:15Z | cycle-1776364636 | completed | 59s | tokens=0 |
+
+### 2026-04-16T18:47:20Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 5s
+- Summary: Checked the inbox, task queue, context, and heartbeat state and found no pending inbox items or actionable active tasks, so the cycle remained idle.
+
+| 2026-04-16T18:48:21Z | cycle-1776365240 | completed | 61s | tokens=0 |
+
+### 2026-04-16T18:57:26Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 5s
+- Summary: Checked the inbox, task queue, context, and heartbeat state and found no pending inbox items or actionable active tasks, so the cycle remained idle.
+
+| 2026-04-16T18:59:01Z | cycle-1776365845 | completed | 94s | tokens=0 |
+
+### 2026-04-16T19:07:31Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 5s
+- Summary: Checked the provided inbox, task queue, context, and heartbeat state and found no pending inbox items or actionable active tasks, so the cycle remained idle.
+
+| 2026-04-16T19:08:31Z | cycle-1776366451 | completed | 59s | tokens=0 |
+
+### 2026-04-20T08:21:32Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-20T08:21:32Z | cycle-1776673050 | timeout | 240s | tokens=0 |
+
+### 2026-04-20T08:30:03Z Cycle Result
+- Step: Step 7
+- Outcome: completed
+- Duration: 180s
+- Summary: Batched the 197-item Clockify inbox flood for triage, then verified from live runtime checks that TeamForge feed export resolution is healthy and closed the stale feed-ingestion alert.
+
+### 2026-04-20T08:34:08Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-20T08:34:08Z | cycle-1776673803 | timeout | 240s | tokens=0 |
+
+### 2026-04-20T08:45:09Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 5s
+- Summary: Checked the inbox, task queue, context, and heartbeat state and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T08:46:38Z | cycle-1776674709 | completed | 89s | tokens=0 |
+
+### 2026-04-20T09:01:08Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-20T09:01:08Z | cycle-1776675427 | timeout | 240s | tokens=0 |
+
+### 2026-04-20T09:11:52Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-20T09:11:52Z | cycle-1776676071 | timeout | 241s | tokens=0 |
+
+### 2026-04-20T08:57:07Z Cycle Result
+- Step: Step 10
+- Outcome: completed
+- Duration: 240s
+- Summary: Implemented the TeamForge Clockify info-policy batching/archive path, verified it with targeted tests and a live non-dispatch sync, and documented the rule plus live evidence.
+
+### 2026-04-20T09:19:56Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 5s
+- Summary: Checked the inbox, task queue, context, and heartbeat state and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T09:21:38Z | cycle-1776676796 | completed | 101s | tokens=0 |
+
+### 2026-04-20T09:31:17Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 5s
+- Summary: Checked the inbox, task queue, context, and heartbeat state and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T09:33:17Z | cycle-1776677477 | completed | 120s | tokens=0 |
+
+### 2026-04-20T09:43:12Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 5s
+- Summary: Checked the inbox, task queue, context, and heartbeat state and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T09:45:11Z | cycle-1776678192 | completed | 118s | tokens=0 |
+
+### 2026-04-20T09:54:05Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 82s
+- Summary: Checked the live inbox, task queue, context, heartbeat state, and project lessons and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T09:56:50Z | cycle-1776678845 | completed | 165s | tokens=0 |
+
+### 2026-04-20T10:05:04Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 5s
+- Summary: Checked the inbox, task queue, context, and heartbeat state and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T10:06:48Z | cycle-1776679504 | completed | 104s | tokens=0 |
+
+### 2026-04-20T10:15:50Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 5s
+- Summary: Checked the inbox, task queue, context, and heartbeat state and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T10:17:55Z | cycle-1776680150 | completed | 125s | tokens=0 |
+
+### 2026-04-20T10:26:52Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 5s
+- Summary: Checked the inbox, task queue, context, and heartbeat state and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T10:28:41Z | cycle-1776680812 | completed | 109s | tokens=0 |
+
+### 2026-04-20T10:37:31Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 5s
+- Summary: Checked the inbox, task queue, context, and heartbeat state and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T10:39:22Z | cycle-1776681451 | completed | 111s | tokens=0 |
+
+### 2026-04-20T10:48:28Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 60s
+- Summary: Checked the live inbox, task queue, context, and heartbeat state and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T10:50:55Z | cycle-1776682108 | completed | 147s | tokens=0 |
+
+### 2026-04-20T10:59:06Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 78s
+- Summary: Checked the live inbox, task queue, context, heartbeat state, and project lessons and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T11:01:24Z | cycle-1776682746 | completed | 137s | tokens=0 |
+
+### 2026-04-20T11:12:19Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 78s
+- Summary: Checked the live inbox, task queue, context, heartbeat state, and project lessons and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T11:15:01Z | cycle-1776683539 | completed | 161s | tokens=0 |
+
+### 2026-04-20T11:24:18Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 60s
+- Summary: Checked the inbox, task queue, context, and heartbeat state and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T11:26:21Z | cycle-1776684258 | completed | 122s | tokens=0 |
+
+### 2026-04-20T11:35:00Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 60s
+- Summary: Checked the inbox, task queue, context, and heartbeat state and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T11:37:02Z | cycle-1776684900 | completed | 122s | tokens=0 |
+
+### 2026-04-20T11:46:43Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 60s
+- Summary: Checked the inbox, task queue, context, and heartbeat state and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T11:48:59Z | cycle-1776685603 | completed | 135s | tokens=0 |
+
+### 2026-04-20T11:58:41Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 60s
+- Summary: Checked the inbox, task queue, context, and heartbeat state and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T12:00:53Z | cycle-1776686321 | completed | 132s | tokens=0 |
+
+### 2026-04-20T12:09:40Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 60s
+- Summary: Checked the inbox, task queue, context, and heartbeat state and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T12:11:55Z | cycle-1776686979 | completed | 135s | tokens=0 |
+
+### 2026-04-20T14:07:48Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 60s
+- Summary: Checked the live inbox, task queue, context, heartbeat state, and project lessons and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T14:10:55Z | cycle-1776694068 | completed | 186s | tokens=0 |
+
+### 2026-04-20T14:20:28Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 60s
+- Summary: Checked the live inbox, task queue, context, heartbeat state, and project lessons and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T14:23:40Z | cycle-1776694827 | completed | 192s | tokens=0 |
+
+### 2026-04-20T14:31:06Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 60s
+- Summary: Checked the inbox, task queue, context, and heartbeat state and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T14:34:22Z | cycle-1776695466 | completed | 196s | tokens=0 |
+
+### 2026-04-20T14:42:44Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 60s
+- Summary: Checked the live inbox, task queue, context, and heartbeat state and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T14:45:15Z | cycle-1776696164 | completed | 150s | tokens=0 |
+
+### 2026-04-20T14:53:07Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 60s
+- Summary: Checked the live inbox, task queue, context, heartbeat state, and project lessons and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T14:56:04Z | cycle-1776696787 | completed | 177s | tokens=0 |
+
+### 2026-04-20T15:03:53Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 60s
+- Summary: Checked the inbox, task queue, context, and heartbeat state and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T15:06:33Z | cycle-1776697433 | completed | 160s | tokens=0 |
+
+### 2026-04-20T15:15:00Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-20T15:15:00Z | cycle-1776698056 | failed | 44s | tokens=0 |
+
+### 2026-04-20T15:25:02Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 60s
+- Summary: Checked the inbox, task queue, context, and heartbeat state and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T15:28:03Z | cycle-1776698702 | completed | 181s | tokens=0 |
+
+### 2026-04-20T15:37:26Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-20T15:37:27Z | cycle-1776699405 | failed | 41s | tokens=0 |
+
+### 2026-04-20T15:47:10Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 60s
+- Summary: Checked the inbox, task queue, context, heartbeat state, and project lessons and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T15:50:05Z | cycle-1776700030 | completed | 174s | tokens=0 |
+
+### 2026-04-20T15:57:51Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 60s
+- Summary: Checked the live inbox, task queue, context, heartbeat state, and project lessons and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T16:01:04Z | cycle-1776700671 | completed | 193s | tokens=0 |
+
+### 2026-04-20T16:08:01Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 60s
+- Summary: Checked the live inbox, task queue, context, and heartbeat state and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T16:11:33Z | cycle-1776701281 | completed | 212s | tokens=0 |
+
+### 2026-04-20T16:18:36Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 60s
+- Summary: Checked the inbox, task queue, context, and heartbeat state and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T16:21:43Z | cycle-1776701916 | completed | 186s | tokens=0 |
+
+### 2026-04-20T16:28:59Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 60s
+- Summary: Checked the inbox, task queue, context, and heartbeat state and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T16:32:18Z | cycle-1776702539 | completed | 199s | tokens=0 |
+
+### 2026-04-20T16:42:06Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 60s
+- Summary: Checked the inbox, task queue, context, and heartbeat state and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T16:45:07Z | cycle-1776703326 | completed | 181s | tokens=0 |
+
+### 2026-04-20T16:52:31Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 60s
+- Summary: Checked the live inbox, task queue, context, and heartbeat state and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T16:55:29Z | cycle-1776703951 | completed | 177s | tokens=0 |
+
+### 2026-04-20T17:03:15Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 60s
+- Summary: Checked the live inbox, task queue, context, heartbeat state, and project lessons and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T17:07:04Z | cycle-1776704595 | completed | 229s | tokens=0 |
+
+### 2026-04-20T17:13:41Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 60s
+- Summary: Checked the live inbox, task queue, context, heartbeat state, and lessons path state and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T17:17:28Z | cycle-1776705221 | completed | 226s | tokens=0 |
+
+### 2026-04-20T17:29:04Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-20T17:29:04Z | cycle-1776705904 | timeout | 240s | tokens=0 |
+
+### 2026-04-20T17:39:21Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-20T17:39:21Z | cycle-1776706520 | timeout | 240s | tokens=0 |
+
+### 2026-04-20T17:50:38Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-20T17:50:38Z | cycle-1776707197 | timeout | 240s | tokens=0 |
+
+### 2026-04-20T17:56:39Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 75s
+- Summary: Checked the live inbox, task queue, context, heartbeat state, and lessons path state and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T18:00:36Z | cycle-1776707799 | completed | 237s | tokens=0 |
+
+### 2026-04-20T18:07:01Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 60s
+- Summary: Checked the live inbox, task queue, context, heartbeat state, and lessons path state and found no pending inbox items or actionable tasks, so the cycle remained idle.
+
+| 2026-04-20T18:10:46Z | cycle-1776708421 | completed | 225s | tokens=0 |
+
+### 2026-04-20T18:23:19Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-20T18:23:19Z | cycle-1776709159 | timeout | 240s | tokens=0 |
+
+### 2026-04-20T18:33:36Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-20T18:33:36Z | cycle-1776709776 | timeout | 240s | tokens=0 |
+
+### 2026-04-21T07:20:28Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-21T07:20:28Z | cycle-1776755788 | timeout | 240s | tokens=0 |
+
+### 2026-04-21T07:34:02Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-21T07:34:02Z | cycle-1776756601 | timeout | 240s | tokens=0 |
+
+### 2026-04-21T07:45:55Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-21T07:45:55Z | cycle-1776757314 | timeout | 240s | tokens=0 |
+
+### 2026-04-21T07:55:58Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-21T07:55:58Z | cycle-1776757915 | timeout | 241s | tokens=0 |
+
+### 2026-04-21T08:07:41Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-21T08:07:42Z | cycle-1776758620 | timeout | 241s | tokens=0 |
+
+### 2026-04-21T08:20:39Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-21T08:20:39Z | cycle-1776759398 | timeout | 240s | tokens=0 |
+
+### 2026-04-21T08:31:50Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-21T08:31:50Z | cycle-1776760069 | timeout | 240s | tokens=0 |
+
+### 2026-04-21T08:45:51Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-21T08:45:51Z | cycle-1776760910 | timeout | 240s | tokens=0 |
+
+### 2026-04-21T08:56:26Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-21T08:56:26Z | cycle-1776761545 | timeout | 241s | tokens=0 |
+
+### 2026-04-21T09:07:30Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-21T09:07:30Z | cycle-1776762210 | timeout | 240s | tokens=0 |
+
+### 2026-04-21T09:18:30Z Cycle Result
+- Step: Step 54
+- Outcome: completed
+- Duration: 90s
+- Summary: Processed the pending TeamForge feed-down dispatch, verified the live sync/export path is healthy with zero current-cycle errors, and closed the alert as a stale signal.
+
+### 2026-04-21T09:22:31Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-21T09:22:31Z | cycle-1776763110 | timeout | 240s | tokens=0 |
+
+### 2026-04-21T09:33:26Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-21T09:33:26Z | cycle-1776763763 | timeout | 243s | tokens=0 |
+
+### 2026-04-21T09:40:56Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 60s
+- Summary: Checked the live inbox, task queue, context, and heartbeat state and found no pending inbox items or actionable active tasks, so the cycle remained idle.
+
+| 2026-04-21T09:44:57Z | cycle-1776764456 | timeout | 240s | tokens=0 |
+
+### 2026-04-21T09:55:53Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-21T09:55:53Z | cycle-1776765112 | timeout | 241s | tokens=0 |
+
+### 2026-04-21T10:06:50Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-21T10:06:50Z | cycle-1776765769 | timeout | 241s | tokens=0 |
+
+### 2026-04-21T10:19:45Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-21T10:19:45Z | cycle-1776766545 | timeout | 240s | tokens=0 |
+
+### 2026-04-21T10:26:58Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T10:26:58Z | cycle-1776767217 | failed | 0s | tokens=0 |
+
+### 2026-04-21T10:36:59Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T10:36:59Z | cycle-1776767818 | failed | 1s | tokens=0 |
+
+### 2026-04-21T10:48:16Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T10:48:16Z | cycle-1776768495 | failed | 0s | tokens=0 |
+
+### 2026-04-21T10:59:15Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T10:59:15Z | cycle-1776769154 | failed | 0s | tokens=0 |
+
+### 2026-04-21T11:09:20Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T11:09:20Z | cycle-1776769759 | failed | 1s | tokens=0 |
+
+### 2026-04-21T11:19:26Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T11:19:26Z | cycle-1776770365 | failed | 1s | tokens=0 |
+
+### 2026-04-21T11:31:05Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T11:31:05Z | cycle-1776771065 | failed | 0s | tokens=0 |
+
+### 2026-04-21T11:42:08Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T11:42:08Z | cycle-1776771727 | failed | 0s | tokens=0 |
+
+### 2026-04-21T11:53:23Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T11:53:23Z | cycle-1776772403 | failed | 0s | tokens=0 |
+
+### 2026-04-21T12:04:24Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T12:04:24Z | cycle-1776773063 | failed | 1s | tokens=0 |
+
+### 2026-04-21T12:15:42Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T12:15:42Z | cycle-1776773741 | failed | 1s | tokens=0 |
+
+### 2026-04-21T12:26:45Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T12:26:45Z | cycle-1776774404 | failed | 1s | tokens=0 |
+
+### 2026-04-21T12:38:27Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T12:38:27Z | cycle-1776775106 | failed | 1s | tokens=0 |
+
+### 2026-04-21T12:49:37Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T12:49:37Z | cycle-1776775776 | failed | 1s | tokens=0 |
+
+### 2026-04-21T12:59:49Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T12:59:49Z | cycle-1776776385 | failed | 3s | tokens=0 |
+
+### 2026-04-21T13:09:53Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T13:09:53Z | cycle-1776776992 | failed | 1s | tokens=0 |
+
+### 2026-04-21T13:20:00Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T13:20:00Z | cycle-1776777599 | failed | 1s | tokens=0 |
+
+### 2026-04-21T13:30:02Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T13:30:02Z | cycle-1776778201 | failed | 1s | tokens=0 |
+
+### 2026-04-21T13:40:03Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T13:40:03Z | cycle-1776778802 | failed | 1s | tokens=0 |
+
+### 2026-04-21T13:50:07Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T13:50:07Z | cycle-1776779407 | failed | 0s | tokens=0 |
+
+### 2026-04-21T14:01:07Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T14:01:07Z | cycle-1776780066 | failed | 1s | tokens=0 |
+
+### 2026-04-21T14:34:51Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T14:34:51Z | cycle-1776782091 | failed | 0s | tokens=0 |
+
+### 2026-04-21T15:00:51Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T15:00:51Z | cycle-1776783650 | failed | 0s | tokens=0 |
+
+### 2026-04-21T15:24:18Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T15:24:19Z | cycle-1776785057 | failed | 0s | tokens=0 |
+
+### 2026-04-21T15:47:45Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T15:47:45Z | cycle-1776786463 | failed | 0s | tokens=0 |
+
+### 2026-04-21T16:08:26Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T16:08:26Z | cycle-1776787705 | failed | 1s | tokens=0 |
+
+### 2026-04-21T16:36:44Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T16:36:44Z | cycle-1776789403 | failed | 1s | tokens=0 |
+
+### 2026-04-21T17:00:06Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T17:00:06Z | cycle-1776790805 | failed | 1s | tokens=0 |
+
+### 2026-04-21T17:10:58Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T17:10:58Z | cycle-1776791456 | failed | 1s | tokens=0 |
+
+### 2026-04-21T17:22:09Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T17:22:09Z | cycle-1776792128 | failed | 0s | tokens=0 |
+
+### 2026-04-21T17:32:44Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T17:32:44Z | cycle-1776792763 | failed | 1s | tokens=0 |
+
+### 2026-04-21T17:43:47Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T17:43:47Z | cycle-1776793427 | failed | 0s | tokens=0 |
+
+### 2026-04-21T17:54:33Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T17:54:33Z | cycle-1776794073 | failed | 0s | tokens=0 |
+
+### 2026-04-21T18:05:42Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T18:05:42Z | cycle-1776794741 | failed | 0s | tokens=0 |
+
+### 2026-04-21T18:16:29Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T18:16:29Z | cycle-1776795388 | failed | 0s | tokens=0 |
+
+### 2026-04-21T18:27:18Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T18:27:18Z | cycle-1776796038 | failed | 0s | tokens=0 |
+
+### 2026-04-21T18:38:06Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T18:38:06Z | cycle-1776796684 | failed | 1s | tokens=0 |
+
+### 2026-04-21T18:49:34Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T18:49:34Z | cycle-1776797374 | failed | 0s | tokens=0 |
+
+### 2026-04-21T19:00:18Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T19:00:18Z | cycle-1776798017 | failed | 1s | tokens=0 |
+
+### 2026-04-21T19:11:20Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T19:11:20Z | cycle-1776798680 | failed | 0s | tokens=0 |
+
+### 2026-04-21T19:22:05Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T19:22:05Z | cycle-1776799324 | failed | 0s | tokens=0 |
+
+### 2026-04-21T19:34:32Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T19:34:32Z | cycle-1776800072 | failed | 0s | tokens=0 |
+
+### 2026-04-21T19:45:10Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T19:45:10Z | cycle-1776800709 | failed | 1s | tokens=0 |
+
+### 2026-04-21T19:56:09Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T19:56:09Z | cycle-1776801368 | failed | 1s | tokens=0 |
+
+### 2026-04-21T20:06:43Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T20:06:43Z | cycle-1776802002 | failed | 1s | tokens=0 |
+
+### 2026-04-21T20:17:47Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T20:17:47Z | cycle-1776802667 | failed | 0s | tokens=0 |
+
+### 2026-04-21T20:28:23Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T20:28:24Z | cycle-1776803303 | failed | 0s | tokens=0 |
+
+### 2026-04-21T20:39:23Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T20:39:23Z | cycle-1776803963 | failed | 0s | tokens=0 |
+
+### 2026-04-21T20:50:03Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T20:50:03Z | cycle-1776804602 | failed | 1s | tokens=0 |
+
+### 2026-04-22T09:11:24Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-22T09:11:24Z | cycle-1776849084 | failed | 0s | tokens=0 |
+
+### 2026-04-22T09:21:35Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-22T09:21:35Z | cycle-1776849694 | failed | 0s | tokens=0 |
+
+### 2026-04-22T09:32:00Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-22T09:32:00Z | cycle-1776850319 | failed | 0s | tokens=0 |
+
+### 2026-04-22T09:39:11Z Cycle Result
+- Step: idle-check
+- Outcome: idle
+- Duration: 0s
+- Summary: No pending inbox/registry work; `teamforge-sync.sh sync` returned `new=0 errors=0` and status/stats remained healthy.
+
+| 2026-04-22T09:39:11Z | cycle-1776850751 | idle | 0s | tokens=0 |
+
+### 2026-04-22T09:54:28Z Cycle Result
+- Step: loop-runner-codex-notify-compat
+- Outcome: completed
+- Duration: 0s
+- Summary: Patched loop-runner `codex exec` invocation with `features.notify` compatibility override to prevent config parse aborts and restore agent-cycle output emission.
+
+| 2026-04-22T09:54:28Z | cycle-1776851668 | completed | 0s | tokens=0 |
+
+### 2026-04-22T10:02:37Z Cycle Result
+- Step: loop-runner-restart-verify
+- Outcome: completed
+- Duration: 0s
+- Summary: Removed stale runner process drift, restarted loop-runner on patched code path, and validated fresh logs no longer emit `config.toml` type errors.
+
+| 2026-04-22T10:02:37Z | cycle-1776852157 | completed | 0s | tokens=0 |
+
+### 2026-04-22T10:17:38Z Cycle Result
+- Step: loop-runner-pid-drift-hardening
+- Outcome: completed
+- Duration: 0s
+- Summary: Hardened daemon start/stop/status to reconcile live runner processes, kill duplicate stale runners, and report supervised auto-restart survivors explicitly.
+
+| 2026-04-22T10:17:38Z | cycle-1776853058 | completed | 0s | tokens=0 |
+
+### 2026-04-22T10:21:43Z Cycle Result
+- Step: loop-runner-daemon-hardening-followup
+- Outcome: completed
+- Duration: 0s
+- Summary: Corrected runner-root PID matching and TERM/INT exit handling so daemon stop semantics are explicit and supervised respawns are reported clearly.
+
+| 2026-04-22T10:21:43Z | cycle-1776853303 | completed | 0s | tokens=0 |
+
+### 2026-04-22T09:42:09Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-22T09:42:09Z | cycle-1776850929 | failed | 0s | tokens=0 |
+
+### 2026-04-22T09:52:35Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-22T09:52:35Z | cycle-1776851554 | failed | 0s | tokens=0 |
+
+### 2026-04-22T10:07:13Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-22T10:07:13Z | cycle-1776852191 | timeout | 241s | tokens=0 |
+
+### 2026-04-22T10:30:13Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-22T10:30:13Z | cycle-1776853573 | timeout | 240s | tokens=0 |
+
+### 2026-04-22T10:41:34Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-22T10:41:34Z | cycle-1776854253 | timeout | 240s | tokens=0 |
+
+### 2026-04-22T10:56:24Z Cycle Result
+- Step: loop-runner-empty-agent-hardening
+- Outcome: completed
+- Duration: 0s
+- Summary: Fixed loop-runner zero-agent `set -u` crash path via explicit empty associative-array initialization and nullglob-based discovery, then re-verified with syntax checks, signal-lane regression test, and zero-agent harness execution.
+
+| 2026-04-22T10:56:24Z | cycle-1776855413 | completed | 0s | tokens=0 |
+
+### 2026-04-22T11:09:39Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-22T11:09:39Z | cycle-1776855699 | timeout | 480s | tokens=0 |
+
+### 2026-04-22T11:20:31Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-22T11:20:31Z | cycle-1776856351 | timeout | 480s | tokens=0 |
+
+### 2026-04-22T11:23:53Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 0s
+- Summary: No pending inbox items or actionable task steps were available, so the cycle remained idle.
+
+| 2026-04-22T11:24:08Z | cycle-1776857033 | completed | 14s | tokens=0 |
+
+### 2026-04-22T11:26:12Z Cycle Result
+- Step: loop-runner-nochanges-protocol
+- Outcome: completed
+- Duration: 0s
+- Summary: Added `NO_CHANGES` support for unchanged TASKS/INBOX writes, validated parser/write-back compatibility, and confirmed the first post-patch CLAWD daemon cycle completed quickly without parse timeouts.
+
+| 2026-04-22T11:26:12Z | cycle-1776857172 | completed | 0s | tokens=0 |
+
+### 2026-04-22T11:36:02Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 0s
+- Summary: No pending inbox items or actionable task steps were available, so the cycle remained idle.
+
+| 2026-04-22T11:36:16Z | cycle-1776857762 | completed | 14s | tokens=0 |
+
+### 2026-04-22T11:41:35Z Cycle Result
+- Step: loop-runner-nochanges-regression-tests
+- Outcome: completed
+- Duration: 0s
+- Summary: Added and executed regression tests for `NO_CHANGES` prompt-contract and write-back semantics, and re-verified signal-lane loop-runner regression coverage.
+
+| 2026-04-22T11:41:35Z | cycle-1776858095 | completed | 0s | tokens=0 |
+
+### 2026-04-22T11:49:27Z Cycle Result
+- Step: write-back-json-and-marker-hardening
+- Outcome: completed
+- Duration: 0s
+- Summary: Hardened write-back malformed JSON handling and replaced marker-delimited update transport with base64-safe records; validated with targeted regression tests.
+
+| 2026-04-22T11:49:27Z | cycle-1776858567 | completed | 0s | tokens=0 |
+
+### 2026-04-22T12:06:46Z Cycle Result
+- Step: loop-runner-stderr-recovery-structural-validation
+- Outcome: completed
+- Duration: 0s
+- Summary: Replaced brittle stderr-recovery prompt-fragment guards with structural FILE_UPDATE validation and added integration coverage for reject-template/accept-valid stderr recovery.
+
+| 2026-04-22T12:06:46Z | cycle-1776859606 | completed | 0s | tokens=0 |
+
+### 2026-04-22T12:21:54Z Cycle Result
+- Step: loop-runner-manifest-yaml-path-parser
+- Outcome: completed
+- Duration: 0s
+- Summary: Replaced loop-runner grep-window manifest parsing with a path-based YAML scalar reader and added quoted-value regression coverage.
+
+| 2026-04-22T12:21:54Z | cycle-1776860514 | completed | 0s | tokens=0 |
+
+### 2026-04-22T12:36:08Z Cycle Result
+- Step: agent-prompt-assembler-manifest-yaml-path-parser
+- Outcome: completed
+- Duration: 0s
+- Summary: Migrated agent-prompt-assembler MANIFEST parsing to path-based YAML scalar reads and added quoted/reordered manifest regression coverage.
+
+| 2026-04-22T12:36:08Z | cycle-1776861368 | completed | 0s | tokens=0 |
+
+### 2026-04-22T12:51:03Z Cycle Result
+- Step: yaml-helper-consolidation
+- Outcome: completed
+- Duration: 0s
+- Summary: Consolidated duplicated YAML scalar parsing into shared `scripts/yaml-helpers.sh` and updated staged regressions to include helper copy semantics.
+
+| 2026-04-22T12:51:03Z | cycle-1776862263 | completed | 0s | tokens=0 |
+
+### 2026-04-22T13:04:05Z Cycle Result
+- Step: yaml-helpers-edge-case-smoke-test
+- Outcome: completed
+- Duration: 0s
+- Summary: Added dedicated YAML helper smoke test covering quote/comment/path edge-cases and verified downstream manifest regressions remain green.
+
+| 2026-04-22T13:04:05Z | cycle-1776863045 | completed | 0s | tokens=0 |
+
+### 2026-04-22T13:18:38Z Cycle Result
+- Step: shared-test-fixture-helper-refactor
+- Outcome: completed
+- Duration: 0s
+- Summary: Added shared test fixture helper for temp-root script staging and refactored affected regression tests to use it.
+
+| 2026-04-22T13:18:38Z | cycle-1776863918 | completed | 0s | tokens=0 |
+
+### 2026-04-22T11:46:54Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 0s
+- Summary: No pending inbox items or actionable task steps were available, so the cycle remained idle.
+
+| 2026-04-22T11:47:09Z | cycle-1776858414 | completed | 14s | tokens=0 |
+
+### 2026-04-22T11:58:02Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 0s
+- Summary: No pending inbox items or actionable task steps were available, so the cycle remained idle.
+
+| 2026-04-22T11:58:17Z | cycle-1776859082 | completed | 15s | tokens=0 |
+
+### 2026-04-22T12:08:50Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 0s
+- Summary: No pending inbox items or actionable task steps were available, so the cycle remained idle.
+
+| 2026-04-22T12:09:05Z | cycle-1776859730 | completed | 15s | tokens=0 |
+
+### 2026-04-22T12:20:14Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 0s
+- Summary: No pending inbox items or actionable task steps were available, so the cycle remained idle.
+
+| 2026-04-22T12:20:32Z | cycle-1776860414 | completed | 17s | tokens=0 |
+
+### 2026-04-22T12:31:01Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 0s
+- Summary: No pending inbox items or actionable task steps were available, so the cycle remained idle.
+
+| 2026-04-22T12:31:19Z | cycle-1776861061 | completed | 16s | tokens=0 |
+
+### 2026-04-22T12:42:16Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 0s
+- Summary: No pending inbox items or actionable task steps were available, so the cycle remained idle.
+
+| 2026-04-22T12:42:30Z | cycle-1776861735 | completed | 14s | tokens=0 |
+
+### 2026-04-22T12:53:09Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 0s
+- Summary: No pending inbox items or actionable task steps were available, so the cycle remained idle.
+
+| 2026-04-22T12:53:24Z | cycle-1776862389 | completed | 14s | tokens=0 |
+
+### 2026-04-22T13:03:57Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 0s
+- Summary: No pending inbox items or actionable task steps were available, so the cycle remained idle.
+
+| 2026-04-22T13:04:10Z | cycle-1776863037 | completed | 12s | tokens=0 |
+
+### 2026-04-22T13:14:20Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 0s
+- Summary: No pending inbox items or actionable task steps were available, so the cycle remained idle.
+
+| 2026-04-22T13:14:38Z | cycle-1776863659 | completed | 18s | tokens=0 |
+
+### 2026-04-22T13:25:08Z Cycle Result
+- Step: Step 114
+- Outcome: completed
+- Duration: 65s
+- Summary: Hardened whitespace-aware boolean normalization in `scripts/yaml-helpers.sh`, expanded helper + loop-runner manifest regressions for spaced quoted booleans, and re-verified runtime health (`11/11 healthy`).
+
+| 2026-04-22T13:25:08Z | cycle-1776864308 | completed | 65s | tokens=0 |
+
+### 2026-04-22T13:26:06Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 0s
+- Summary: No pending inbox items or actionable task steps were available, so the cycle remained idle.
+
+| 2026-04-22T13:26:35Z | cycle-1776864366 | completed | 28s | tokens=0 |
+
+### 2026-04-22T13:36:37Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 0s
+- Summary: No pending inbox items or actionable task steps were available, so the cycle remained idle.
+
+| 2026-04-22T13:36:53Z | cycle-1776864997 | completed | 16s | tokens=0 |
+
+### 2026-04-22T13:39:09Z Cycle Result
+- Step: Step 115
+- Outcome: completed
+- Duration: 61s
+- Summary: Refactored remaining registry/teamforge temp-root tests to shared fixture-helper script staging and re-verified touched regressions plus runtime health (`11/11 healthy`).
+
+| 2026-04-22T13:39:09Z | cycle-1776865149 | completed | 61s | tokens=0 |
+
+### 2026-04-22T13:47:09Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 0s
+- Summary: No pending inbox items or actionable task steps were available, so the cycle remained idle.
+
+| 2026-04-22T13:47:21Z | cycle-1776865628 | completed | 12s | tokens=0 |
+
+### 2026-04-22T13:52:20Z Cycle Result
+- Step: Step 116
+- Outcome: completed
+- Duration: 73s
+- Summary: Refactored TeamForge `clockify_policy` and `reconcile_inbox_hook` temp-root setup to shared fixture-helper staging and re-verified TeamForge regression health (`11/11 healthy`).
+
+| 2026-04-22T13:52:20Z | cycle-1776865940 | completed | 73s | tokens=0 |
+
+### 2026-04-22T14:02:31Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 0s
+- Summary: No pending inbox items or actionable task steps were available, so the cycle remained idle.
+
+| 2026-04-22T14:03:02Z | cycle-1776866550 | completed | 30s | tokens=0 |
+
+### 2026-04-22T14:06:02Z Cycle Result
+- Step: Step 117
+- Outcome: completed
+- Duration: 69s
+- Summary: Refactored signal-lane temp-root tests to shared fixture-helper staging and re-ran signal-lane regressions; health recheck settled back to `11/11 healthy` after a transient `jarvis` stale window.
+
+| 2026-04-22T14:06:02Z | cycle-1776866762 | completed | 69s | tokens=0 |
+
+### 2026-04-22T14:13:06Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 0s
+- Summary: No pending inbox items or actionable task steps were available, so the cycle remained idle.
+
+| 2026-04-22T14:13:33Z | cycle-1776867183 | completed | 24s | tokens=0 |
+
+### 2026-04-22T14:20:38Z Cycle Result
+- Step: Step 118
+- Outcome: completed
+- Duration: 63s
+- Summary: Refactored write-back and TeamForge status compatibility regressions to shared fixture-helper staging, re-ran touched suites, and confirmed runtime health (`11/11 healthy`).
+
+| 2026-04-22T14:20:38Z | cycle-1776867638 | completed | 63s | tokens=0 |
+
+### 2026-04-22T14:23:12Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 0s
+- Summary: No pending inbox items or actionable task steps were available, so the cycle remained idle.
+
+| 2026-04-22T14:23:28Z | cycle-1776867792 | completed | 15s | tokens=0 |
+
+### 2026-04-22T14:33:25Z Cycle Result
+- Step: Step 119
+- Outcome: completed
+- Duration: 66s
+- Summary: Hardened fixture-helper copy diagnostics with explicit missing-script validation, added dedicated helper regression coverage, and re-verified representative dependent suites plus runtime health (`11/11 healthy`).
+
+| 2026-04-22T14:33:25Z | cycle-1776868405 | completed | 66s | tokens=0 |
+
+### 2026-04-22T14:43:09Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 0s
+- Summary: No pending inbox items or actionable task steps were available, so the cycle remained idle.
+
+| 2026-04-22T14:43:26Z | cycle-1776868988 | completed | 16s | tokens=0 |
+
+### 2026-04-22T14:46:17Z Cycle Result
+- Step: Step 120
+- Outcome: completed
+- Duration: 64s
+- Summary: Added invocation/source-directory guardrails to fixture-helper copy API, expanded helper regression coverage (including runtime-root stub checks), and re-verified dependent suites plus runtime health (`11/11 healthy`).
+
+| 2026-04-22T14:46:17Z | cycle-1776869177 | completed | 64s | tokens=0 |
+
+### 2026-04-22T14:53:58Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 0s
+- Summary: No pending inbox items or actionable task steps were available, so the cycle remained idle.
+
+| 2026-04-22T14:54:16Z | cycle-1776869638 | completed | 18s | tokens=0 |

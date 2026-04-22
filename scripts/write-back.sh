@@ -62,6 +62,33 @@ data = json.load(sys.stdin)
 print("yes" if "error" in data else "no")
 ' 2>/dev/null || echo "parse_fail")
 
+if [[ "$HAS_ERROR" == "parse_fail" ]]; then
+  ERROR_MSG="invalid_json"
+  log "warn" "Parser output was malformed JSON -- writing error context"
+
+  NOW=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+  if [[ -f "$AGENT_DIR/CONTEXT.md" ]]; then
+    echo "" >> "$AGENT_DIR/CONTEXT.md"
+    echo "- [$NOW] Loop cycle error: $ERROR_MSG -- write-back input was malformed JSON. Check logs for raw output." >> "$AGENT_DIR/CONTEXT.md"
+    log "info" "Appended invalid-json error to CONTEXT.md"
+  fi
+
+  if [[ -f "$AGENT_DIR/HEARTBEAT.md" ]]; then
+    {
+      echo ""
+      echo "### $NOW Cycle Result"
+      echo "- Step: parse-error"
+      echo "- Outcome: failed"
+      echo "- Duration: 0s"
+      echo "- Summary: Agent output could not be parsed ($ERROR_MSG)"
+    } >> "$AGENT_DIR/HEARTBEAT.md"
+    log "info" "Appended invalid-json failure entry to HEARTBEAT.md"
+  fi
+
+  exit 0
+fi
+
 if [[ "$HAS_ERROR" == "yes" ]]; then
   ERROR_MSG=$(echo "$JSON_INPUT" | python3 -c '
 import sys, json
@@ -101,54 +128,80 @@ UPDATE_COUNT=$(echo "$JSON_INPUT" | python3 -c '
 import sys, json
 data = json.load(sys.stdin)
 print(len(data.get("updates", [])))
-')
+' 2>/dev/null || echo "parse_fail")
+
+if [[ "$UPDATE_COUNT" == "parse_fail" ]]; then
+  log "warn" "Could not parse updates array from JSON input -- skipping write-back"
+  exit 0
+fi
 
 log "info" "Processing $UPDATE_COUNT file updates for agent $AGENT_ID"
 
 export AGENT_DIR
 
 echo "$JSON_INPUT" | python3 -c '
-import sys, json, os
+import sys, json, base64
 
 data = json.load(sys.stdin)
 
 for update in data.get("updates", []):
-    filename = update["file"]
-    content = update["content"]
-    print(f"===UPDATE_ENTRY===")
-    print(f"FILE:{filename}")
-    print(content)
-    print(f"===END_UPDATE_ENTRY===")
+    filename = str(update.get("file", ""))
+    content = update.get("content", "")
+    if not isinstance(content, str):
+        content = str(content)
+    encoded = base64.b64encode(content.encode("utf-8")).decode("ascii")
+    print(f"{filename}\t{encoded}")
 ' | {
-  current_file=""
-  current_content=""
-  in_entry=false
-
-  while IFS= read -r line; do
-    if [[ "$line" == "===UPDATE_ENTRY===" ]]; then
-      in_entry=true
-      current_file=""
-      current_content=""
+  while IFS=$'\t' read -r current_file current_content_b64; do
+    if [[ -z "$current_file" ]]; then
+      log "warn" "Skipping update with empty filename"
       continue
     fi
 
-    if [[ "$line" == "===END_UPDATE_ENTRY===" ]]; then
-      in_entry=false
+    current_content="$(python3 - "$current_content_b64" <<'PY'
+import sys, base64
+raw = sys.argv[1]
+print(base64.b64decode(raw.encode("ascii")).decode("utf-8"), end="")
+PY
+)"
 
-      if [[ -z "$current_file" ]]; then
-        log "warn" "Skipping update with empty filename"
-        continue
-      fi
+    TARGET_FILE="$AGENT_DIR/$current_file"
 
-      TARGET_FILE="$AGENT_DIR/$current_file"
-
-      case "$current_file" in
-        TASKS.md)
+    case "$current_file" in
+      TASKS.md)
+        if [[ "$current_content" == "NO_CHANGES" ]]; then
+          log "info" "TASKS.md -- no changes"
+        else
           echo "$current_content" > "$TARGET_FILE"
           log "info" "Wrote TASKS.md (overwrite) -- $(echo "$current_content" | wc -l | xargs) lines"
-          ;;
+        fi
+        ;;
 
-        HEARTBEAT.md)
+      HEARTBEAT.md)
+        if [[ -f "$TARGET_FILE" ]]; then
+          {
+            echo ""
+            echo "$current_content"
+          } >> "$TARGET_FILE"
+        else
+          echo "$current_content" > "$TARGET_FILE"
+        fi
+        log "info" "Appended to HEARTBEAT.md -- $(echo "$current_content" | wc -l | xargs) lines"
+        ;;
+
+      INBOX.md)
+        if [[ "$current_content" == "NO_CHANGES" ]]; then
+          log "info" "INBOX.md -- no changes"
+        else
+          echo "$current_content" > "$TARGET_FILE"
+          log "info" "Wrote INBOX.md (overwrite) -- $(echo "$current_content" | wc -l | xargs) lines"
+        fi
+        ;;
+
+      CONTEXT.md)
+        if [[ "$current_content" == "NO_CHANGES" ]]; then
+          log "info" "CONTEXT.md -- no changes"
+        else
           if [[ -f "$TARGET_FILE" ]]; then
             {
               echo ""
@@ -157,50 +210,14 @@ for update in data.get("updates", []):
           else
             echo "$current_content" > "$TARGET_FILE"
           fi
-          log "info" "Appended to HEARTBEAT.md -- $(echo "$current_content" | wc -l | xargs) lines"
-          ;;
-
-        INBOX.md)
-          echo "$current_content" > "$TARGET_FILE"
-          log "info" "Wrote INBOX.md (overwrite) -- $(echo "$current_content" | wc -l | xargs) lines"
-          ;;
-
-        CONTEXT.md)
-          if [[ "$current_content" == "NO_CHANGES" ]]; then
-            log "info" "CONTEXT.md -- no changes"
-          else
-            if [[ -f "$TARGET_FILE" ]]; then
-              {
-                echo ""
-                echo "$current_content"
-              } >> "$TARGET_FILE"
-            else
-              echo "$current_content" > "$TARGET_FILE"
-            fi
-            log "info" "Appended to CONTEXT.md -- $(echo "$current_content" | wc -l | xargs) lines"
-          fi
-          ;;
-
-        *)
-          log "warn" "Unknown file update target: $current_file -- skipping"
-          ;;
-      esac
-
-      continue
-    fi
-
-    if [[ "$in_entry" == "true" ]]; then
-      if [[ "$line" == FILE:* ]] && [[ -z "$current_file" ]]; then
-        current_file="${line#FILE:}"
-      else
-        if [[ -z "$current_content" ]]; then
-          current_content="$line"
-        else
-          current_content="$current_content
-$line"
+          log "info" "Appended to CONTEXT.md -- $(echo "$current_content" | wc -l | xargs) lines"
         fi
-      fi
-    fi
+        ;;
+
+      *)
+        log "warn" "Unknown file update target: $current_file -- skipping"
+        ;;
+    esac
   done
 }
 

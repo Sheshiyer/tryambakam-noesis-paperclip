@@ -1,0 +1,27 @@
+{
+  "tasks": [
+    {
+      "id": "task-1775936805-00e9",
+      "title": "Adopt host-native supervision for loop-runner and babysitter",
+      "assigned_agent": "jarvis",
+      "department": "leadership",
+      "status": "pending",
+      "priority": "high",
+      "tags": ["ops"],
+      "created_at": "2026-04-11T19:46:45Z",
+      "updated_at": "2026-04-11T19:46:45Z",
+      "created_by": "dispatch",
+      "source": "manual",
+      "depends_on": null
+    }
+  ],
+  "metadata": {
+    "total": 1,
+    "pending": 1,
+    "in_progress": 0,
+    "completed": 0,
+    "blocked": 0,
+    "failed": 0,
+    "last_updated": "2026-04-11T19:46:45Z"
+  }
+}

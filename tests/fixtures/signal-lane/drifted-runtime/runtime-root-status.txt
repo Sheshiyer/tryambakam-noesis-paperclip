@@ -1,0 +1,4 @@
+current repo root: /Volumes/madara/2026/twc-vault/01-Projects/thoughtseed/ts-paperclip
+marker file: /Volumes/madara/2026/twc-vault/01-Projects/tryambakam-noesis/tryambakamnoesis-paperclip/.thoughtseed/canonical-runtime-root.txt
+canonical runtime root: /Volumes/madara/2026/twc-vault/01-Projects/tryambakam-noesis/tryambakamnoesis-paperclip
+status: mismatch

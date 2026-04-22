@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "teamforge-sync/v1",
+  "lastRunAt": "2026-04-16T19:16:39Z",
+  "lastError": "Unable to resolve TeamForge feed payload. Configure feed_url/export_file/export_cmd.",
+  "latestSnapshotPath": null,
+  "runs": {
+    "total": 1231,
+    "success": 0,
+    "failed": 1231
+  }
+}

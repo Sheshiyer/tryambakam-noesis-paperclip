@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "signal-lane/v1",
+  "metadata": {
+    "generatedAt": "2026-04-22T15:02:28Z",
+    "repoRoot": "/Volumes/madara/2026/twc-vault/01-Projects/tryambakam-noesis/tryambakamnoesis-paperclip",
+    "vaultRoot": "/Volumes/madara/2026/twc-vault"
+  },
+  "signals": [
+    {
+      "sync_key": "signal:meru_stale_run",
+      "signal_type": "meru_stale_run",
+      "state": "candidate",
+      "score": 71,
+      "signal_count": 1,
+      "signal_types": [
+        "meru_stale_run"
+      ],
+      "first_seen_at": "2026-04-22T15:02:28Z",
+      "last_seen_at": "2026-04-22T15:02:28Z",
+      "cooldown_until": "2026-04-22T18:02:50Z",
+      "owner": "sage",
+      "source_refs": [
+        "/Volumes/madara/2026/twc-vault/_System/memory/archetypal-candidates/latest-run.json"
+      ],
+      "recommended_action": "Review stale Meru handoff surfaces after runtime-root and TeamForge repair, then decide whether to restage candidates.",
+      "summary": "Latest Meru candidate run is stale and produced no downstream tasks."
+    },
+    {
+      "sync_key": "signal:skill_mirror_drift",
+      "signal_type": "skill_mirror_drift",
+      "state": "candidate",
+      "score": 68,
+      "signal_count": 1,
+      "signal_types": [
+        "skill_mirror_drift"
+      ],
+      "first_seen_at": "2026-04-22T15:02:28Z",
+      "last_seen_at": "2026-04-22T15:02:28Z",
+      "cooldown_until": "2026-04-22T18:02:50Z",
+      "owner": "atlas",
+      "source_refs": [
+        "/Volumes/madara/2026/twc-vault/.claude/skills"
+      ],
+      "recommended_action": "Review .claude/skills versus .agents/skills and define a generated mirror or single canonical surface.",
+      "summary": "Skill mirror drift is present between the canonical and mirrored skill surfaces."
+    },
+    {
+      "sync_key": "signal:loop_runner_idle_storm",
+      "signal_type": "loop_runner_idle_storm",
+      "state": "watching",
+      "score": 52,
+      "signal_count": 1,
+      "signal_types": [
+        "loop_runner_idle_storm"
+      ],
+      "first_seen_at": "2026-04-22T15:02:28Z",
+      "last_seen_at": "2026-04-22T15:02:28Z",
+      "cooldown_until": null,
+      "owner": "sage",
+      "source_refs": [
+        "/Volumes/madara/2026/twc-vault/01-Projects/tryambakam-noesis/tryambakamnoesis-paperclip/logs/loop-runner.log"
+      ],
+      "recommended_action": "Keep watching loop-runner idle storms until the TeamForge and runtime-root repairs land.",
+      "summary": "Loop runner is spending cycles idling instead of advancing work."
+    }
+  ],
+  "cooldowns": {
+    "signal:meru_stale_run": "2026-04-22T18:02:50Z",
+    "signal:skill_mirror_drift": "2026-04-22T18:02:50Z"
+  },
+  "outcomes": {
+    "watching": 1,
+    "candidate": 2,
+    "experiment": 0,
+    "ready": 0,
+    "blocked": 0,
+    "ghost": 0,
+    "stale": 0,
+    "resolved": 0
+  }
+}

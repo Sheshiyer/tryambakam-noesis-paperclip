@@ -13,6 +13,7 @@
 set -euo pipefail
 
 REPO_ROOT="${REPO_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
+SCRIPT_DIR="$REPO_ROOT/scripts"
 
 # ---- Logging (to stderr so stdout stays clean for the prompt) ----
 
@@ -49,6 +50,41 @@ read_file() {
   fi
 }
 
+read_file_head_tail() {
+  local filepath="$1"
+  local head_lines="$2"
+  local tail_lines="$3"
+  local label="$4"
+
+  if [[ ! -f "$filepath" ]]; then
+    log "warn" "File not found: $filepath"
+    echo "(file not found)"
+    return
+  fi
+
+  if (( head_lines <= 0 || tail_lines <= 0 )); then
+    cat "$filepath"
+    return
+  fi
+
+  local total_lines
+  total_lines=$(wc -l < "$filepath" | tr -d ' ')
+  local passthrough_limit=$(( head_lines + tail_lines + 20 ))
+
+  if (( total_lines <= passthrough_limit )); then
+    cat "$filepath"
+    return
+  fi
+
+  {
+    head -n "$head_lines" "$filepath"
+    echo ""
+    echo "[... ${label} middle omitted for prompt-size control: showing first ${head_lines} and last ${tail_lines} lines out of ${total_lines} total ...]"
+    echo ""
+    tail -n "$tail_lines" "$filepath"
+  }
+}
+
 trim_to_limit() {
   local text="$1"
   local limit="$2"
@@ -62,6 +98,10 @@ trim_to_limit() {
 TEAMFORGE_SLICES_DIR="${TEAMFORGE_SLICES_DIR:-$REPO_ROOT/.thoughtseed/teamforge/slices}"
 TEAMFORGE_PROMPT_MAX_CHARS="${TEAMFORGE_PROMPT_MAX_CHARS:-6000}"
 TEAMFORGE_PROMPT_MAX_ITEMS="${TEAMFORGE_PROMPT_MAX_ITEMS:-8}"
+CONTEXT_PROMPT_HEAD_LINES="${CONTEXT_PROMPT_HEAD_LINES:-180}"
+CONTEXT_PROMPT_TAIL_LINES="${CONTEXT_PROMPT_TAIL_LINES:-220}"
+HEARTBEAT_PROMPT_HEAD_LINES="${HEARTBEAT_PROMPT_HEAD_LINES:-40}"
+HEARTBEAT_PROMPT_TAIL_LINES="${HEARTBEAT_PROMPT_TAIL_LINES:-180}"
 
 build_teamforge_feed_context() {
   local role="$1"
@@ -117,6 +157,16 @@ build_teamforge_feed_context() {
   trim_to_limit "$context" "$TEAMFORGE_PROMPT_MAX_CHARS"
 }
 
+# ---- YAML Helper ----
+
+YAML_HELPERS_SCRIPT="$SCRIPT_DIR/yaml-helpers.sh"
+if [[ ! -f "$YAML_HELPERS_SCRIPT" ]]; then
+  log "error" "YAML helpers script missing: $YAML_HELPERS_SCRIPT"
+  exit 1
+fi
+# shellcheck disable=SC1090
+source "$YAML_HELPERS_SCRIPT"
+
 # ---- Read agent manifest values ----
 
 AGENT_MANIFEST="$AGENT_DIR/MANIFEST.yaml"
@@ -130,26 +180,26 @@ agent_on_failure="log_skip_continue"
 agent_retry_blocked_after="3"
 
 if [[ -f "$AGENT_MANIFEST" ]]; then
-  agent_role=$(grep "role:" "$AGENT_MANIFEST" | head -1 | sed 's/.*role: *"\{0,1\}\([^"]*\)"\{0,1\}/\1/' | xargs 2>/dev/null || true)
-  agent_reports_to=$(grep "reports_to:" "$AGENT_MANIFEST" | head -1 | awk '{print $2}' 2>/dev/null || true)
-  agent_tier=$(grep "tier:" "$AGENT_MANIFEST" | head -1 | awk '{print $2}' 2>/dev/null || true)
+  agent_role=$(yaml_path_get "$AGENT_MANIFEST" "role")
+  agent_reports_to=$(yaml_path_get "$AGENT_MANIFEST" "reports_to")
+  agent_tier=$(yaml_path_get "$AGENT_MANIFEST" "tier")
 
-  local_timeout=$(grep -A10 "^loop:" "$AGENT_MANIFEST" | grep "max_step_timeout:" | head -1 | sed 's/.*: *"\{0,1\}\([^"]*\)"\{0,1\}/\1/' | xargs 2>/dev/null || true)
+  local_timeout=$(yaml_path_get "$AGENT_MANIFEST" "loop.max_step_timeout")
   if [[ -n "$local_timeout" ]]; then
     agent_max_timeout="$local_timeout"
   fi
 
-  local_on_blocked=$(grep -A10 "^loop:" "$AGENT_MANIFEST" | grep "on_blocked:" | head -1 | awk '{print $2}' 2>/dev/null || true)
+  local_on_blocked=$(yaml_path_get "$AGENT_MANIFEST" "loop.on_blocked")
   if [[ -n "$local_on_blocked" ]]; then
     agent_on_blocked="$local_on_blocked"
   fi
 
-  local_on_failure=$(grep -A10 "^loop:" "$AGENT_MANIFEST" | grep "on_failure:" | head -1 | awk '{print $2}' 2>/dev/null || true)
+  local_on_failure=$(yaml_path_get "$AGENT_MANIFEST" "loop.on_failure")
   if [[ -n "$local_on_failure" ]]; then
     agent_on_failure="$local_on_failure"
   fi
 
-  local_retry=$(grep -A10 "^loop:" "$AGENT_MANIFEST" | grep "retry_blocked_after:" | head -1 | awk '{print $2}' 2>/dev/null || true)
+  local_retry=$(yaml_path_get "$AGENT_MANIFEST" "loop.retry_blocked_after")
   if [[ -n "$local_retry" ]]; then
     agent_retry_blocked_after="$local_retry"
   fi
@@ -161,8 +211,8 @@ IDENTITY=$(read_file "$AGENT_DIR/IDENTITY.md")
 SOUL=$(read_file "$AGENT_DIR/SOUL.md")
 TASKS=$(read_file "$AGENT_DIR/TASKS.md")
 INBOX=$(read_file "$AGENT_DIR/INBOX.md")
-CONTEXT=$(read_file "$AGENT_DIR/CONTEXT.md")
-HEARTBEAT=$(read_file "$AGENT_DIR/HEARTBEAT.md")
+CONTEXT=$(read_file_head_tail "$AGENT_DIR/CONTEXT.md" "$CONTEXT_PROMPT_HEAD_LINES" "$CONTEXT_PROMPT_TAIL_LINES" "CONTEXT.md")
+HEARTBEAT=$(read_file_head_tail "$AGENT_DIR/HEARTBEAT.md" "$HEARTBEAT_PROMPT_HEAD_LINES" "$HEARTBEAT_PROMPT_TAIL_LINES" "HEARTBEAT.md")
 AGENTS=$(read_file "$AGENT_DIR/AGENTS.md")
 
 # ---- Read shared memory files (core + Huly operational context) ----
@@ -346,6 +396,7 @@ ON FAILURE:
 
 ON IDLE (no steps to work):
 - Report idle status. Do not invent work.
+- For any unchanged state file, emit "NO_CHANGES" in that file's update block.
 
 =============================================
 OUTPUT FORMAT -- MANDATORY
@@ -359,9 +410,10 @@ Brief cycle summary: [1-2 sentences about what you did this cycle]
 
 ===THOUGHTSEED_OUTPUT_START===
 ---FILE_UPDATE: TASKS.md---
-[Write the COMPLETE updated TASKS.md content here.
+[If TASKS.md changed this cycle, write the COMPLETE updated TASKS.md content.
 Include ALL sections: Active Tasks, Task Format, Completed Tasks.
-Update the step you worked on. Keep all other steps as-is.]
+Update the step you worked on and keep all other steps as-is.
+If TASKS.md did not change, write exactly: NO_CHANGES]
 ---END_FILE_UPDATE---
 ---FILE_UPDATE: HEARTBEAT.md---
 ### ${NOW} Cycle Result
@@ -371,9 +423,9 @@ Update the step you worked on. Keep all other steps as-is.]
 - Summary: [1 sentence of what happened]
 ---END_FILE_UPDATE---
 ---FILE_UPDATE: INBOX.md---
-[Write the COMPLETE updated INBOX.md content here.
+[If INBOX.md changed this cycle, write the COMPLETE updated INBOX.md content.
 Move any processed items from Pending to Processed with timestamps.
-If no changes needed, reproduce the current content exactly.]
+If INBOX.md did not change, write exactly: NO_CHANGES]
 ---END_FILE_UPDATE---
 ---FILE_UPDATE: CONTEXT.md---
 [ONLY if you have new pitfalls or learnings to add.
@@ -385,9 +437,9 @@ If nothing to add, write: NO_CHANGES]
 CRITICAL RULES:
 - Output MUST contain the ===THOUGHTSEED_OUTPUT_START=== and ===THOUGHTSEED_OUTPUT_END=== markers.
 - Each file update MUST be between ---FILE_UPDATE: {filename}--- and ---END_FILE_UPDATE--- markers.
-- TASKS.md update must contain the FULL file content (not just changes).
+- TASKS.md update must contain the FULL file content when changed, or "NO_CHANGES" when unchanged.
 - HEARTBEAT.md update should contain ONLY the new entry to append.
-- INBOX.md update must contain the FULL file content (not just changes).
+- INBOX.md update must contain the FULL file content when changed, or "NO_CHANGES" when unchanged.
 - CONTEXT.md update contains ONLY new lines to append, or "NO_CHANGES".
 - Do NOT wrap the output in markdown code fences.
 - Do NOT add commentary inside the structured output section.

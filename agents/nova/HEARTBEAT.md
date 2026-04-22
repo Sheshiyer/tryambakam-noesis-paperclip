@@ -1569,3 +1569,887 @@ _Weekly aggregates populated by the evolution cycle._
 - Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
 
 | 2026-04-16T18:17:52Z | cycle-1776363418 | completed | 52s | tokens=0 |
+
+### 2026-04-16T18:32:08Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-16T18:32:35Z | cycle-1776364328 | completed | 26s | tokens=0 |
+
+### 2026-04-16T18:47:20Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-16T18:47:53Z | cycle-1776365240 | completed | 32s | tokens=0 |
+
+### 2026-04-16T19:02:29Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-16T19:03:43Z | cycle-1776366149 | completed | 74s | tokens=0 |
+
+### 2026-04-20T08:14:26Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-20T08:15:17Z | cycle-1776672866 | completed | 50s | tokens=0 |
+
+### 2026-04-20T08:31:03Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-20T08:32:19Z | cycle-1776673863 | completed | 75s | tokens=0 |
+
+### 2026-04-20T08:40:10Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-20T08:40:50Z | cycle-1776674410 | completed | 40s | tokens=0 |
+
+### 2026-04-20T08:55:29Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-20T08:56:31Z | cycle-1776675329 | completed | 62s | tokens=0 |
+
+### 2026-04-20T09:14:00Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-20T09:15:25Z | cycle-1776676439 | completed | 85s | tokens=0 |
+
+### 2026-04-20T09:29:37Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-20T09:30:13Z | cycle-1776677377 | completed | 36s | tokens=0 |
+
+### 2026-04-20T09:46:57Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-20T09:47:31Z | cycle-1776678417 | completed | 34s | tokens=0 |
+
+### 2026-04-20T10:02:46Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-20T10:03:23Z | cycle-1776679366 | completed | 37s | tokens=0 |
+
+### 2026-04-20T10:18:29Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-20T10:19:26Z | cycle-1776680309 | completed | 57s | tokens=0 |
+
+### 2026-04-20T10:34:58Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-20T10:35:29Z | cycle-1776681298 | completed | 31s | tokens=0 |
+
+### 2026-04-20T10:56:02Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-20T10:56:02Z | cycle-1776682321 | timeout | 241s | tokens=0 |
+
+### 2026-04-20T11:08:29Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-20T11:09:11Z | cycle-1776683309 | completed | 42s | tokens=0 |
+
+### 2026-04-20T11:24:18Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-20T11:24:49Z | cycle-1776684258 | completed | 31s | tokens=0 |
+
+### 2026-04-20T11:39:56Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-20T11:41:24Z | cycle-1776685196 | completed | 87s | tokens=0 |
+
+### 2026-04-20T11:57:26Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-20T11:57:53Z | cycle-1776686246 | completed | 26s | tokens=0 |
+
+### 2026-04-20T12:13:33Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-20T12:14:01Z | cycle-1776687213 | completed | 27s | tokens=0 |
+
+### 2026-04-20T14:07:13Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_structured_output)
+
+| 2026-04-20T14:07:13Z | cycle-1776693792 | timeout | 241s | tokens=0 |
+
+### 2026-04-20T14:19:27Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-20T14:20:02Z | cycle-1776694767 | completed | 35s | tokens=0 |
+
+### 2026-04-20T14:35:46Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-20T14:37:00Z | cycle-1776695746 | completed | 74s | tokens=0 |
+
+### 2026-04-20T14:50:47Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-20T14:51:32Z | cycle-1776696647 | completed | 44s | tokens=0 |
+
+### 2026-04-20T15:08:34Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 8s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-20T15:09:50Z | cycle-1776697714 | completed | 76s | tokens=0 |
+
+### 2026-04-20T15:23:42Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-20T15:24:22Z | cycle-1776698621 | completed | 40s | tokens=0 |
+
+### 2026-04-20T15:39:07Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-20T15:39:56Z | cycle-1776699547 | completed | 49s | tokens=0 |
+
+### 2026-04-20T15:54:15Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-20T15:55:15Z | cycle-1776700455 | completed | 60s | tokens=0 |
+
+### 2026-04-20T16:10:18Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-20T16:10:49Z | cycle-1776701418 | completed | 31s | tokens=0 |
+
+### 2026-04-20T16:25:39Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-20T16:26:53Z | cycle-1776702339 | completed | 74s | tokens=0 |
+
+### 2026-04-20T16:40:44Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 42s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-20T16:41:49Z | cycle-1776703243 | completed | 64s | tokens=0 |
+
+### 2026-04-20T16:56:13Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-20T16:56:58Z | cycle-1776704173 | completed | 45s | tokens=0 |
+
+### 2026-04-20T17:11:19Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-20T17:11:53Z | cycle-1776705079 | completed | 34s | tokens=0 |
+
+### 2026-04-20T17:29:34Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-20T17:29:59Z | cycle-1776706174 | completed | 25s | tokens=0 |
+
+### 2026-04-20T17:45:22Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-20T17:46:07Z | cycle-1776707122 | completed | 44s | tokens=0 |
+
+### 2026-04-20T18:01:10Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-20T18:02:05Z | cycle-1776708070 | completed | 55s | tokens=0 |
+
+### 2026-04-20T18:17:03Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-20T18:17:46Z | cycle-1776709023 | completed | 42s | tokens=0 |
+
+### 2026-04-20T18:34:06Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-20T18:34:37Z | cycle-1776710046 | completed | 30s | tokens=0 |
+
+### 2026-04-21T07:11:04Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 29s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-21T07:12:28Z | cycle-1776755464 | completed | 84s | tokens=0 |
+
+### 2026-04-21T07:29:00Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-21T07:29:40Z | cycle-1776756540 | completed | 40s | tokens=0 |
+
+### 2026-04-21T07:46:35Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-21T07:47:14Z | cycle-1776757595 | completed | 38s | tokens=0 |
+
+### 2026-04-21T08:03:40Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-21T08:04:28Z | cycle-1776758620 | completed | 47s | tokens=0 |
+
+### 2026-04-21T08:21:35Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 32s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+### 2026-04-21T08:21:35Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 32s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-21T08:23:47Z | cycle-1776759695 | completed | 131s | tokens=0 |
+
+### 2026-04-21T08:37:51Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-21T08:38:25Z | cycle-1776760670 | completed | 34s | tokens=0 |
+
+### 2026-04-21T08:54:45Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-21T08:55:24Z | cycle-1776761684 | completed | 38s | tokens=0 |
+
+### 2026-04-21T09:12:08Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 34s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-21T09:13:09Z | cycle-1776762728 | completed | 61s | tokens=0 |
+
+### 2026-04-21T09:28:23Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 35s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-21T09:29:45Z | cycle-1776763703 | completed | 81s | tokens=0 |
+
+### 2026-04-21T09:45:52Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-21T09:47:10Z | cycle-1776764752 | completed | 78s | tokens=0 |
+
+### 2026-04-21T10:01:28Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-21T10:02:09Z | cycle-1776765688 | completed | 41s | tokens=0 |
+
+### 2026-04-21T10:16:46Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 5s
+- Summary: No pending inbox items or actionable active tasks were available, so the cycle remained idle.
+
+| 2026-04-21T10:17:27Z | cycle-1776766605 | completed | 40s | tokens=0 |
+
+### 2026-04-21T10:31:59Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T10:31:59Z | cycle-1776767518 | failed | 0s | tokens=0 |
+
+### 2026-04-21T10:48:16Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T10:48:16Z | cycle-1776768495 | failed | 1s | tokens=0 |
+
+### 2026-04-21T11:04:18Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T11:04:18Z | cycle-1776769457 | failed | 1s | tokens=0 |
+
+### 2026-04-21T11:19:26Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T11:19:26Z | cycle-1776770365 | failed | 1s | tokens=0 |
+
+### 2026-04-21T11:36:07Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T11:36:07Z | cycle-1776771367 | failed | 0s | tokens=0 |
+
+### 2026-04-21T11:52:05Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T11:52:05Z | cycle-1776772324 | failed | 0s | tokens=0 |
+
+### 2026-04-21T12:08:21Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T12:08:21Z | cycle-1776773300 | failed | 0s | tokens=0 |
+
+### 2026-04-21T12:24:22Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T12:24:22Z | cycle-1776774261 | failed | 1s | tokens=0 |
+
+### 2026-04-21T12:39:28Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T12:39:28Z | cycle-1776775167 | failed | 1s | tokens=0 |
+
+### 2026-04-21T12:54:43Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T12:54:43Z | cycle-1776776081 | failed | 2s | tokens=0 |
+
+### 2026-04-21T13:09:53Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T13:09:53Z | cycle-1776776992 | failed | 1s | tokens=0 |
+
+### 2026-04-21T13:25:01Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T13:25:01Z | cycle-1776777898 | failed | 2s | tokens=0 |
+
+### 2026-04-21T13:40:03Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T13:40:03Z | cycle-1776778802 | failed | 1s | tokens=0 |
+
+### 2026-04-21T13:56:32Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T13:56:32Z | cycle-1776779792 | failed | 0s | tokens=0 |
+
+### 2026-04-21T14:26:31Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T14:26:31Z | cycle-1776781591 | failed | 0s | tokens=0 |
+
+### 2026-04-21T14:57:56Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T14:57:56Z | cycle-1776783476 | failed | 0s | tokens=0 |
+
+### 2026-04-21T15:20:55Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T15:20:55Z | cycle-1776784854 | failed | 0s | tokens=0 |
+
+### 2026-04-21T15:44:15Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T15:44:15Z | cycle-1776786254 | failed | 0s | tokens=0 |
+
+### 2026-04-21T16:04:27Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T16:04:28Z | cycle-1776787467 | failed | 0s | tokens=0 |
+
+### 2026-04-21T16:35:43Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T16:35:43Z | cycle-1776789343 | failed | 0s | tokens=0 |
+
+### 2026-04-21T16:57:32Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T16:57:32Z | cycle-1776790652 | failed | 0s | tokens=0 |
+
+### 2026-04-21T17:13:20Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T17:13:20Z | cycle-1776791599 | failed | 1s | tokens=0 |
+
+### 2026-04-21T17:29:23Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T17:29:23Z | cycle-1776792562 | failed | 1s | tokens=0 |
+
+### 2026-04-21T17:44:48Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T17:44:48Z | cycle-1776793487 | failed | 1s | tokens=0 |
+
+### 2026-04-21T18:00:45Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T18:00:45Z | cycle-1776794445 | failed | 0s | tokens=0 |
+
+### 2026-04-21T18:16:29Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T18:16:29Z | cycle-1776795388 | failed | 1s | tokens=0 |
+
+### 2026-04-21T18:32:11Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T18:32:11Z | cycle-1776796331 | failed | 0s | tokens=0 |
+
+### 2026-04-21T18:47:59Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T18:47:59Z | cycle-1776797278 | failed | 1s | tokens=0 |
+
+### 2026-04-21T19:04:12Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T19:04:12Z | cycle-1776798251 | failed | 1s | tokens=0 |
+
+### 2026-04-21T19:19:32Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T19:19:32Z | cycle-1776799172 | failed | 0s | tokens=0 |
+
+### 2026-04-21T19:32:13Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T19:32:13Z | cycle-1776799932 | failed | 1s | tokens=0 |
+
+### 2026-04-21T19:47:33Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T19:47:33Z | cycle-1776800852 | failed | 0s | tokens=0 |
+
+### 2026-04-21T20:03:19Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T20:03:19Z | cycle-1776801798 | failed | 0s | tokens=0 |
+
+### 2026-04-21T20:18:48Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T20:18:48Z | cycle-1776802727 | failed | 1s | tokens=0 |
+
+### 2026-04-21T20:34:35Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T20:34:35Z | cycle-1776803674 | failed | 1s | tokens=0 |
+
+### 2026-04-21T20:50:03Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-21T20:50:03Z | cycle-1776804602 | failed | 1s | tokens=0 |
+
+### 2026-04-22T09:09:07Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-22T09:09:07Z | cycle-1776848947 | failed | 0s | tokens=0 |
+
+### 2026-04-22T09:25:08Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-22T09:25:08Z | cycle-1776849908 | failed | 0s | tokens=0 |
+
+### 2026-04-22T09:41:09Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-22T09:41:09Z | cycle-1776850868 | failed | 0s | tokens=0 |
+
+### 2026-04-22T09:57:07Z Cycle Result
+- Step: parse-error
+- Outcome: failed
+- Duration: 0s
+- Summary: Agent output could not be parsed (empty_output)
+
+| 2026-04-22T09:57:07Z | cycle-1776851827 | failed | 0s | tokens=0 |
+
+### 2026-04-22T09:58:15Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable tasks were available, so the cycle remained idle.
+
+| 2026-04-22T09:58:44Z | cycle-1776851895 | completed | 29s | tokens=0 |
+
+### 2026-04-22T10:00:54Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable tasks were available, so the cycle remained idle.
+
+| 2026-04-22T10:01:21Z | cycle-1776852054 | completed | 26s | tokens=0 |
+
+### 2026-04-22T10:16:11Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable tasks were available, so the cycle remained idle.
+
+### 2026-04-22T10:22:53Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable tasks were available, so the cycle remained idle.
+
+| 2026-04-22T10:23:30Z | cycle-1776853373 | completed | 35s | tokens=0 |
+
+### 2026-04-22T10:38:33Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable tasks were available, so the cycle remained idle.
+
+| 2026-04-22T10:39:08Z | cycle-1776854313 | completed | 33s | tokens=0 |
+
+### 2026-04-22T10:49:12Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable tasks were available, so the cycle remained idle.
+
+| 2026-04-22T10:49:33Z | cycle-1776854952 | completed | 20s | tokens=0 |
+
+### 2026-04-22T10:59:20Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable tasks were available, so the cycle remained idle.
+
+| 2026-04-22T10:59:39Z | cycle-1776855560 | completed | 18s | tokens=0 |
+
+### 2026-04-22T11:17:27Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable tasks were available, so the cycle remained idle.
+
+| 2026-04-22T11:17:38Z | cycle-1776856647 | completed | 11s | tokens=0 |
+
+### 2026-04-22T11:33:42Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable tasks were available, so the cycle remained idle.
+
+| 2026-04-22T11:34:01Z | cycle-1776857622 | completed | 18s | tokens=0 |
+
+### 2026-04-22T11:49:14Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable tasks were available, so the cycle remained idle.
+
+| 2026-04-22T11:49:26Z | cycle-1776858554 | completed | 12s | tokens=0 |
+
+### 2026-04-22T12:05:29Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable tasks were available, so the cycle remained idle.
+
+| 2026-04-22T12:05:40Z | cycle-1776859529 | completed | 11s | tokens=0 |
+
+### 2026-04-22T12:21:15Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable tasks were available, so the cycle remained idle.
+
+| 2026-04-22T12:21:28Z | cycle-1776860474 | completed | 13s | tokens=0 |
+
+### 2026-04-22T12:37:19Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable tasks were available, so the cycle remained idle.
+
+| 2026-04-22T12:37:30Z | cycle-1776861438 | completed | 10s | tokens=0 |
+
+### 2026-04-22T12:53:09Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable tasks were available, so the cycle remained idle.
+
+| 2026-04-22T12:53:24Z | cycle-1776862389 | completed | 14s | tokens=0 |
+
+### 2026-04-22T13:08:34Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable tasks were available, so the cycle remained idle.
+
+| 2026-04-22T13:08:48Z | cycle-1776863314 | completed | 13s | tokens=0 |
+
+### 2026-04-22T13:24:37Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable tasks were available, so the cycle remained idle.
+
+| 2026-04-22T13:24:49Z | cycle-1776864277 | completed | 12s | tokens=0 |
+
+### 2026-04-22T13:40:14Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable tasks were available, so the cycle remained idle.
+
+| 2026-04-22T13:40:29Z | cycle-1776865214 | completed | 14s | tokens=0 |
+
+### 2026-04-22T13:58:36Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable tasks were available, so the cycle remained idle.
+
+| 2026-04-22T13:59:09Z | cycle-1776866315 | completed | 31s | tokens=0 |
+
+### 2026-04-22T14:15:16Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable tasks were available, so the cycle remained idle.
+
+| 2026-04-22T14:15:44Z | cycle-1776867314 | completed | 26s | tokens=0 |
+
+### 2026-04-22T14:36:08Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable tasks were available, so the cycle remained idle.
+
+| 2026-04-22T14:36:26Z | cycle-1776868567 | completed | 18s | tokens=0 |
+
+### 2026-04-22T14:51:37Z Cycle Result
+- Step: idle
+- Outcome: idle
+- Duration: 1s
+- Summary: No pending inbox items or actionable tasks were available, so the cycle remained idle.
+
+| 2026-04-22T14:51:51Z | cycle-1776869497 | completed | 13s | tokens=0 |

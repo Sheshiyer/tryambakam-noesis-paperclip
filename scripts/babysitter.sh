@@ -15,6 +15,7 @@ PID_FILE="$REPO_ROOT/.thoughtseed/babysitter.pid"
 LOOP_PID_FILE="$REPO_ROOT/.thoughtseed/loop-runner.pid"
 LOG_DIR="$REPO_ROOT/logs"
 LOG_FILE="$LOG_DIR/babysitter.log"
+RUNTIME_ROOT_GUARD="$REPO_ROOT/scripts/runtime-root-guard.sh"
 RESPAWN_COUNT_FILE="/tmp/thoughtseed-respawn-count"
 LAST_CHECK_FILE="/tmp/thoughtseed-babysitter-lastcheck"
 LAST_RESPAWN_FILE="/tmp/thoughtseed-babysitter-last-respawn"
@@ -23,6 +24,22 @@ MAX_RESPAWNS=3
 RESPAWN_COOLDOWN_SECONDS=180
 SUPERVISOR_MODE="legacy"
 HOST_WAIT_LOGGED=0
+
+assert_runtime_root() {
+  if [[ ! -x "$RUNTIME_ROOT_GUARD" ]]; then
+    echo "Runtime root guard missing or not executable: $RUNTIME_ROOT_GUARD" >&2
+    exit 1
+  fi
+  "$RUNTIME_ROOT_GUARD" assert
+}
+
+check_runtime_root() {
+  if [[ ! -x "$RUNTIME_ROOT_GUARD" ]]; then
+    echo "Runtime root guard missing or not executable: $RUNTIME_ROOT_GUARD" >&2
+    return 1
+  fi
+  "$RUNTIME_ROOT_GUARD" check
+}
 
 # ---- Load config ----
 
@@ -107,7 +124,13 @@ set_last_respawn_ts() {
 
 is_process_alive() {
   local pid="$1"
-  kill -0 "$pid" 2>/dev/null
+  if [[ -z "$pid" ]]; then
+    return 1
+  fi
+  if kill -0 "$pid" 2>/dev/null; then
+    return 0
+  fi
+  ps -ax -o pid= 2>/dev/null | grep -Eq "^[[:space:]]*$pid$"
 }
 
 loop_runner_pid() {
@@ -151,6 +174,7 @@ sleep_resilient() {
 
 start_babysitter() {
   load_config
+  assert_runtime_root
 
   if [[ -f "$PID_FILE" ]]; then
     local existing_pid
@@ -197,6 +221,9 @@ stop_babysitter() {
 
 show_status() {
   load_config
+  if ! check_runtime_root; then
+    return 1
+  fi
 
   local babysitter_status="STOPPED"
   local babysitter_pid="--"
@@ -246,6 +273,7 @@ show_status() {
 
 run_daemon() {
   load_config
+  assert_runtime_root
   claim_pid_file
 
   log "Babysitter daemon loop started (mode=$SUPERVISOR_MODE)"

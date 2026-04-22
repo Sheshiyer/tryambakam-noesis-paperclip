@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "teamforge-ingest/v1",
+  "feedSchemaVersion": "agent_feed/v1",
+  "generatedAt": "2026-04-20T08:26:54Z",
+  "sourceWindow": {
+    "sinceCursor": null,
+    "nextCursor": "2026-04-20T08:01:00Z|ops:v1:clockify:clockify.time_entry.logged:clockify_time_entry:te_1:emp_1:clockify_1:na:na:2026_04_20t08_00_00z",
+    "hasMore": false
+  },
+  "lag": {
+    "projectionLagSeconds": null,
+    "maxSourceLagSeconds": null,
+    "sources": [
+      {
+        "source": "agent_feed",
+        "entity": "projection",
+        "lastSyncAt": "2026-04-20T08:01:00Z",
+        "lagSeconds": null
+      },
+      {
+        "source": "clockify",
+        "entity": "time_entries",
+        "lastSyncAt": "2026-04-20T08:01:00Z",
+        "lagSeconds": null
+      },
+      {
+        "source": "huly",
+        "entity": "issues",
+        "lastSyncAt": "2026-04-20T08:01:00Z",
+        "lagSeconds": null
+      },
+      {
+        "source": "slack",
+        "entity": "messages_delta",
+        "lastSyncAt": "2026-04-20T08:01:00Z",
+        "lagSeconds": null
+      }
+    ]
+  },
+  "quality": {
+    "score": 100,
+    "findingCount": 0,
+    "findingsByType": []
+  },
+  "items": [
+    {
+      "syncKey": "ops:v1:clockify:clockify.time_entry.logged:clockify_time_entry:te_1:emp_1:clockify_1:na:na:2026_04_20t08_00_00z",
+      "source": "clockify",
+      "eventType": "clockify.time_entry.logged",
+      "entityId": "te_1",
+      "occurredAt": "2026-04-20T08:00:00Z",
+      "detectedAt": "2026-04-20T08:01:00Z",
+      "feedSeverity": "info",
+      "scoredSeverity": "info",
+      "score": 32,
+      "ownerHint": "agent:clawd",
+      "routeOwner": "clawd",
+      "routeReason": "owner_hint_override",
+      "summary": "Time entry logged",
+      "scoreRationale": "feed severity=info",
+      "dedupeKey": "clockify.time_entry.logged|te_1|clawd",
+      "isNew": true,
+      "suppressed": false,
+      "suppressionReason": null,
+      "actorClockifyUserId": "clockify_1",
+      "actorHulyPersonId": null,
+      "actorSlackUserId": null,
+      "taskId": null
+    }
+  ]
+}

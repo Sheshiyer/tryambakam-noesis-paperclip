@@ -7,6 +7,8 @@
 #   ./scripts/task-registry.sh update TASK_ID --status STATUS
 #   ./scripts/task-registry.sh list [--status STATUS] [--agent AGENT]
 #   ./scripts/task-registry.sh get TASK_ID
+#   ./scripts/task-registry.sh find-active-by-sync-key SYNC_KEY
+#   ./scripts/task-registry.sh reconcile-inbox
 #   ./scripts/task-registry.sh stats
 
 set -euo pipefail
@@ -40,7 +42,7 @@ generate_task_id() {
   echo "task-${ts}-${rand}"
 }
 
-VALID_STATUSES="pending in_progress completed blocked failed"
+VALID_STATUSES="pending in_progress completed blocked failed archived"
 VALID_PRIORITIES="critical high medium low"
 
 validate_status() {
@@ -82,6 +84,7 @@ update_metadata() {
     .metadata.completed = ([.tasks[] | select(.status == "completed")] | length) |
     .metadata.blocked = ([.tasks[] | select(.status == "blocked")] | length) |
     .metadata.failed = ([.tasks[] | select(.status == "failed")] | length) |
+    .metadata.archived = ([.tasks[] | select(.status == "archived")] | length) |
     .metadata.last_updated = $now
   ' "$REGISTRY_FILE" > "$tmp_file"
 
@@ -114,6 +117,7 @@ init_registry() {
       completed: 0,
       blocked: 0,
       failed: 0,
+      archived: 0,
       last_updated: $now
     }
   }')
@@ -331,22 +335,236 @@ cmd_get() {
   echo "$result" | jq .
 }
 
+cmd_find_active_by_sync_key() {
+  ensure_registry
+
+  local sync_key="${1:-}"
+  if [[ -z "$sync_key" ]]; then
+    echo "ERROR: Sync key is required." >&2
+    exit 1
+  fi
+
+  jq --arg sync_key "$sync_key" '
+    [
+      .tasks[]
+      | select((.source_sync_key // "") == $sync_key)
+      | select(.status == "pending" or .status == "in_progress" or .status == "blocked")
+    ]
+  ' "$REGISTRY_FILE"
+}
+
 cmd_stats() {
   ensure_registry
 
-  local total pending in_progress completed blocked failed last_updated
+  local total pending in_progress completed blocked failed archived last_updated
   total=$(jq '.metadata.total' "$REGISTRY_FILE")
   pending=$(jq '.metadata.pending' "$REGISTRY_FILE")
   in_progress=$(jq '.metadata.in_progress' "$REGISTRY_FILE")
   completed=$(jq '.metadata.completed' "$REGISTRY_FILE")
   blocked=$(jq '.metadata.blocked // 0' "$REGISTRY_FILE")
   failed=$(jq '.metadata.failed // 0' "$REGISTRY_FILE")
+  archived=$(jq '.metadata.archived // 0' "$REGISTRY_FILE")
   last_updated=$(jq -r '.metadata.last_updated' "$REGISTRY_FILE")
 
   echo "Task Registry Stats"
   echo "==================="
-  echo "Total: $total | Pending: $pending | In Progress: $in_progress | Completed: $completed | Blocked: $blocked | Failed: $failed"
+  echo "Total: $total | Pending: $pending | In Progress: $in_progress | Completed: $completed | Blocked: $blocked | Failed: $failed | Archived: $archived"
   echo "Last updated: $last_updated"
+}
+
+collect_processed_inbox_ids_json() {
+  local pattern="$REPO_ROOT"/agents/*/INBOX.md
+  if ! ls $pattern >/dev/null 2>&1; then
+    echo "[]"
+    return
+  fi
+
+  local ids
+  ids="$(awk '
+    /^## Pending/ {section="pending"; next}
+    /^## Processed/ {section="processed"; next}
+    section == "processed" {
+      if ($0 ~ /Task-ID:[[:space:]]*task-[A-Za-z0-9-]+/) {
+        line = $0
+        sub(/^.*Task-ID:[[:space:]]*/, "", line)
+        sub(/[[:space:]].*$/, "", line)
+        if (line ~ /^task-[A-Za-z0-9-]+$/) {
+          print line
+        }
+      }
+    }
+  ' $pattern 2>/dev/null | sort -u)"
+
+  if [[ -z "$ids" ]]; then
+    echo "[]"
+  else
+    printf '%s\n' "$ids" | jq -R . | jq -s .
+  fi
+}
+
+collect_processed_inbox_sync_keys_json() {
+  local pattern="$REPO_ROOT"/agents/*/INBOX.md
+  if ! ls $pattern >/dev/null 2>&1; then
+    echo "[]"
+    return
+  fi
+
+  local keys
+  keys="$(awk '
+    /^## Pending/ {section="pending"; next}
+    /^## Processed/ {section="processed"; next}
+    section == "processed" {
+      if ($0 ~ /Sync-Key:[[:space:]]*/) {
+        line = $0
+        sub(/^.*Sync-Key:[[:space:]]*/, "", line)
+        sub(/[[:space:]].*$/, "", line)
+        if (line != "") {
+          print line
+        }
+      }
+    }
+  ' $pattern 2>/dev/null | sort -u)"
+
+  if [[ -z "$keys" ]]; then
+    echo "[]"
+  else
+    printf '%s\n' "$keys" | jq -R . | jq -s .
+  fi
+}
+
+cmd_reconcile_inbox() {
+  ensure_registry
+
+  local processed_ids_json
+  local processed_sync_keys_json
+  processed_ids_json="$(collect_processed_inbox_ids_json)"
+  processed_sync_keys_json="$(collect_processed_inbox_sync_keys_json)"
+
+  local matched_inbox matched_sync_key matched_duplicate matched_total
+  matched_inbox=$(jq --argjson ids "$processed_ids_json" '
+    [
+      .tasks[]
+      | select(.status == "pending" or .status == "in_progress" or .status == "blocked")
+      | select((.id as $id | $ids | index($id)) != null)
+    ]
+    | length
+  ' "$REGISTRY_FILE")
+
+  matched_sync_key=$(jq --argjson keys "$processed_sync_keys_json" '
+    [
+      .tasks[]
+      | select(.status == "pending" or .status == "in_progress" or .status == "blocked")
+      | select((.source // "") == "review-intent")
+      | select((.source_sync_key // "") != "")
+      | select((.source_sync_key as $k | $keys | index($k)) != null)
+    ]
+    | length
+  ' "$REGISTRY_FILE")
+
+  matched_duplicate=$(jq '
+    . as $root
+    | [
+        $root.tasks[]
+        | select(.status == "pending" or .status == "in_progress" or .status == "blocked")
+        | select((.source // "") == "review-intent")
+        | select((.source_sync_key // "") != "")
+        | .id as $id
+        | .source_sync_key as $k
+        | select(
+            $root.tasks
+            | any(
+                (.id != $id)
+                and ((.source_sync_key // "") == $k)
+                and (.status == "completed" or .status == "archived")
+              )
+          )
+      ]
+    | length
+  ' "$REGISTRY_FILE")
+
+  matched_total=$(jq --argjson ids "$processed_ids_json" --argjson keys "$processed_sync_keys_json" '
+    . as $root
+    | [
+        .tasks[]
+        | select(.status == "pending" or .status == "in_progress" or .status == "blocked")
+        | select(
+            ((.id as $id | ($ids | index($id)) != null))
+            or (
+              ((.source // "") == "review-intent")
+              and ((.source_sync_key // "") != "")
+              and (
+                .id as $id
+                | .source_sync_key as $k
+                | (
+                    (($keys | index($k)) != null)
+                    or (
+                      $root.tasks
+                      | any(
+                          (.id != $id)
+                          and ((.source_sync_key // "") == $k)
+                          and (.status == "completed" or .status == "archived")
+                        )
+                    )
+                  )
+              )
+            )
+          )
+      ]
+    | length
+  ' "$REGISTRY_FILE")
+
+  if [[ "$matched_total" -eq 0 ]]; then
+    echo "No active registry tasks matched processed inbox items, processed sync keys, or duplicate review-intent sync keys." >&2
+    return 0
+  fi
+
+  local now
+  now="$(iso_now)"
+  local tmp_file="${REGISTRY_FILE}.tmp"
+
+  jq --argjson ids "$processed_ids_json" --argjson keys "$processed_sync_keys_json" --arg now "$now" '
+    . as $root
+    | .tasks |= map(
+        if (
+          (.status == "pending" or .status == "in_progress" or .status == "blocked")
+          and ((.id as $id | $ids | index($id)) != null)
+        ) then
+          .status = "completed"
+          | .updated_at = $now
+        elif (
+          (.status == "pending" or .status == "in_progress" or .status == "blocked")
+          and ((.source // "") == "review-intent")
+          and ((.source_sync_key // "") != "")
+          and (
+            .id as $id
+            | .source_sync_key as $k
+            | (
+                (($keys | index($k)) != null)
+                or (
+                  $root.tasks
+                  | any(
+                      (.id != $id)
+                      and ((.source_sync_key // "") == $k)
+                      and (.status == "completed" or .status == "archived")
+                    )
+                )
+              )
+          )
+        ) then
+          .status = "completed"
+          | .updated_at = $now
+        else
+          .
+        end
+      )
+  ' "$REGISTRY_FILE" > "$tmp_file"
+
+  mv "$tmp_file" "$REGISTRY_FILE"
+  update_metadata
+
+  local total
+  total="$matched_total"
+  echo "Reconciled $total active registry tasks (inbox=$matched_inbox sync_key_inbox=$matched_sync_key duplicate_review_intent=$matched_duplicate; overlaps possible)." >&2
 }
 
 # ---- Entry Point ----
@@ -357,17 +575,21 @@ case "${1:-help}" in
   update) shift; cmd_update "$@" ;;
   list) shift; cmd_list "$@" ;;
   get) shift; cmd_get "$@" ;;
+  find-active-by-sync-key) shift; cmd_find_active_by_sync_key "$@" ;;
+  reconcile-inbox) cmd_reconcile_inbox ;;
   stats) cmd_stats ;;
   help|*)
     echo "Thoughtseed Labs Task Registry"
     echo ""
-    echo "Usage: $0 {init|add|update|list|get|stats}"
+    echo "Usage: $0 {init|add|update|list|get|find-active-by-sync-key|reconcile-inbox|stats}"
     echo ""
     echo "  init                                      Create empty registry"
     echo "  add \"title\" --tag TAG --priority PRI      Add a task"
     echo "  update TASK_ID --status STATUS             Update task status"
     echo "  list [--status STATUS] [--agent AGENT]     List tasks"
     echo "  get TASK_ID                                Show task details"
+    echo "  find-active-by-sync-key KEY                List active tasks for one sync key"
+    echo "  reconcile-inbox                            Mark active tasks completed when inbox shows processed"
     echo "  stats                                      Show metadata counts"
     echo ""
     echo "Valid statuses: $VALID_STATUSES"

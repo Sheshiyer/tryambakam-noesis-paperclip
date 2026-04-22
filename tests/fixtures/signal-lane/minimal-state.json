@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "signal-lane/v1",
+  "metadata": {
+    "generatedAt": null,
+    "repoRoot": null,
+    "vaultRoot": null
+  },
+  "signals": [],
+  "cooldowns": {},
+  "outcomes": {
+    "watching": 0,
+    "candidate": 0,
+    "experiment": 0,
+    "ready": 0,
+    "blocked": 0,
+    "ghost": 0,
+    "stale": 0,
+    "resolved": 0
+  }
+}

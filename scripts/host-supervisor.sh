@@ -17,6 +17,7 @@ set -euo pipefail
 
 REPO_ROOT="${REPO_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
 LOG_DIR="$REPO_ROOT/logs"
+RUNTIME_ROOT_GUARD="$REPO_ROOT/scripts/runtime-root-guard.sh"
 
 LAUNCHD_LOOP_LABEL="com.thoughtseed.loop-runner"
 LAUNCHD_BABYSITTER_LABEL="com.thoughtseed.babysitter"
@@ -34,6 +35,22 @@ SYSTEMD_BABYSITTER_UNIT="$SYSTEMD_DIR/$SYSTEMD_BABYSITTER_SERVICE"
 SERVICE_PATH="/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/sheshnarayaniyer/.nvm/versions/node/v22.16.0/bin"
 BASH_BIN="$(command -v bash)"
 
+assert_runtime_root() {
+  if [[ ! -x "$RUNTIME_ROOT_GUARD" ]]; then
+    echo "Runtime root guard missing or not executable: $RUNTIME_ROOT_GUARD" >&2
+    exit 1
+  fi
+  "$RUNTIME_ROOT_GUARD" assert
+}
+
+check_runtime_root() {
+  if [[ ! -x "$RUNTIME_ROOT_GUARD" ]]; then
+    echo "Runtime root guard missing or not executable: $RUNTIME_ROOT_GUARD" >&2
+    return 1
+  fi
+  "$RUNTIME_ROOT_GUARD" check
+}
+
 platform() {
   case "$(uname -s)" in
     Darwin) echo "darwin" ;;
@@ -47,6 +64,7 @@ ensure_dirs() {
 }
 
 write_launchd_plists() {
+  assert_runtime_root
   mkdir -p "$LAUNCHD_DIR"
   mkdir -p "$LAUNCHD_LOG_DIR"
   ensure_dirs
@@ -76,6 +94,10 @@ write_launchd_plists() {
   <dict>
     <key>REPO_ROOT</key>
     <string>${REPO_ROOT}</string>
+    <key>CANONICAL_RUNTIME_ROOT</key>
+    <string>${REPO_ROOT}</string>
+    <key>RUNTIME_ROOT_MARKER_FILE</key>
+    <string>${REPO_ROOT}/.thoughtseed/canonical-runtime-root.txt</string>
     <key>THOUGHTSEED_SUPERVISOR_MODE</key>
     <string>host</string>
     <key>PATH</key>
@@ -114,6 +136,10 @@ EOF
   <dict>
     <key>REPO_ROOT</key>
     <string>${REPO_ROOT}</string>
+    <key>CANONICAL_RUNTIME_ROOT</key>
+    <string>${REPO_ROOT}</string>
+    <key>RUNTIME_ROOT_MARKER_FILE</key>
+    <string>${REPO_ROOT}/.thoughtseed/canonical-runtime-root.txt</string>
     <key>THOUGHTSEED_SUPERVISOR_MODE</key>
     <string>host</string>
     <key>PATH</key>
@@ -136,10 +162,29 @@ launchd_bootout_if_loaded() {
 launchd_start_one() {
   local label="$1"
   local plist_path="$2"
+  local domain="gui/$(id -u)"
+  local max_attempts=3
+  local attempt
+
+  # launchd can transiently reject bootstrap right after bootout (I/O error 5).
   launchd_bootout_if_loaded "$label"
-  launchctl bootstrap "gui/$(id -u)" "$plist_path"
-  launchctl enable "gui/$(id -u)/$label" >/dev/null 2>&1 || true
-  launchctl kickstart -k "gui/$(id -u)/$label"
+  sleep 2
+
+  for attempt in $(seq 1 "$max_attempts"); do
+    if launchctl bootstrap "$domain" "$plist_path"; then
+      launchctl enable "$domain/$label" >/dev/null 2>&1 || true
+      launchctl kickstart -k "$domain/$label"
+      return 0
+    fi
+
+    if (( attempt < max_attempts )); then
+      echo "launchd bootstrap retry for $label (attempt ${attempt}/${max_attempts})" >&2
+      sleep "$attempt"
+    fi
+  done
+
+  echo "Failed to bootstrap $label after ${max_attempts} attempts." >&2
+  return 1
 }
 
 launchd_stop_one() {
@@ -157,6 +202,7 @@ launchd_status_one() {
 }
 
 write_systemd_units() {
+  assert_runtime_root
   mkdir -p "$SYSTEMD_DIR"
   ensure_dirs
 
@@ -170,6 +216,8 @@ Wants=network-online.target
 Type=simple
 WorkingDirectory=${REPO_ROOT}
 Environment=REPO_ROOT=${REPO_ROOT}
+Environment=CANONICAL_RUNTIME_ROOT=${REPO_ROOT}
+Environment=RUNTIME_ROOT_MARKER_FILE=${REPO_ROOT}/.thoughtseed/canonical-runtime-root.txt
 Environment=THOUGHTSEED_SUPERVISOR_MODE=host
 Environment=PATH=${SERVICE_PATH}
 ExecStart=${BASH_BIN} ${REPO_ROOT}/scripts/loop-runner.sh run
@@ -191,6 +239,8 @@ Wants=network-online.target
 Type=simple
 WorkingDirectory=${REPO_ROOT}
 Environment=REPO_ROOT=${REPO_ROOT}
+Environment=CANONICAL_RUNTIME_ROOT=${REPO_ROOT}
+Environment=RUNTIME_ROOT_MARKER_FILE=${REPO_ROOT}/.thoughtseed/canonical-runtime-root.txt
 Environment=THOUGHTSEED_SUPERVISOR_MODE=host
 Environment=PATH=${SERVICE_PATH}
 ExecStart=${BASH_BIN} ${REPO_ROOT}/scripts/babysitter.sh run
@@ -239,6 +289,7 @@ install_services() {
 }
 
 start_services() {
+  assert_runtime_root
   case "$(platform)" in
     darwin)
       if [[ ! -f "$LAUNCHD_LOOP_PLIST" || ! -f "$LAUNCHD_BABYSITTER_PLIST" ]]; then
@@ -281,6 +332,12 @@ restart_services() {
 }
 
 status_services() {
+  if ! check_runtime_root; then
+    echo ""
+    echo "Runtime root guard failed; refusing supervisor healthy status."
+    exit 1
+  fi
+
   case "$(platform)" in
     darwin)
       launchd_status_one "$LAUNCHD_LOOP_LABEL"

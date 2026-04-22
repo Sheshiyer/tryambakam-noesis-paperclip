@@ -1,0 +1,10 @@
+{
+  "canonical_surface": ".claude/skills",
+  "mirror_surface": ".agents/skills",
+  "differing_skill_count": 10,
+  "missing_reference_docs": [
+    "README.md",
+    "KOSHA_SKILL_MAPPING.md",
+    "memory.md"
+  ]
+}
