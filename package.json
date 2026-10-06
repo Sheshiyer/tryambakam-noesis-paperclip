@@ -7,7 +7,10 @@
     "stop": "./scripts/babysitter.sh stop",
     "status": "./scripts/health-check.sh",
     "cycle": "./scripts/loop-runner.sh run --once",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test scripts/generate-antahkarana-fixtures.test.mjs"
+  },
+  "engines": {
+    "node": ">=20"
   },
   "keywords": [],
   "author": "",
