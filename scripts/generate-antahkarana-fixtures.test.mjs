@@ -7,6 +7,32 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 const SCRIPT = fileURLToPath(new URL('./generate-antahkarana-fixtures.mjs', import.meta.url));
+const INDEX_DESCRIPTION = 'Labelled dashboard command fixtures. Not live vault, Selemene, sidecar, or cron data.';
+
+function expectedIndex({ vaultSample, paperclipSample, ledger = false }) {
+  const paperclip = {
+    command: 'paperclip_run_records',
+    read_model: 'PaperclipReadModel',
+    sample: paperclipSample,
+    empty: 'paperclip_run_records.empty.json',
+  };
+  if (ledger) paperclip.ledger = 'paperclip_run_records.ledger.jsonl';
+  return {
+    fixture: true,
+    label: 'FIXTURE',
+    not_live: true,
+    description: INDEX_DESCRIPTION,
+    commands: [
+      {
+        command: 'vault_para_stats',
+        read_model: 'VaultParaStatsOk',
+        sample: vaultSample,
+        empty: 'vault_para_stats.empty.json',
+      },
+      paperclip,
+    ],
+  };
+}
 
 function runGen(args) {
   return spawnSync(process.execPath, [SCRIPT, ...args], { encoding: 'utf8' });
@@ -88,14 +114,15 @@ test('temp-dir ledger emits the sample variant, ledger, empty variant, and an in
   assert.deepEqual(empty.payload.records, []);
   assert.equal(empty.payload.skipped, 0);
 
-  const sampleRow = index.rows.find((row) => row.command === 'paperclip_run_records' && row.variant === 'sample');
-  assert.ok(sampleRow);
-  assert.equal(sampleRow.read_model, 'PaperclipReadModel');
-  assert.equal(sampleRow.file, 'paperclip_run_records.json');
-  assert.equal(sampleRow.ledger, 'paperclip_run_records.ledger.jsonl');
+  assert.deepEqual(index, expectedIndex({
+    vaultSample: null,
+    paperclipSample: 'paperclip_run_records.json',
+    ledger: true,
+  }));
 
   const para = JSON.parse(await readFile(path.join(out, 'vault_para_stats.empty.json'), 'utf8'));
   assert.equal(para.command, 'vault_para_stats');
+  assert.equal(para.read_model, 'VaultParaStatsOk');
   assert.equal(para.variant, 'empty');
   assert.equal(para.payload.scanned_at, '2026-08-12T00:00:00Z');
   assert.deepEqual(para.payload.buckets.map((bucket) => bucket.name), [
@@ -133,8 +160,10 @@ test('missing ledger emits only the honest empty paperclip variant', async () =>
   await assert.rejects(readFile(path.join(out, 'paperclip_run_records.ledger.jsonl'), 'utf8'));
 
   const index = JSON.parse(await readFile(path.join(out, 'index.json'), 'utf8'));
-  const paperclipRows = index.rows.filter((row) => row.command === 'paperclip_run_records');
-  assert.deepEqual(paperclipRows.map((row) => row.variant), ['empty']);
+  assert.deepEqual(index, expectedIndex({ vaultSample: null, paperclipSample: null }));
+  const paraEmpty = JSON.parse(await readFile(path.join(out, 'vault_para_stats.empty.json'), 'utf8'));
+  assert.equal(paraEmpty.read_model, 'VaultParaStatsOk');
+  assert.equal(paraEmpty.variant, 'empty');
 
   await rm(tenant, { recursive: true, force: true });
   await rm(out, { recursive: true, force: true });
@@ -181,6 +210,9 @@ test('zero valid rows emit only the empty variant and keep the skipped count', a
   assert.equal(empty.payload.state, 'empty');
   assert.deepEqual(empty.payload.records, []);
   assert.equal(empty.payload.skipped, 2);
+  const index = JSON.parse(await readFile(path.join(out, 'index.json'), 'utf8'));
+  assert.deepEqual(index, expectedIndex({ vaultSample: null, paperclipSample: null }));
+  assert.equal(Object.hasOwn(index.commands[1], 'ledger'), false);
 
   await rm(tenant, { recursive: true, force: true });
   await rm(out, { recursive: true, force: true });
@@ -205,6 +237,97 @@ test('secrets guard exits non-zero and does not write the marker', async () => {
   assert.match(result.stderr, /secrets guard/);
   await assert.rejects(readFile(path.join(out, 'paperclip_run_records.json'), 'utf8'));
   await assert.rejects(readFile(path.join(out, 'index.json'), 'utf8'));
+
+  await rm(tenant, { recursive: true, force: true });
+  await rm(out, { recursive: true, force: true });
+});
+
+test('failed rows keep error and suggested_action and drop every other unknown key', async () => {
+  const tenant = await makeTenant();
+  const out = await mkdtemp(path.join(tmpdir(), 'paperclip-fixtures-'));
+  const failed = {
+    ts: '2026-08-11T05:00:00Z',
+    task: 'sync-issues',
+    status: 'failed',
+    duration_ms: 40,
+    proof_path: 'proofs/sync-issues.txt',
+    error: 'exit 1',
+    suggested_action: 'rerun reconcile',
+    notes: 'dropped',
+    token: 'not-copied',
+  };
+  const blankOptional = {
+    ts: '2026-08-11T06:00:00Z',
+    task: 'reconcile-local',
+    status: 'ok',
+    duration_ms: 8,
+    proof_path: 'proofs/reconcile.md',
+    error: '',
+    suggested_action: '',
+    extra: { nested: true },
+  };
+  await writeFile(
+    path.join(tenant, '.planning', 'run-records.jsonl'),
+    `${JSON.stringify(failed)}\n${JSON.stringify(blankOptional)}\n`,
+  );
+
+  const result = runGen(['--tenant-root', tenant, '--out', out]);
+  assert.equal(result.status, 0, result.stderr);
+  const sample = JSON.parse(await readFile(path.join(out, 'paperclip_run_records.json'), 'utf8'));
+  const [withOptional, withoutOptional] = sample.payload.records;
+  assert.deepEqual(Object.keys(withOptional), [
+    'ts',
+    'task',
+    'status',
+    'duration_ms',
+    'proof_path',
+    'source',
+    'mode',
+    'schema',
+    'error',
+    'suggested_action',
+  ]);
+  assert.equal(withOptional.error, 'exit 1');
+  assert.equal(withOptional.suggested_action, 'rerun reconcile');
+  assert.equal(Object.hasOwn(withOptional, 'notes'), false);
+  assert.equal(Object.hasOwn(withOptional, 'token'), false);
+  assert.deepEqual(Object.keys(withoutOptional), [
+    'ts',
+    'task',
+    'status',
+    'duration_ms',
+    'proof_path',
+    'source',
+    'mode',
+    'schema',
+  ]);
+  assert.equal(JSON.stringify(sample).includes('dropped'), false);
+  assert.equal(JSON.stringify(sample).includes('not-copied'), false);
+
+  await rm(tenant, { recursive: true, force: true });
+  await rm(out, { recursive: true, force: true });
+});
+
+test('secrets guard trips when a preserved error field contains a marker', async () => {
+  const tenant = await makeTenant();
+  const out = await mkdtemp(path.join(tmpdir(), 'paperclip-fixtures-'));
+  const leaked = {
+    ts: '2026-08-11T05:00:00Z',
+    task: 'sync-issues',
+    status: 'failed',
+    duration_ms: 40,
+    proof_path: 'proofs/sync-issues.txt',
+    error: 'sk-exampleleaked',
+    suggested_action: 'rerun reconcile',
+  };
+  await writeFile(path.join(tenant, '.planning', 'run-records.jsonl'), `${JSON.stringify(leaked)}\n`);
+
+  const result = runGen(['--tenant-root', tenant, '--out', out]);
+  assert.notEqual(result.status, 0);
+  assert.equal(result.stdout.includes('sk-'), false);
+  assert.equal(result.stderr.includes('sk-'), false);
+  assert.match(result.stderr, /secrets guard/);
+  await assert.rejects(readFile(path.join(out, 'paperclip_run_records.json'), 'utf8'));
 
   await rm(tenant, { recursive: true, force: true });
   await rm(out, { recursive: true, force: true });
@@ -250,7 +373,7 @@ test('real PARA directories produce counted buckets and no invented paperclip ro
 
   const para = JSON.parse(await readFile(path.join(out, 'vault_para_stats.json'), 'utf8'));
   assert.equal(para.variant, 'sample');
-  assert.equal(para.read_model, 'VaultParaStats');
+  assert.equal(para.read_model, 'VaultParaStatsOk');
   assert.equal(para.payload.scanned_at, '2026-08-12T00:00:00Z');
   const byName = Object.fromEntries(para.payload.buckets.map((bucket) => [bucket.name, bucket]));
   assert.equal(byName['01-Projects'].file_count, 1);
@@ -259,8 +382,19 @@ test('real PARA directories produce counted buckets and no invented paperclip ro
   assert.equal(byName['03-Resources'].file_count, 0);
   assert.equal(byName['03-Resources'].dir_count, 0);
   assert.equal(byName['04-Archives'].file_count, 0);
-  await assert.rejects(readFile(path.join(out, 'vault_para_stats.empty.json'), 'utf8'));
+  const paraEmpty = JSON.parse(await readFile(path.join(out, 'vault_para_stats.empty.json'), 'utf8'));
+  assert.equal(paraEmpty.read_model, 'VaultParaStatsOk');
+  assert.equal(paraEmpty.variant, 'empty');
+  for (const bucket of paraEmpty.payload.buckets) {
+    assert.equal(bucket.file_count, 0);
+    assert.equal(bucket.dir_count, 0);
+  }
   await assert.rejects(readFile(path.join(out, 'paperclip_run_records.json'), 'utf8'));
+  const index = JSON.parse(await readFile(path.join(out, 'index.json'), 'utf8'));
+  assert.deepEqual(index, expectedIndex({
+    vaultSample: 'vault_para_stats.json',
+    paperclipSample: null,
+  }));
 
   await rm(tenant, { recursive: true, force: true });
   await rm(out, { recursive: true, force: true });

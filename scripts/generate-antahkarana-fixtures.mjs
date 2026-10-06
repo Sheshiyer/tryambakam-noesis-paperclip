@@ -20,6 +20,8 @@ export const LEDGER_REL = '.planning/run-records.jsonl';
 export const RECORD_SOURCE = 'paperclip-tn';
 export const RECORD_MODE = 'fixture';
 export const RECORD_SCHEMA = 'paperclip-run-record.v1';
+export const VAULT_READ_MODEL = 'VaultParaStatsOk';
+export const INDEX_DESCRIPTION = 'Labelled dashboard command fixtures. Not live vault, Selemene, sidecar, or cron data.';
 
 const PARA_BUCKETS = ['01-Projects', '02-Areas', '03-Resources', '04-Archives'];
 const PARA_SKIP_DIRS = new Set(['node_modules', '.git']);
@@ -144,9 +146,14 @@ function nonEmptyString(value) {
   return typeof value === 'string' && value.trim().length > 0;
 }
 
+function optionalText(value) {
+  return typeof value === 'string' && value.length > 0 ? value : null;
+}
+
 /**
  * Keep an allowlisted record. Malformed lines are counted, not repaired.
  * source, mode, and schema are always the fixture constants.
+ * error and suggested_action are kept only when they are non-empty strings.
  */
 export function normalizeRecord(value) {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) return null;
@@ -156,7 +163,7 @@ export function normalizeRecord(value) {
   if (typeof value.duration_ms !== 'number' || !Number.isFinite(value.duration_ms)) return null;
   if (!isRelativeProof(value.proof_path)) return null;
 
-  return {
+  const record = {
     ts: value.ts,
     task: value.task,
     status: value.status,
@@ -166,6 +173,11 @@ export function normalizeRecord(value) {
     mode: RECORD_MODE,
     schema: RECORD_SCHEMA,
   };
+  const error = optionalText(value.error);
+  const suggestedAction = optionalText(value.suggested_action);
+  if (error !== null) record.error = error;
+  if (suggestedAction !== null) record.suggested_action = suggestedAction;
+  return record;
 }
 
 export function parseLedger(text) {
@@ -329,11 +341,11 @@ function paraPayload(buckets, scannedAt) {
 
 export function emptyParaEnvelope(scannedAt) {
   const buckets = PARA_BUCKETS.map((name) => ({ name, file_count: 0, dir_count: 0 }));
-  return envelope('vault_para_stats', 'VaultParaStats', 'empty', paraPayload(buckets, scannedAt));
+  return envelope('vault_para_stats', VAULT_READ_MODEL, 'empty', paraPayload(buckets, scannedAt));
 }
 
 export function sampleParaEnvelope(buckets, scannedAt) {
-  return envelope('vault_para_stats', 'VaultParaStats', 'sample', paraPayload(buckets, scannedAt));
+  return envelope('vault_para_stats', VAULT_READ_MODEL, 'sample', paraPayload(buckets, scannedAt));
 }
 
 function containsSecret(value) {
@@ -357,63 +369,65 @@ export function assertNoSecrets(value) {
   }
 }
 
+function commandEntry(command, readModel, sample, empty, extra) {
+  return {
+    command,
+    read_model: readModel,
+    sample,
+    empty,
+    ...extra,
+  };
+}
+
 /**
  * Build the fixture set for a tenant.
- * Missing ledger or zero valid rows: paperclip sample and ledger are omitted.
+ * Empty variants are always written. Sample files are omitted, and index
+ * sample is null, when the ledger has no valid rows or no PARA directory exists.
  * The empty paperclip variant carries the malformed-line count only when it is
  * the sole paperclip variant; alongside a sample it stays the canonical empty
- * document (skipped: 0). vault_para_stats is sample when a real PARA directory
- * exists, otherwise the four-zero empty variant.
+ * document (skipped: 0).
  */
 export function buildFixtures({ tenantRoot, clock = DEFAULT_CLOCK }) {
   const ledger = readLedger(tenantRoot);
   const files = {};
   const ledgers = {};
-  const rows = [];
 
   const hasSample = ledger.records.length > 0;
-  if (hasSample) {
-    const sample = samplePaperclipEnvelope(ledger.records, ledger.skipped);
-    files['paperclip_run_records.json'] = sample;
-    ledgers['paperclip_run_records.ledger.jsonl'] = `${ledger.records.map((record) => JSON.stringify(record)).join('\n')}\n`;
-    rows.push({
-      command: 'paperclip_run_records',
-      read_model: 'PaperclipReadModel',
-      variant: 'sample',
-      file: 'paperclip_run_records.json',
-      ledger: 'paperclip_run_records.ledger.jsonl',
-    });
-  }
-
   const emptySkipped = hasSample ? 0 : ledger.skipped;
   files['paperclip_run_records.empty.json'] = emptyPaperclipEnvelope(emptySkipped);
-  rows.push({
-    command: 'paperclip_run_records',
-    read_model: 'PaperclipReadModel',
-    variant: 'empty',
-    file: 'paperclip_run_records.empty.json',
-  });
-
-  const para = paraBuckets(tenantRoot);
-  if (para.present) {
-    files['vault_para_stats.json'] = sampleParaEnvelope(para.buckets, clock);
-    rows.push({
-      command: 'vault_para_stats',
-      read_model: 'VaultParaStats',
-      variant: 'sample',
-      file: 'vault_para_stats.json',
-    });
-  } else {
-    files['vault_para_stats.empty.json'] = emptyParaEnvelope(clock);
-    rows.push({
-      command: 'vault_para_stats',
-      read_model: 'VaultParaStats',
-      variant: 'empty',
-      file: 'vault_para_stats.empty.json',
-    });
+  if (hasSample) {
+    files['paperclip_run_records.json'] = samplePaperclipEnvelope(ledger.records, ledger.skipped);
+    ledgers['paperclip_run_records.ledger.jsonl'] = `${ledger.records.map((record) => JSON.stringify(record)).join('\n')}\n`;
   }
 
-  const index = { rows };
+  const para = paraBuckets(tenantRoot);
+  files['vault_para_stats.empty.json'] = emptyParaEnvelope(clock);
+  if (para.present) {
+    files['vault_para_stats.json'] = sampleParaEnvelope(para.buckets, clock);
+  }
+
+  const paperclipExtra = hasSample ? { ledger: 'paperclip_run_records.ledger.jsonl' } : {};
+  const index = {
+    fixture: true,
+    label: 'FIXTURE',
+    not_live: true,
+    description: INDEX_DESCRIPTION,
+    commands: [
+      commandEntry(
+        'vault_para_stats',
+        VAULT_READ_MODEL,
+        para.present ? 'vault_para_stats.json' : null,
+        'vault_para_stats.empty.json',
+      ),
+      commandEntry(
+        'paperclip_run_records',
+        'PaperclipReadModel',
+        hasSample ? 'paperclip_run_records.json' : null,
+        'paperclip_run_records.empty.json',
+        paperclipExtra,
+      ),
+    ],
+  };
   assertNoSecrets({ index, files, ledgers, clock });
   return { index, files, ledgers };
 }
