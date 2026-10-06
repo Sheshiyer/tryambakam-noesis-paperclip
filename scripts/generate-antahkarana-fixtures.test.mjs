@@ -603,6 +603,34 @@ test('a forged or missing manifest does not delete reserved files', async () => 
   await rm(replacedOut, { recursive: true, force: true });
 });
 
+test('a manifest with sample null and a ledger does not delete the ledger', async () => {
+  const tenant = await makeTenant();
+  const out = await mkdtemp(path.join(tmpdir(), 'paperclip-fixtures-'));
+  const ledgerBody = `${JSON.stringify({
+    ts: '2026-08-11T03:04:05Z',
+    task: 'reconcile-local',
+    status: 'ok',
+    duration_ms: 15,
+    proof_path: 'proofs/reconcile.md',
+    source: 'paperclip-tn',
+    mode: 'fixture',
+    schema: 'paperclip-run-record.v1',
+  })}\n`;
+  const ledgerOut = path.join(out, 'paperclip_run_records.ledger.jsonl');
+  await writeFile(path.join(out, 'index.json'), `${JSON.stringify(generatorManifest({
+    sample: null,
+    ledger: true,
+  }), null, 2)}\n`);
+  await writeFile(ledgerOut, ledgerBody);
+
+  const result = runGen(['--tenant-root', tenant, '--out', out]);
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(await readFile(ledgerOut, 'utf8'), ledgerBody);
+
+  await rm(tenant, { recursive: true, force: true });
+  await rm(out, { recursive: true, force: true });
+});
+
 test('impossible --clock exits 2', async () => {
   const tenant = await makeTenant();
   const out = await mkdtemp(path.join(tmpdir(), 'paperclip-fixtures-'));
@@ -717,6 +745,73 @@ test('a failed commit rename restores every prior fixture file', async () => {
   const names = await readdir(out);
   assert.equal(names.some((name) => name.startsWith('.paperclip-fixture-stage.')), false);
   assert.equal(names.some((name) => name.startsWith('.paperclip-fixture-backup.')), false);
+
+  await rm(tenant, { recursive: true, force: true });
+  await rm(out, { recursive: true, force: true });
+});
+
+test('a failed restore keeps the backup of the previous fixture', async () => {
+  const tenant = await makeTenant();
+  const out = await mkdtemp(path.join(tmpdir(), 'paperclip-fixtures-'));
+  const ledgerPath = path.join(tenant, '.planning', 'run-records.jsonl');
+  const firstRow = {
+    ts: '2026-08-11T03:04:05Z',
+    task: 'reconcile-local',
+    status: 'ok',
+    duration_ms: 15,
+    proof_path: 'proofs/reconcile.md',
+  };
+  await writeFile(ledgerPath, `${JSON.stringify(firstRow)}\n`);
+  const first = runGen(['--tenant-root', tenant, '--out', out]);
+  assert.equal(first.status, 0, first.stderr);
+
+  const watched = [
+    'paperclip_run_records.json',
+    'paperclip_run_records.empty.json',
+    'paperclip_run_records.ledger.jsonl',
+    'vault_para_stats.empty.json',
+    'index.json',
+  ];
+  const before = new Map();
+  for (const name of watched) {
+    before.set(name, await readFile(path.join(out, name), 'utf8'));
+  }
+
+  const secondRow = {
+    ts: '2026-08-11T09:00:00Z',
+    task: 'sync-issues',
+    status: 'failed',
+    duration_ms: 40,
+    proof_path: 'proofs/sync-issues.txt',
+    error: 'exit 1',
+    suggested_action: 'rerun reconcile',
+  };
+  await writeFile(ledgerPath, `${JSON.stringify(secondRow)}\n`);
+  const second = runGen(['--tenant-root', tenant, '--out', out], {
+    ...process.env,
+    NODE_ENV: 'test',
+    PAPERCLIP_FIXTURES_FAULT_AFTER_RENAMES: '3',
+    PAPERCLIP_FIXTURES_FAULT_AFTER_RESTORES: '2',
+  });
+  assert.notEqual(second.status, 0);
+  assert.match(second.stderr, /commit rename failed/);
+  const match = second.stderr.match(/retained backup after failed restore: (\S+)/);
+  assert.ok(match, second.stderr);
+  const backupPath = match[1];
+  assert.equal(path.dirname(backupPath), out);
+  assert.match(path.basename(backupPath), /^\.paperclip-fixture-backup\./);
+  assert.equal(await readFile(backupPath, 'utf8'), before.get('paperclip_run_records.json'));
+  assert.notEqual(await readFile(path.join(out, 'paperclip_run_records.json'), 'utf8'), before.get('paperclip_run_records.json'));
+  for (const name of watched) {
+    if (name === 'paperclip_run_records.json') continue;
+    assert.equal(await readFile(path.join(out, name), 'utf8'), before.get(name), name);
+  }
+  const names = await readdir(out);
+  assert.equal(names.some((name) => name.startsWith('.paperclip-fixture-stage.')), false);
+  assert.deepEqual(
+    names.filter((name) => name.startsWith('.paperclip-fixture-backup.')),
+    [path.basename(backupPath)],
+  );
 
   await rm(tenant, { recursive: true, force: true });
   await rm(out, { recursive: true, force: true });

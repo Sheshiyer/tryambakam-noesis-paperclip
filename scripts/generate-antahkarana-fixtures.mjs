@@ -571,7 +571,8 @@ function positiveFault(name) {
 /**
  * Test-only. PAPERCLIP_FIXTURES_FAULT_AFTER_WRITES=N fails the Nth staged write.
  * PAPERCLIP_FIXTURES_FAULT_AFTER_RENAMES=N fails the Nth commit rename.
- * Both are ignored unless NODE_ENV=test or PAPERCLIP_FIXTURES_TEST_FAULT=1.
+ * PAPERCLIP_FIXTURES_FAULT_AFTER_RESTORES=N fails the Nth restore rename.
+ * All are ignored unless NODE_ENV=test or PAPERCLIP_FIXTURES_TEST_FAULT=1.
  */
 export function stagedWriteFaultAt() {
   return positiveFault('PAPERCLIP_FIXTURES_FAULT_AFTER_WRITES');
@@ -579,6 +580,10 @@ export function stagedWriteFaultAt() {
 
 export function stagedRenameFaultAt() {
   return positiveFault('PAPERCLIP_FIXTURES_FAULT_AFTER_RENAMES');
+}
+
+export function stagedRestoreFaultAt() {
+  return positiveFault('PAPERCLIP_FIXTURES_FAULT_AFTER_RESTORES');
 }
 
 function allocateSidecar(outDir, prefix) {
@@ -653,7 +658,7 @@ function commitStaged(outDir, item, renameIndex, faultAt, committed) {
     backup = allocateSidecar(outDir, BACKUP_PREFIX);
     renameSync(dest, backup);
   }
-  const record = { dest, backup, tmp: item.tmp, placed: false };
+  const record = { dest, backup, tmp: item.tmp, placed: false, restored: false };
   committed.push(record);
   if (faultAt !== null && renameIndex === faultAt) {
     throw new Refuse('test fault: commit rename failed');
@@ -662,20 +667,31 @@ function commitStaged(outDir, item, renameIndex, faultAt, committed) {
   record.placed = true;
 }
 
-function restoreCommitted(committed) {
+function restoreCommitted(committed, stderr) {
+  const restoreFaultAt = stagedRestoreFaultAt();
+  let restoreIndex = 0;
   for (let index = committed.length - 1; index >= 0; index -= 1) {
     const item = committed[index];
     try {
       if (item.backup) {
+        restoreIndex += 1;
+        if (restoreFaultAt !== null && restoreIndex === restoreFaultAt) {
+          throw new Refuse('test fault: restore rename failed');
+        }
         renameSync(item.backup, item.dest);
         item.backup = null;
         item.placed = false;
+        item.restored = true;
       } else if (item.placed) {
         unlinkStageFile(item.dest);
         item.placed = false;
+        item.restored = true;
       }
     } catch {
-      // Keep going so earlier replacements are restored too.
+      item.restored = false;
+      if (item.backup) {
+        stderr(`retained backup after failed restore: ${item.backup}\n`);
+      }
     }
   }
 }
@@ -726,7 +742,9 @@ function isGeneratorManifest(doc) {
     if (!reserved || seen.has(entry.command) || entry.read_model !== reserved.read_model) return false;
     if (!nullOrExact(entry.sample, reserved.sample) || !nullOrExact(entry.empty, reserved.empty)) return false;
     if (entry.command === 'paperclip_run_records') {
-      if (entry.ledger !== undefined && entry.ledger !== reserved.ledger) return false;
+      if (entry.sample === null) {
+        if (Object.hasOwn(entry, 'ledger')) return false;
+      } else if (entry.ledger !== reserved.ledger) return false;
     } else if (Object.hasOwn(entry, 'ledger')) return false;
     seen.add(entry.command);
   }
@@ -854,7 +872,7 @@ function assertRealOutDir(outDir, tenantRoot) {
   assertAllowedZone(resolved, tenantRoot);
 }
 
-function writeOut(outDir, bundle, tenantRoot) {
+function writeOut(outDir, bundle, tenantRoot, stderr) {
   const planned = new Map();
   for (const [name, value] of Object.entries(bundle.files)) {
     planned.set(name, `${JSON.stringify(value, null, 2)}\n`);
@@ -897,20 +915,8 @@ function writeOut(outDir, bundle, tenantRoot) {
       commitStaged(outDir, renameOrder[index], index + 1, renameFaultAt, committed);
     }
   } catch (error) {
-    restoreCommitted(committed);
+    restoreCommitted(committed, stderr);
     for (const item of staged) unlinkStageFile(item.tmp);
-    for (const item of committed) {
-      if (!item.backup) continue;
-      let destStat = null;
-      try {
-        destStat = lstatSync(item.dest);
-      } catch {
-        destStat = null;
-      }
-      if (destStat && !destStat.isSymbolicLink() && destStat.isFile()) {
-        unlinkStageFile(item.backup);
-      }
-    }
     throw error;
   }
 
@@ -950,7 +956,7 @@ export function run(argv, io = {}) {
       if (st.isSymbolicLink()) throw new Refuse('refusing to write through a symlink');
       if (!st.isDirectory()) throw new Refuse('out path is not a directory');
     }
-    writeOut(outDir, bundle, opts.tenantRoot);
+    writeOut(outDir, bundle, opts.tenantRoot, stderr);
     return 0;
   } catch (error) {
     stderr(`${error.message}\n`);
