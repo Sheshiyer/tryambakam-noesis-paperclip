@@ -12,6 +12,7 @@ import {
   closeSync,
   constants,
   existsSync,
+  fsyncSync,
   lstatSync,
   mkdirSync,
   openSync,
@@ -19,6 +20,7 @@ import {
   readSync,
   realpathSync,
   readdirSync,
+  renameSync,
   statSync,
   unlinkSync,
   writeSync,
@@ -63,7 +65,8 @@ const STALE_OUTPUTS = [
   'paperclip_run_records.ledger.jsonl',
   'vault_para_stats.json',
 ];
-const WRITE_FLAGS = constants.O_WRONLY | constants.O_CREAT | constants.O_TRUNC | (constants.O_NOFOLLOW ?? 0);
+const STAGE_FLAGS = constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL | (constants.O_NOFOLLOW ?? 0);
+const STAGE_PREFIX = '.paperclip-fixture-stage.';
 
 class Refuse extends Error {
   constructor(message, exitCode = 1) {
@@ -550,20 +553,49 @@ function assertRegularOrAbsent(target) {
   }
 }
 
-function writeFileNoFollow(target, contents) {
-  if (!constants.O_NOFOLLOW || (WRITE_FLAGS & constants.O_NOFOLLOW) === 0) {
+let stageSerial = 0;
+
+/**
+ * Test-only. PAPERCLIP_FIXTURES_FAULT_AFTER_WRITES=N makes the Nth staged
+ * write throw, and only when NODE_ENV=test or PAPERCLIP_FIXTURES_TEST_FAULT=1.
+ */
+export function stagedWriteFaultAt() {
+  const enabled = process.env.NODE_ENV === 'test' || process.env.PAPERCLIP_FIXTURES_TEST_FAULT === '1';
+  if (!enabled) return null;
+  const raw = process.env.PAPERCLIP_FIXTURES_FAULT_AFTER_WRITES;
+  if (raw === undefined || raw === '') return null;
+  if (!/^[1-9]\d*$/.test(raw)) return null;
+  return Number(raw);
+}
+
+function allocateStagePath(outDir) {
+  for (let attempt = 0; attempt < 1000; attempt += 1) {
+    stageSerial += 1;
+    const target = path.join(outDir, `${STAGE_PREFIX}${process.pid}.${stageSerial}.tmp`);
+    try {
+      lstatSync(target);
+    } catch (error) {
+      if (error.code === 'ENOENT') return target;
+      throw new Refuse('refusing to stat a staging file');
+    }
+  }
+  throw new Refuse('failed to allocate a staging file');
+}
+
+function writeStaged(target, contents) {
+  if (!constants.O_NOFOLLOW || (STAGE_FLAGS & constants.O_NOFOLLOW) === 0) {
     throw new Refuse('refusing to write without O_NOFOLLOW');
   }
-  assertRegularOrAbsent(target);
   let fd;
   try {
-    fd = openSync(target, WRITE_FLAGS, 0o644);
+    fd = openSync(target, STAGE_FLAGS, 0o644);
   } catch (error) {
     if (error.code === 'ELOOP' || error.code === 'EEXIST') {
       throw new Refuse('refusing to write through a symlink');
     }
     throw error;
   }
+  let committed = false;
   try {
     const buf = Buffer.from(contents);
     let offset = 0;
@@ -572,8 +604,33 @@ function writeFileNoFollow(target, contents) {
       if (written <= 0) throw new Refuse('failed to write output file');
       offset += written;
     }
+    fsyncSync(fd);
+    committed = true;
   } finally {
     closeSync(fd);
+    if (!committed) {
+      try {
+        unlinkSync(target);
+      } catch {
+        // The caller also sweeps leftover stage files.
+      }
+    }
+  }
+}
+
+function unlinkStageFile(target) {
+  let st;
+  try {
+    st = lstatSync(target);
+  } catch (error) {
+    if (error.code === 'ENOENT') return;
+    return;
+  }
+  if (st.isSymbolicLink() || !st.isFile()) return;
+  try {
+    unlinkSync(target);
+  } catch {
+    // Rollback is best-effort; the live fixtures were not replaced.
   }
 }
 
@@ -755,10 +812,31 @@ function writeOut(outDir, bundle, tenantRoot) {
   // Ownership is decided from the manifest that exists before index.json is replaced.
   const priorManifest = readGeneratorManifest(outDir);
 
-  for (const [name, contents] of planned) {
-    writeFileNoFollow(path.join(outDir, name), contents);
+  const ordered = [...planned.entries(), ['index.json', indexContents]];
+  const staged = [];
+  const faultAt = stagedWriteFaultAt();
+  try {
+    for (let index = 0; index < ordered.length; index += 1) {
+      if (faultAt !== null && index + 1 === faultAt) {
+        throw new Refuse('test fault: staged write failed');
+      }
+      const [name, contents] = ordered[index];
+      const tmp = allocateStagePath(outDir);
+      writeStaged(tmp, contents);
+      staged.push({ name, tmp });
+    }
+    const renameOrder = [
+      ...staged.filter((item) => item.name !== 'index.json'),
+      ...staged.filter((item) => item.name === 'index.json'),
+    ];
+    for (const item of renameOrder) {
+      renameSync(item.tmp, path.join(outDir, item.name));
+    }
+  } catch (error) {
+    for (const item of staged) unlinkStageFile(item.tmp);
+    throw error;
   }
-  writeFileNoFollow(path.join(outDir, 'index.json'), indexContents);
+
   removeStaleOutputs(outDir, produced, priorManifest);
   return [...produced];
 }

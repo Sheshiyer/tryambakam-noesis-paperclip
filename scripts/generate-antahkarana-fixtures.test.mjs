@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { chmod, lstat, mkdtemp, mkdir, readFile, rm, symlink, writeFile } from 'node:fs/promises';
+import { lstat, mkdtemp, mkdir, readdir, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -34,8 +34,8 @@ function expectedIndex({ vaultSample, paperclipSample, ledger = false }) {
   };
 }
 
-function runGen(args) {
-  return spawnSync(process.execPath, [SCRIPT, ...args], { encoding: 'utf8' });
+function runGen(args, env = process.env) {
+  return spawnSync(process.execPath, [SCRIPT, ...args], { encoding: 'utf8', env });
 }
 
 async function makeTenant() {
@@ -635,24 +635,36 @@ test('a failed write leaves the previous sample, ledger, and index intact', asyn
   const ledgerOut = path.join(out, 'paperclip_run_records.ledger.jsonl');
   const indexPath = path.join(out, 'index.json');
   const emptyPath = path.join(out, 'paperclip_run_records.empty.json');
+  const emptyBefore = await readFile(emptyPath, 'utf8');
   const sampleBefore = await readFile(samplePath, 'utf8');
   const ledgerBefore = await readFile(ledgerOut, 'utf8');
   const indexBefore = await readFile(indexPath, 'utf8');
-  await chmod(emptyPath, 0o444);
 
-  try {
-    await rm(ledgerPath);
-    const second = runGen(['--tenant-root', tenant, '--out', out]);
-    assert.notEqual(second.status, 0);
-    assert.equal(await readFile(samplePath, 'utf8'), sampleBefore);
-    assert.equal(await readFile(ledgerOut, 'utf8'), ledgerBefore);
-    assert.equal(await readFile(indexPath, 'utf8'), indexBefore);
-    assert.equal(JSON.parse(indexBefore).commands[1].sample, 'paperclip_run_records.json');
-  } finally {
-    await chmod(emptyPath, 0o644);
-    await rm(tenant, { recursive: true, force: true });
-    await rm(out, { recursive: true, force: true });
-  }
+  const second = runGen(['--tenant-root', tenant, '--out', out], {
+    ...process.env,
+    NODE_ENV: 'test',
+    PAPERCLIP_FIXTURES_FAULT_AFTER_WRITES: '2',
+  });
+  assert.notEqual(second.status, 0);
+  assert.match(second.stderr, /staged write failed/);
+  assert.equal(await readFile(emptyPath, 'utf8'), emptyBefore);
+  assert.equal(await readFile(samplePath, 'utf8'), sampleBefore);
+  assert.equal(await readFile(ledgerOut, 'utf8'), ledgerBefore);
+  assert.equal(await readFile(indexPath, 'utf8'), indexBefore);
+  const names = await readdir(out);
+  assert.equal(names.some((name) => name.startsWith('.paperclip-fixture-stage.')), false);
+
+  const quietEnv = {
+    ...process.env,
+    NODE_ENV: 'production',
+    PAPERCLIP_FIXTURES_FAULT_AFTER_WRITES: '1',
+  };
+  delete quietEnv.PAPERCLIP_FIXTURES_TEST_FAULT;
+  const ignored = runGen(['--tenant-root', tenant, '--out', out], quietEnv);
+  assert.equal(ignored.status, 0, ignored.stderr);
+
+  await rm(tenant, { recursive: true, force: true });
+  await rm(out, { recursive: true, force: true });
 });
 
 test('a symlinked ancestor is allowed when its real path passes zone checks', async () => {
