@@ -470,6 +470,139 @@ test('rerun with a missing ledger removes stale sample and ledger files', async 
   await rm(out, { recursive: true, force: true });
 });
 
+function generatorManifest({ sample = null, ledger = false } = {}) {
+  const paperclip = {
+    command: 'paperclip_run_records',
+    read_model: 'PaperclipReadModel',
+    sample,
+    empty: 'paperclip_run_records.empty.json',
+  };
+  if (ledger) paperclip.ledger = 'paperclip_run_records.ledger.jsonl';
+  return {
+    fixture: true,
+    label: 'FIXTURE',
+    not_live: true,
+    description: INDEX_DESCRIPTION,
+    commands: [
+      {
+        command: 'vault_para_stats',
+        read_model: 'VaultParaStatsOk',
+        sample: null,
+        empty: 'vault_para_stats.empty.json',
+      },
+      paperclip,
+    ],
+  };
+}
+
+function fixtureSampleFile() {
+  return `${JSON.stringify({
+    fixture: true,
+    label: 'FIXTURE',
+    not_live: true,
+    command: 'paperclip_run_records',
+    read_model: 'PaperclipReadModel',
+    variant: 'sample',
+    payload: { records: [] },
+  }, null, 2)}\n`;
+}
+
+test('a user-created reserved file with no manifest survives', async () => {
+  const tenant = await makeTenant();
+  const out = await mkdtemp(path.join(tmpdir(), 'paperclip-fixtures-'));
+  const reserved = path.join(out, 'paperclip_run_records.json');
+  await writeFile(reserved, 'user-owned\n');
+
+  const result = runGen(['--tenant-root', tenant, '--out', out]);
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(await readFile(reserved, 'utf8'), 'user-owned\n');
+  const index = JSON.parse(await readFile(path.join(out, 'index.json'), 'utf8'));
+  assert.equal(index.commands[1].sample, null);
+
+  await rm(tenant, { recursive: true, force: true });
+  await rm(out, { recursive: true, force: true });
+});
+
+test('a file listed by a genuine earlier manifest is removed', async () => {
+  const tenant = await makeTenant();
+  const out = await mkdtemp(path.join(tmpdir(), 'paperclip-fixtures-'));
+  await writeFile(path.join(out, 'index.json'), `${JSON.stringify(generatorManifest({
+    sample: 'paperclip_run_records.json',
+    ledger: true,
+  }), null, 2)}\n`);
+  await writeFile(path.join(out, 'paperclip_run_records.json'), fixtureSampleFile());
+  await writeFile(path.join(out, 'paperclip_run_records.ledger.jsonl'), `${JSON.stringify({
+    ts: '2026-08-11T03:04:05Z',
+    task: 'reconcile-local',
+    status: 'ok',
+    duration_ms: 15,
+    proof_path: 'proofs/reconcile.md',
+    source: 'paperclip-tn',
+    mode: 'fixture',
+    schema: 'paperclip-run-record.v1',
+  })}\n`);
+  await writeFile(path.join(out, 'vault_para_stats.json'), 'unlisted-user\n');
+
+  const result = runGen(['--tenant-root', tenant, '--out', out]);
+  assert.equal(result.status, 0, result.stderr);
+  await assert.rejects(readFile(path.join(out, 'paperclip_run_records.json'), 'utf8'));
+  await assert.rejects(readFile(path.join(out, 'paperclip_run_records.ledger.jsonl'), 'utf8'));
+  assert.equal(await readFile(path.join(out, 'vault_para_stats.json'), 'utf8'), 'unlisted-user\n');
+
+  await rm(tenant, { recursive: true, force: true });
+  await rm(out, { recursive: true, force: true });
+});
+
+test('a forged or missing manifest does not delete reserved files', async () => {
+  const tenant = await makeTenant();
+  const forgedOut = await mkdtemp(path.join(tmpdir(), 'paperclip-fixtures-'));
+  const forged = {
+    fixture: true,
+    not_live: true,
+    label: 'FIXTURE',
+    description: 'forged manifest',
+    commands: [
+      {
+        command: 'paperclip_run_records',
+        read_model: 'PaperclipReadModel',
+        sample: 'paperclip_run_records.json',
+        empty: 'paperclip_run_records.empty.json',
+        ledger: 'paperclip_run_records.ledger.jsonl',
+      },
+    ],
+  };
+  await writeFile(path.join(forgedOut, 'index.json'), `${JSON.stringify(forged)}\n`);
+  await writeFile(path.join(forgedOut, 'paperclip_run_records.json'), fixtureSampleFile());
+  await writeFile(path.join(forgedOut, 'paperclip_run_records.ledger.jsonl'), 'forged-ledger\n');
+
+  const forgedResult = runGen(['--tenant-root', tenant, '--out', forgedOut]);
+  assert.equal(forgedResult.status, 0, forgedResult.stderr);
+  assert.equal(await readFile(path.join(forgedOut, 'paperclip_run_records.json'), 'utf8'), fixtureSampleFile());
+  assert.equal(await readFile(path.join(forgedOut, 'paperclip_run_records.ledger.jsonl'), 'utf8'), 'forged-ledger\n');
+
+  const missingOut = await mkdtemp(path.join(tmpdir(), 'paperclip-fixtures-'));
+  await writeFile(path.join(missingOut, 'vault_para_stats.json'), fixtureSampleFile());
+  await writeFile(path.join(missingOut, 'paperclip_run_records.ledger.jsonl'), 'keep-me\n');
+  const missingResult = runGen(['--tenant-root', tenant, '--out', missingOut]);
+  assert.equal(missingResult.status, 0, missingResult.stderr);
+  assert.equal(await readFile(path.join(missingOut, 'vault_para_stats.json'), 'utf8'), fixtureSampleFile());
+  assert.equal(await readFile(path.join(missingOut, 'paperclip_run_records.ledger.jsonl'), 'utf8'), 'keep-me\n');
+
+  const replacedOut = await mkdtemp(path.join(tmpdir(), 'paperclip-fixtures-'));
+  await writeFile(path.join(replacedOut, 'index.json'), `${JSON.stringify(generatorManifest({
+    sample: 'paperclip_run_records.json',
+  }), null, 2)}\n`);
+  await writeFile(path.join(replacedOut, 'paperclip_run_records.json'), 'replaced-by-user\n');
+  const replacedResult = runGen(['--tenant-root', tenant, '--out', replacedOut]);
+  assert.equal(replacedResult.status, 0, replacedResult.stderr);
+  assert.equal(await readFile(path.join(replacedOut, 'paperclip_run_records.json'), 'utf8'), 'replaced-by-user\n');
+
+  await rm(tenant, { recursive: true, force: true });
+  await rm(forgedOut, { recursive: true, force: true });
+  await rm(missingOut, { recursive: true, force: true });
+  await rm(replacedOut, { recursive: true, force: true });
+});
+
 test('impossible --clock exits 2', async () => {
   const tenant = await makeTenant();
   const out = await mkdtemp(path.join(tmpdir(), 'paperclip-fixtures-'));

@@ -16,6 +16,7 @@ import {
   mkdirSync,
   openSync,
   readFileSync,
+  readSync,
   realpathSync,
   readdirSync,
   statSync,
@@ -573,9 +574,137 @@ function writeFileNoFollow(target, contents) {
   }
 }
 
+const RESERVED_BY_COMMAND = {
+  vault_para_stats: {
+    read_model: 'VaultParaStatsOk',
+    sample: 'vault_para_stats.json',
+    empty: 'vault_para_stats.empty.json',
+  },
+  paperclip_run_records: {
+    read_model: 'PaperclipReadModel',
+    sample: 'paperclip_run_records.json',
+    empty: 'paperclip_run_records.empty.json',
+    ledger: 'paperclip_run_records.ledger.jsonl',
+  },
+};
+
+function nullOrExact(value, allowed) {
+  return value === null || value === allowed;
+}
+
+function isGeneratorManifest(doc) {
+  if (!doc || typeof doc !== 'object' || Array.isArray(doc)) return false;
+  if (doc.fixture !== true || doc.not_live !== true || doc.label !== 'FIXTURE') return false;
+  if (doc.description !== INDEX_DESCRIPTION) return false;
+  if (!Array.isArray(doc.commands) || doc.commands.length !== 2) return false;
+  const seen = new Set();
+  for (const entry of doc.commands) {
+    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return false;
+    const reserved = RESERVED_BY_COMMAND[entry.command];
+    if (!reserved || seen.has(entry.command) || entry.read_model !== reserved.read_model) return false;
+    if (!nullOrExact(entry.sample, reserved.sample) || !nullOrExact(entry.empty, reserved.empty)) return false;
+    if (entry.command === 'paperclip_run_records') {
+      if (entry.ledger !== undefined && entry.ledger !== reserved.ledger) return false;
+    } else if (Object.hasOwn(entry, 'ledger')) return false;
+    seen.add(entry.command);
+  }
+  return seen.size === 2;
+}
+
+function listedStaleNames(manifest) {
+  const names = new Set();
+  for (const entry of manifest.commands) {
+    if (typeof entry.sample === 'string' && STALE_OUTPUTS.includes(entry.sample)) names.add(entry.sample);
+    if (typeof entry.ledger === 'string' && STALE_OUTPUTS.includes(entry.ledger)) names.add(entry.ledger);
+  }
+  return names;
+}
+
+function readFileNoFollow(target, maxBytes) {
+  if (!constants.O_NOFOLLOW) return null;
+  let fd;
+  try {
+    fd = openSync(target, constants.O_RDONLY | constants.O_NOFOLLOW);
+  } catch (error) {
+    if (error.code === 'ELOOP' || error.code === 'EEXIST' || error.code === 'ENOENT') return null;
+    return null;
+  }
+  try {
+    const chunks = [];
+    let total = 0;
+    const buf = Buffer.alloc(64 * 1024);
+    for (;;) {
+      const n = readSync(fd, buf, 0, buf.length, null);
+      if (n <= 0) break;
+      total += n;
+      if (total > maxBytes) return null;
+      chunks.push(Buffer.from(buf.subarray(0, n)));
+    }
+    return Buffer.concat(chunks).toString('utf8');
+  } catch {
+    return null;
+  } finally {
+    closeSync(fd);
+  }
+}
+
+function readGeneratorManifest(outDir) {
+  const indexPath = path.join(outDir, 'index.json');
+  let st;
+  try {
+    st = lstatSync(indexPath);
+  } catch (error) {
+    if (error.code === 'ENOENT') return null;
+    return null;
+  }
+  if (st.isSymbolicLink() || !st.isFile() || st.size > 1024 * 1024) return null;
+  const text = readFileNoFollow(indexPath, 1024 * 1024);
+  if (text === null) return null;
+  let doc;
+  try {
+    doc = JSON.parse(text);
+  } catch {
+    return null;
+  }
+  return isGeneratorManifest(doc) ? doc : null;
+}
+
+function staleFileProvesGenerator(name, text) {
+  if (name.endsWith('.jsonl')) {
+    const lines = text.split('\n').filter((line) => line.trim() !== '');
+    if (lines.length === 0) return false;
+    return lines.every((line) => {
+      try {
+        const record = JSON.parse(line);
+        return record
+          && typeof record === 'object'
+          && !Array.isArray(record)
+          && record.source === RECORD_SOURCE
+          && record.mode === RECORD_MODE
+          && record.schema === RECORD_SCHEMA;
+      } catch {
+        return false;
+      }
+    });
+  }
+  let doc;
+  try {
+    doc = JSON.parse(text);
+  } catch {
+    return false;
+  }
+  if (!doc || doc.fixture !== true || doc.not_live !== true || doc.label !== 'FIXTURE') return false;
+  if (name === 'paperclip_run_records.json') return doc.command === 'paperclip_run_records';
+  if (name === 'vault_para_stats.json') return doc.command === 'vault_para_stats';
+  return false;
+}
+
 function removeStaleOutputs(outDir, produced) {
+  const manifest = readGeneratorManifest(outDir);
+  if (!manifest) return;
+  const listed = listedStaleNames(manifest);
   for (const name of STALE_OUTPUTS) {
-    if (produced.has(name)) continue;
+    if (produced.has(name) || !listed.has(name)) continue;
     const target = path.join(outDir, name);
     let st;
     try {
@@ -584,7 +713,9 @@ function removeStaleOutputs(outDir, produced) {
       if (error.code === 'ENOENT') continue;
       throw new Refuse('refusing to stat output file');
     }
-    if (st.isSymbolicLink() || !st.isFile()) continue;
+    if (st.isSymbolicLink() || !st.isFile() || st.size > 1024 * 1024) continue;
+    const text = readFileNoFollow(target, 1024 * 1024);
+    if (text === null || !staleFileProvesGenerator(name, text)) continue;
     unlinkSync(target);
   }
 }
