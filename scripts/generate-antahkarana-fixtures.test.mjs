@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { lstat, mkdtemp, mkdir, readFile, rm, symlink, writeFile } from 'node:fs/promises';
+import { chmod, lstat, mkdtemp, mkdir, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -614,4 +614,79 @@ test('impossible --clock exits 2', async () => {
 
   await rm(tenant, { recursive: true, force: true });
   await rm(out, { recursive: true, force: true });
+});
+
+test('a failed write leaves the previous sample, ledger, and index intact', async () => {
+  const tenant = await makeTenant();
+  const out = await mkdtemp(path.join(tmpdir(), 'paperclip-fixtures-'));
+  const ledgerPath = path.join(tenant, '.planning', 'run-records.jsonl');
+  const row = {
+    ts: '2026-08-11T03:04:05Z',
+    task: 'reconcile-local',
+    status: 'ok',
+    duration_ms: 15,
+    proof_path: 'proofs/reconcile.md',
+  };
+  await writeFile(ledgerPath, `${JSON.stringify(row)}\n`);
+  const first = runGen(['--tenant-root', tenant, '--out', out]);
+  assert.equal(first.status, 0, first.stderr);
+
+  const samplePath = path.join(out, 'paperclip_run_records.json');
+  const ledgerOut = path.join(out, 'paperclip_run_records.ledger.jsonl');
+  const indexPath = path.join(out, 'index.json');
+  const emptyPath = path.join(out, 'paperclip_run_records.empty.json');
+  const sampleBefore = await readFile(samplePath, 'utf8');
+  const ledgerBefore = await readFile(ledgerOut, 'utf8');
+  const indexBefore = await readFile(indexPath, 'utf8');
+  await chmod(emptyPath, 0o444);
+
+  try {
+    await rm(ledgerPath);
+    const second = runGen(['--tenant-root', tenant, '--out', out]);
+    assert.notEqual(second.status, 0);
+    assert.equal(await readFile(samplePath, 'utf8'), sampleBefore);
+    assert.equal(await readFile(ledgerOut, 'utf8'), ledgerBefore);
+    assert.equal(await readFile(indexPath, 'utf8'), indexBefore);
+    assert.equal(JSON.parse(indexBefore).commands[1].sample, 'paperclip_run_records.json');
+  } finally {
+    await chmod(emptyPath, 0o644);
+    await rm(tenant, { recursive: true, force: true });
+    await rm(out, { recursive: true, force: true });
+  }
+});
+
+test('a symlinked ancestor is allowed when its real path passes zone checks', async () => {
+  const tenant = await makeTenant();
+  const realBase = await mkdtemp(path.join(tmpdir(), 'paperclip-real-'));
+  const linkParent = await mkdtemp(path.join(tmpdir(), 'paperclip-anc-'));
+  const ancestor = path.join(linkParent, 'tmp-like');
+  await symlink(realBase, ancestor);
+  const out = path.join(ancestor, 'fixtures');
+
+  const result = runGen(['--tenant-root', tenant, '--out', out]);
+  assert.equal(result.status, 0, result.stderr);
+  const index = JSON.parse(await readFile(path.join(realBase, 'fixtures', 'index.json'), 'utf8'));
+  assert.equal(index.fixture, true);
+  assert.equal(index.not_live, true);
+
+  await rm(tenant, { recursive: true, force: true });
+  await rm(realBase, { recursive: true, force: true });
+  await rm(linkParent, { recursive: true, force: true });
+});
+
+test('a symlinked ancestor into a forbidden zone is refused', async () => {
+  const tenant = await makeTenant();
+  const linkParent = await mkdtemp(path.join(tmpdir(), 'paperclip-anc-'));
+  const ancestor = path.join(linkParent, 'into-tenant');
+  await symlink(tenant, ancestor);
+  const out = path.join(ancestor, 'fixtures');
+
+  const result = runGen(['--tenant-root', tenant, '--out', out]);
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /tenant root/);
+  await assert.rejects(readFile(path.join(tenant, 'fixtures', 'index.json'), 'utf8'));
+  await assert.rejects(readFile(path.join(tenant, 'index.json'), 'utf8'));
+
+  await rm(tenant, { recursive: true, force: true });
+  await rm(linkParent, { recursive: true, force: true });
 });

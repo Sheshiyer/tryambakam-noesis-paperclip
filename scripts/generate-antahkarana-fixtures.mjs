@@ -188,36 +188,39 @@ function nearestExisting(absPath) {
   }
 }
 
-function assertNoSymlinkComponents(absPath) {
-  const parts = absPath.split(path.sep).filter(Boolean);
-  let current = path.parse(absPath).root;
-  for (const part of parts) {
-    current = path.join(current, part);
-    let st;
-    try {
-      st = lstatSync(current);
-    } catch (error) {
-      if (error.code === 'ENOENT') return;
-      throw new Refuse('refusing to stat output path');
-    }
-    if (st.isSymbolicLink()) {
-      throw new Refuse('refusing to write through a symlink');
-    }
-  }
+function resolvedOutDir(absPath, existing, realExisting) {
+  const rest = path.relative(existing, absPath);
+  return rest ? path.resolve(realExisting, rest) : realExisting;
 }
 
+/**
+ * Refuse a symlink at --out itself. Pre-existing ancestor symlinks (macOS
+ * /tmp -> /private/tmp) are allowed when the resolved directory still sits
+ * outside the tenant root, twc-vault, and /Volumes.
+ */
 export function assertWritableOut(outDir, tenantRoot) {
   const abs = path.resolve(outDir);
   assertAllowedZone(abs, tenantRoot);
-  assertNoSymlinkComponents(abs);
-  const existing = nearestExisting(abs);
-  let real;
+
+  let selfStat = null;
   try {
-    real = realpathSync(existing);
+    selfStat = lstatSync(abs);
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw new Refuse('refusing to stat output path');
+  }
+  if (selfStat?.isSymbolicLink()) {
+    throw new Refuse('refusing to write through a symlink');
+  }
+
+  const existing = nearestExisting(abs);
+  let realExisting;
+  try {
+    realExisting = realpathSync(existing);
   } catch {
     throw new Refuse('refusing to resolve output path');
   }
-  assertAllowedZone(real, tenantRoot);
+  assertAllowedZone(realExisting, tenantRoot);
+  assertAllowedZone(resolvedOutDir(abs, existing, realExisting), tenantRoot);
   return abs;
 }
 
@@ -699,8 +702,7 @@ function staleFileProvesGenerator(name, text) {
   return false;
 }
 
-function removeStaleOutputs(outDir, produced) {
-  const manifest = readGeneratorManifest(outDir);
+function removeStaleOutputs(outDir, produced, manifest) {
   if (!manifest) return;
   const listed = listedStaleNames(manifest);
   for (const name of STALE_OUTPUTS) {
@@ -720,7 +722,20 @@ function removeStaleOutputs(outDir, produced) {
   }
 }
 
-function writeOut(outDir, bundle) {
+function assertRealOutDir(outDir, tenantRoot) {
+  const created = lstatSync(outDir);
+  if (created.isSymbolicLink()) throw new Refuse('refusing to write through a symlink');
+  if (!created.isDirectory()) throw new Refuse('out path is not a directory');
+  let resolved;
+  try {
+    resolved = realpathSync(outDir);
+  } catch {
+    throw new Refuse('refusing to resolve output path');
+  }
+  assertAllowedZone(resolved, tenantRoot);
+}
+
+function writeOut(outDir, bundle, tenantRoot) {
   const planned = new Map();
   for (const [name, value] of Object.entries(bundle.files)) {
     planned.set(name, `${JSON.stringify(value, null, 2)}\n`);
@@ -728,18 +743,24 @@ function writeOut(outDir, bundle) {
   for (const [name, text] of Object.entries(bundle.ledgers)) {
     planned.set(name, text);
   }
-  planned.set('index.json', `${JSON.stringify(bundle.index, null, 2)}\n`);
+  const indexContents = `${JSON.stringify(bundle.index, null, 2)}\n`;
+  const produced = new Set([...planned.keys(), 'index.json']);
 
-  for (const name of planned.keys()) {
+  for (const name of produced) {
     assertRegularOrAbsent(path.join(outDir, name));
   }
 
   mkdirSync(outDir, { recursive: true });
-  removeStaleOutputs(outDir, new Set(planned.keys()));
+  assertRealOutDir(outDir, tenantRoot);
+  // Ownership is decided from the manifest that exists before index.json is replaced.
+  const priorManifest = readGeneratorManifest(outDir);
+
   for (const [name, contents] of planned) {
     writeFileNoFollow(path.join(outDir, name), contents);
   }
-  return [...planned.keys()];
+  writeFileNoFollow(path.join(outDir, 'index.json'), indexContents);
+  removeStaleOutputs(outDir, produced, priorManifest);
+  return [...produced];
 }
 
 export function run(argv, io = {}) {
@@ -771,7 +792,7 @@ export function run(argv, io = {}) {
       if (st.isSymbolicLink()) throw new Refuse('refusing to write through a symlink');
       if (!st.isDirectory()) throw new Refuse('out path is not a directory');
     }
-    writeOut(outDir, bundle);
+    writeOut(outDir, bundle, opts.tenantRoot);
     return 0;
   } catch (error) {
     stderr(`${error.message}\n`);
