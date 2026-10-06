@@ -67,6 +67,7 @@ const STALE_OUTPUTS = [
 ];
 const STAGE_FLAGS = constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL | (constants.O_NOFOLLOW ?? 0);
 const STAGE_PREFIX = '.paperclip-fixture-stage.';
+const BACKUP_PREFIX = '.paperclip-fixture-backup.';
 
 class Refuse extends Error {
   constructor(message, exitCode = 1) {
@@ -555,23 +556,35 @@ function assertRegularOrAbsent(target) {
 
 let stageSerial = 0;
 
-/**
- * Test-only. PAPERCLIP_FIXTURES_FAULT_AFTER_WRITES=N makes the Nth staged
- * write throw, and only when NODE_ENV=test or PAPERCLIP_FIXTURES_TEST_FAULT=1.
- */
-export function stagedWriteFaultAt() {
-  const enabled = process.env.NODE_ENV === 'test' || process.env.PAPERCLIP_FIXTURES_TEST_FAULT === '1';
-  if (!enabled) return null;
-  const raw = process.env.PAPERCLIP_FIXTURES_FAULT_AFTER_WRITES;
+function testFaultEnabled() {
+  return process.env.NODE_ENV === 'test' || process.env.PAPERCLIP_FIXTURES_TEST_FAULT === '1';
+}
+
+function positiveFault(name) {
+  if (!testFaultEnabled()) return null;
+  const raw = process.env[name];
   if (raw === undefined || raw === '') return null;
   if (!/^[1-9]\d*$/.test(raw)) return null;
   return Number(raw);
 }
 
-function allocateStagePath(outDir) {
+/**
+ * Test-only. PAPERCLIP_FIXTURES_FAULT_AFTER_WRITES=N fails the Nth staged write.
+ * PAPERCLIP_FIXTURES_FAULT_AFTER_RENAMES=N fails the Nth commit rename.
+ * Both are ignored unless NODE_ENV=test or PAPERCLIP_FIXTURES_TEST_FAULT=1.
+ */
+export function stagedWriteFaultAt() {
+  return positiveFault('PAPERCLIP_FIXTURES_FAULT_AFTER_WRITES');
+}
+
+export function stagedRenameFaultAt() {
+  return positiveFault('PAPERCLIP_FIXTURES_FAULT_AFTER_RENAMES');
+}
+
+function allocateSidecar(outDir, prefix) {
   for (let attempt = 0; attempt < 1000; attempt += 1) {
     stageSerial += 1;
-    const target = path.join(outDir, `${STAGE_PREFIX}${process.pid}.${stageSerial}.tmp`);
+    const target = path.join(outDir, `${prefix}${process.pid}.${stageSerial}.tmp`);
     try {
       lstatSync(target);
     } catch (error) {
@@ -614,6 +627,55 @@ function writeStaged(target, contents) {
       } catch {
         // The caller also sweeps leftover stage files.
       }
+    }
+  }
+}
+
+function classifyDest(dest) {
+  let st;
+  try {
+    st = lstatSync(dest);
+  } catch (error) {
+    if (error.code === 'ENOENT') return 'absent';
+    throw new Refuse('refusing to stat output file');
+  }
+  if (st.isSymbolicLink() || !st.isFile()) {
+    throw new Refuse('refusing to replace a non-regular output file');
+  }
+  return 'file';
+}
+
+function commitStaged(outDir, item, renameIndex, faultAt, committed) {
+  const dest = path.join(outDir, item.name);
+  const kind = classifyDest(dest);
+  let backup = null;
+  if (kind === 'file') {
+    backup = allocateSidecar(outDir, BACKUP_PREFIX);
+    renameSync(dest, backup);
+  }
+  const record = { dest, backup, tmp: item.tmp, placed: false };
+  committed.push(record);
+  if (faultAt !== null && renameIndex === faultAt) {
+    throw new Refuse('test fault: commit rename failed');
+  }
+  renameSync(item.tmp, dest);
+  record.placed = true;
+}
+
+function restoreCommitted(committed) {
+  for (let index = committed.length - 1; index >= 0; index -= 1) {
+    const item = committed[index];
+    try {
+      if (item.backup) {
+        renameSync(item.backup, item.dest);
+        item.backup = null;
+        item.placed = false;
+      } else if (item.placed) {
+        unlinkStageFile(item.dest);
+        item.placed = false;
+      }
+    } catch {
+      // Keep going so earlier replacements are restored too.
     }
   }
 }
@@ -814,6 +876,7 @@ function writeOut(outDir, bundle, tenantRoot) {
 
   const ordered = [...planned.entries(), ['index.json', indexContents]];
   const staged = [];
+  const committed = [];
   const faultAt = stagedWriteFaultAt();
   try {
     for (let index = 0; index < ordered.length; index += 1) {
@@ -821,7 +884,7 @@ function writeOut(outDir, bundle, tenantRoot) {
         throw new Refuse('test fault: staged write failed');
       }
       const [name, contents] = ordered[index];
-      const tmp = allocateStagePath(outDir);
+      const tmp = allocateSidecar(outDir, STAGE_PREFIX);
       writeStaged(tmp, contents);
       staged.push({ name, tmp });
     }
@@ -829,14 +892,31 @@ function writeOut(outDir, bundle, tenantRoot) {
       ...staged.filter((item) => item.name !== 'index.json'),
       ...staged.filter((item) => item.name === 'index.json'),
     ];
-    for (const item of renameOrder) {
-      renameSync(item.tmp, path.join(outDir, item.name));
+    const renameFaultAt = stagedRenameFaultAt();
+    for (let index = 0; index < renameOrder.length; index += 1) {
+      commitStaged(outDir, renameOrder[index], index + 1, renameFaultAt, committed);
     }
   } catch (error) {
+    restoreCommitted(committed);
     for (const item of staged) unlinkStageFile(item.tmp);
+    for (const item of committed) {
+      if (!item.backup) continue;
+      let destStat = null;
+      try {
+        destStat = lstatSync(item.dest);
+      } catch {
+        destStat = null;
+      }
+      if (destStat && !destStat.isSymbolicLink() && destStat.isFile()) {
+        unlinkStageFile(item.backup);
+      }
+    }
     throw error;
   }
 
+  for (const item of committed) {
+    if (item.backup) unlinkStageFile(item.backup);
+  }
   removeStaleOutputs(outDir, produced, priorManifest);
   return [...produced];
 }

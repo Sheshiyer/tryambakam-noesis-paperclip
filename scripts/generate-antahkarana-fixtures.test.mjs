@@ -667,6 +667,61 @@ test('a failed write leaves the previous sample, ledger, and index intact', asyn
   await rm(out, { recursive: true, force: true });
 });
 
+test('a failed commit rename restores every prior fixture file', async () => {
+  const tenant = await makeTenant();
+  const out = await mkdtemp(path.join(tmpdir(), 'paperclip-fixtures-'));
+  const ledgerPath = path.join(tenant, '.planning', 'run-records.jsonl');
+  const firstRow = {
+    ts: '2026-08-11T03:04:05Z',
+    task: 'reconcile-local',
+    status: 'ok',
+    duration_ms: 15,
+    proof_path: 'proofs/reconcile.md',
+  };
+  await writeFile(ledgerPath, `${JSON.stringify(firstRow)}\n`);
+  const first = runGen(['--tenant-root', tenant, '--out', out]);
+  assert.equal(first.status, 0, first.stderr);
+
+  const watched = [
+    'paperclip_run_records.json',
+    'paperclip_run_records.empty.json',
+    'paperclip_run_records.ledger.jsonl',
+    'vault_para_stats.empty.json',
+    'index.json',
+  ];
+  const before = new Map();
+  for (const name of watched) {
+    before.set(name, await readFile(path.join(out, name), 'utf8'));
+  }
+
+  const secondRow = {
+    ts: '2026-08-11T09:00:00Z',
+    task: 'sync-issues',
+    status: 'failed',
+    duration_ms: 40,
+    proof_path: 'proofs/sync-issues.txt',
+    error: 'exit 1',
+    suggested_action: 'rerun reconcile',
+  };
+  await writeFile(ledgerPath, `${JSON.stringify(secondRow)}\n`);
+  const second = runGen(['--tenant-root', tenant, '--out', out], {
+    ...process.env,
+    NODE_ENV: 'test',
+    PAPERCLIP_FIXTURES_FAULT_AFTER_RENAMES: '2',
+  });
+  assert.notEqual(second.status, 0);
+  assert.match(second.stderr, /commit rename failed/);
+  for (const name of watched) {
+    assert.equal(await readFile(path.join(out, name), 'utf8'), before.get(name), name);
+  }
+  const names = await readdir(out);
+  assert.equal(names.some((name) => name.startsWith('.paperclip-fixture-stage.')), false);
+  assert.equal(names.some((name) => name.startsWith('.paperclip-fixture-backup.')), false);
+
+  await rm(tenant, { recursive: true, force: true });
+  await rm(out, { recursive: true, force: true });
+});
+
 test('a symlinked ancestor is allowed when its real path passes zone checks', async () => {
   const tenant = await makeTenant();
   const realBase = await mkdtemp(path.join(tmpdir(), 'paperclip-real-'));
