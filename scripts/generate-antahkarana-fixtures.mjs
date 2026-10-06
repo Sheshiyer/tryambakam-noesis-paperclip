@@ -8,7 +8,20 @@
  * Makes no network calls. Timestamps come from the ledger or --clock.
  */
 
-import { existsSync, mkdirSync, readFileSync, realpathSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import {
+  closeSync,
+  constants,
+  existsSync,
+  lstatSync,
+  mkdirSync,
+  openSync,
+  readFileSync,
+  realpathSync,
+  readdirSync,
+  statSync,
+  unlinkSync,
+  writeSync,
+} from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -43,7 +56,13 @@ const VALUE_MARKERS = [
 
 const FORBIDDEN_KEYS = new Set(['token', 'password', 'secret', 'api_key', 'authorization']);
 
-const CLOCK_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/;
+const CLOCK_RE = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d+))?Z$/;
+const STALE_OUTPUTS = [
+  'paperclip_run_records.json',
+  'paperclip_run_records.ledger.jsonl',
+  'vault_para_stats.json',
+];
+const WRITE_FLAGS = constants.O_WRONLY | constants.O_CREAT | constants.O_TRUNC | (constants.O_NOFOLLOW ?? 0);
 
 class Refuse extends Error {
   constructor(message, exitCode = 1) {
@@ -88,11 +107,47 @@ export function parseArgs(argv, defaults = {}) {
     throw new Refuse(`unknown argument: ${arg}`, 2);
   }
 
-  if (!CLOCK_RE.test(opts.clock)) {
+  assertRealClock(opts.clock);
+  return opts;
+}
+
+/**
+ * Accept only a real UTC timestamp. Shape is not enough: 2026-02-31 and
+ * 2026-99-99 parse as rollovers or Invalid Date, so the parsed instant must
+ * round-trip to the same calendar fields.
+ */
+export function assertRealClock(value) {
+  const match = CLOCK_RE.exec(value);
+  if (!match) {
     throw new Refuse('invalid --clock (expected an ISO-8601 UTC timestamp)', 2);
   }
-
-  return opts;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const hour = Number(match[4]);
+  const minute = Number(match[5]);
+  const second = Number(match[6]);
+  const fraction = match[7] ?? '';
+  if (month < 1 || month > 12 || day < 1 || day > 31 || hour > 23 || minute > 59 || second > 59) {
+    throw new Refuse('invalid --clock (not a real UTC timestamp)', 2);
+  }
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    throw new Refuse('invalid --clock (not a real UTC timestamp)', 2);
+  }
+  const millis = fraction.length === 0 ? '000' : `${fraction}000`.slice(0, 3);
+  const roundTrip = `${match[1]}-${match[2]}-${match[3]}T${match[4]}:${match[5]}:${match[6]}.${millis}Z`;
+  if (
+    parsed.toISOString() !== roundTrip
+    || parsed.getUTCFullYear() !== year
+    || parsed.getUTCMonth() + 1 !== month
+    || parsed.getUTCDate() !== day
+    || parsed.getUTCHours() !== hour
+    || parsed.getUTCMinutes() !== minute
+    || parsed.getUTCSeconds() !== second
+  ) {
+    throw new Refuse('invalid --clock (not a real UTC timestamp)', 2);
+  }
 }
 
 function isInside(child, parent) {
@@ -104,18 +159,64 @@ function hasSegment(absPath, segment) {
   return absPath.split(path.sep).some((part) => part.toLowerCase() === segment);
 }
 
-export function assertWritableOut(outDir, tenantRoot) {
-  const abs = path.resolve(outDir);
+function assertAllowedZone(absPath, tenantRoot) {
   const tenant = path.resolve(tenantRoot);
-  if (abs === '/Volumes' || abs.startsWith(`${path.sep}Volumes${path.sep}`)) {
+  if (absPath === '/Volumes' || absPath.startsWith(`${path.sep}Volumes${path.sep}`)) {
     throw new Refuse('refusing to write under /Volumes/');
   }
-  if (hasSegment(abs, 'twc-vault')) {
+  if (hasSegment(absPath, 'twc-vault')) {
     throw new Refuse('refusing to write inside twc-vault');
   }
-  if (isInside(abs, tenant)) {
+  if (isInside(absPath, tenant)) {
     throw new Refuse('refusing to write inside tenant root');
   }
+}
+
+function nearestExisting(absPath) {
+  let current = absPath;
+  for (;;) {
+    try {
+      lstatSync(current);
+      return current;
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw new Refuse('refusing to stat output path');
+      const parent = path.dirname(current);
+      if (parent === current) throw new Refuse('refusing to resolve output path');
+      current = parent;
+    }
+  }
+}
+
+function assertNoSymlinkComponents(absPath) {
+  const parts = absPath.split(path.sep).filter(Boolean);
+  let current = path.parse(absPath).root;
+  for (const part of parts) {
+    current = path.join(current, part);
+    let st;
+    try {
+      st = lstatSync(current);
+    } catch (error) {
+      if (error.code === 'ENOENT') return;
+      throw new Refuse('refusing to stat output path');
+    }
+    if (st.isSymbolicLink()) {
+      throw new Refuse('refusing to write through a symlink');
+    }
+  }
+}
+
+export function assertWritableOut(outDir, tenantRoot) {
+  const abs = path.resolve(outDir);
+  assertAllowedZone(abs, tenantRoot);
+  assertNoSymlinkComponents(abs);
+  const existing = nearestExisting(abs);
+  let real;
+  try {
+    real = realpathSync(existing);
+  } catch {
+    throw new Refuse('refusing to resolve output path');
+  }
+  assertAllowedZone(real, tenantRoot);
   return abs;
 }
 
@@ -432,21 +533,82 @@ export function buildFixtures({ tenantRoot, clock = DEFAULT_CLOCK }) {
   return { index, files, ledgers };
 }
 
-function writeOut(outDir, bundle) {
-  mkdirSync(outDir, { recursive: true });
-  const produced = [];
-  for (const [name, value] of Object.entries(bundle.files)) {
+function assertRegularOrAbsent(target) {
+  let st;
+  try {
+    st = lstatSync(target);
+  } catch (error) {
+    if (error.code === 'ENOENT') return;
+    throw new Refuse('refusing to stat output file');
+  }
+  if (st.isSymbolicLink() || !st.isFile()) {
+    throw new Refuse('refusing to write through a non-regular output file');
+  }
+}
+
+function writeFileNoFollow(target, contents) {
+  if (!constants.O_NOFOLLOW || (WRITE_FLAGS & constants.O_NOFOLLOW) === 0) {
+    throw new Refuse('refusing to write without O_NOFOLLOW');
+  }
+  assertRegularOrAbsent(target);
+  let fd;
+  try {
+    fd = openSync(target, WRITE_FLAGS, 0o644);
+  } catch (error) {
+    if (error.code === 'ELOOP' || error.code === 'EEXIST') {
+      throw new Refuse('refusing to write through a symlink');
+    }
+    throw error;
+  }
+  try {
+    const buf = Buffer.from(contents);
+    let offset = 0;
+    while (offset < buf.length) {
+      const written = writeSync(fd, buf, offset, buf.length - offset);
+      if (written <= 0) throw new Refuse('failed to write output file');
+      offset += written;
+    }
+  } finally {
+    closeSync(fd);
+  }
+}
+
+function removeStaleOutputs(outDir, produced) {
+  for (const name of STALE_OUTPUTS) {
+    if (produced.has(name)) continue;
     const target = path.join(outDir, name);
-    writeFileSync(target, `${JSON.stringify(value, null, 2)}\n`);
-    produced.push(name);
+    let st;
+    try {
+      st = lstatSync(target);
+    } catch (error) {
+      if (error.code === 'ENOENT') continue;
+      throw new Refuse('refusing to stat output file');
+    }
+    if (st.isSymbolicLink() || !st.isFile()) continue;
+    unlinkSync(target);
+  }
+}
+
+function writeOut(outDir, bundle) {
+  const planned = new Map();
+  for (const [name, value] of Object.entries(bundle.files)) {
+    planned.set(name, `${JSON.stringify(value, null, 2)}\n`);
   }
   for (const [name, text] of Object.entries(bundle.ledgers)) {
-    writeFileSync(path.join(outDir, name), text);
-    produced.push(name);
+    planned.set(name, text);
   }
-  writeFileSync(path.join(outDir, 'index.json'), `${JSON.stringify(bundle.index, null, 2)}\n`);
-  produced.push('index.json');
-  return produced;
+  planned.set('index.json', `${JSON.stringify(bundle.index, null, 2)}\n`);
+
+  for (const name of planned.keys()) {
+    assertRegularOrAbsent(path.join(outDir, name));
+  }
+
+  mkdirSync(outDir, { recursive: true });
+  removeStaleOutputs(outDir, new Set(planned.keys()));
+  for (const [name, contents] of planned) {
+    writeFileNoFollow(path.join(outDir, name), contents);
+  }
+  return [...planned.keys()];
 }
 
 export function run(argv, io = {}) {
@@ -473,8 +635,10 @@ export function run(argv, io = {}) {
       return 0;
     }
     const outDir = assertWritableOut(opts.out, opts.tenantRoot);
-    if (existsSync(outDir) && !statSync(outDir).isDirectory()) {
-      throw new Refuse('out path is not a directory');
+    if (existsSync(outDir)) {
+      const st = lstatSync(outDir);
+      if (st.isSymbolicLink()) throw new Refuse('refusing to write through a symlink');
+      if (!st.isDirectory()) throw new Refuse('out path is not a directory');
     }
     writeOut(outDir, bundle);
     return 0;

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { lstat, mkdtemp, mkdir, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -395,6 +395,89 @@ test('real PARA directories produce counted buckets and no invented paperclip ro
     vaultSample: 'vault_para_stats.json',
     paperclipSample: null,
   }));
+
+  await rm(tenant, { recursive: true, force: true });
+  await rm(out, { recursive: true, force: true });
+});
+
+test('symlinked index.json pointing into the tenant is refused and the tenant file is unchanged', async () => {
+  const tenant = await makeTenant();
+  const out = await mkdtemp(path.join(tmpdir(), 'paperclip-fixtures-'));
+  const target = path.join(tenant, 'kept.txt');
+  await writeFile(target, 'original\n');
+  await symlink(target, path.join(out, 'index.json'));
+
+  const result = runGen(['--tenant-root', tenant, '--out', out]);
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /symlink|non-regular/);
+  assert.equal(await readFile(target, 'utf8'), 'original\n');
+  const linkStat = await lstat(path.join(out, 'index.json'));
+  assert.equal(linkStat.isSymbolicLink(), true);
+
+  await rm(tenant, { recursive: true, force: true });
+  await rm(out, { recursive: true, force: true });
+});
+
+test('--out that is a symlink into the tenant is refused', async () => {
+  const tenant = await makeTenant();
+  const realOut = path.join(tenant, 'escaped-out');
+  await mkdir(realOut);
+  const linkParent = await mkdtemp(path.join(tmpdir(), 'paperclip-out-link-'));
+  const link = path.join(linkParent, 'out');
+  await symlink(realOut, link);
+
+  const result = runGen(['--tenant-root', tenant, '--out', link]);
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /symlink|tenant root/);
+  await assert.rejects(readFile(path.join(realOut, 'index.json'), 'utf8'));
+  await assert.rejects(readFile(path.join(realOut, 'paperclip_run_records.empty.json'), 'utf8'));
+
+  await rm(tenant, { recursive: true, force: true });
+  await rm(linkParent, { recursive: true, force: true });
+});
+
+test('rerun with a missing ledger removes stale sample and ledger files', async () => {
+  const tenant = await makeTenant();
+  const out = await mkdtemp(path.join(tmpdir(), 'paperclip-fixtures-'));
+  const ledgerPath = path.join(tenant, '.planning', 'run-records.jsonl');
+  const row = {
+    ts: '2026-08-11T03:04:05Z',
+    task: 'reconcile-local',
+    status: 'ok',
+    duration_ms: 15,
+    proof_path: 'proofs/reconcile.md',
+  };
+  await writeFile(ledgerPath, `${JSON.stringify(row)}\n`);
+  await writeFile(path.join(out, 'keep.txt'), 'keep\n');
+
+  const first = runGen(['--tenant-root', tenant, '--out', out]);
+  assert.equal(first.status, 0, first.stderr);
+  await readFile(path.join(out, 'paperclip_run_records.json'), 'utf8');
+  await readFile(path.join(out, 'paperclip_run_records.ledger.jsonl'), 'utf8');
+
+  await rm(ledgerPath);
+  const second = runGen(['--tenant-root', tenant, '--out', out]);
+  assert.equal(second.status, 0, second.stderr);
+  await assert.rejects(readFile(path.join(out, 'paperclip_run_records.json'), 'utf8'));
+  await assert.rejects(readFile(path.join(out, 'paperclip_run_records.ledger.jsonl'), 'utf8'));
+  const index = JSON.parse(await readFile(path.join(out, 'index.json'), 'utf8'));
+  assert.equal(index.commands[1].sample, null);
+  assert.equal(Object.hasOwn(index.commands[1], 'ledger'), false);
+  await readFile(path.join(out, 'paperclip_run_records.empty.json'), 'utf8');
+  assert.equal(await readFile(path.join(out, 'keep.txt'), 'utf8'), 'keep\n');
+
+  await rm(tenant, { recursive: true, force: true });
+  await rm(out, { recursive: true, force: true });
+});
+
+test('impossible --clock exits 2', async () => {
+  const tenant = await makeTenant();
+  const out = await mkdtemp(path.join(tmpdir(), 'paperclip-fixtures-'));
+  for (const clock of ['2026-99-99T99:99:99Z', '2026-02-31T00:00:00Z', '2026-01-01T24:00:00Z']) {
+    const result = runGen(['--tenant-root', tenant, '--out', out, '--clock', clock]);
+    assert.equal(result.status, 2, `${clock}\n${result.stderr}`);
+    await assert.rejects(readFile(path.join(out, 'index.json'), 'utf8'));
+  }
 
   await rm(tenant, { recursive: true, force: true });
   await rm(out, { recursive: true, force: true });

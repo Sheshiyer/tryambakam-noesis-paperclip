@@ -8,7 +8,7 @@
 node scripts/generate-antahkarana-fixtures.mjs --tenant-root . --out /tmp/antahkarana-fixtures
 ```
 
-`--tenant-root` defaults to the repo root. `--out` defaults to a JSON document on stdout. `--clock` sets `scanned_at` and defaults to `2026-08-12T00:00:00Z`. Record timestamps come from the ledger. The script does not call `Date.now` or `Math.random`, and it does not use the network.
+`--tenant-root` defaults to the repo root. `--out` defaults to a JSON document on stdout. `--clock` sets `scanned_at` and defaults to `2026-08-12T00:00:00Z`. It must be a real UTC timestamp: impossible dates such as `2026-99-99T99:99:99Z` exit 2. Record timestamps come from the ledger. The script does not call `Date.now` or `Math.random`, and it does not use the network.
 
 It reads `.planning/run-records.jsonl` line by line. Malformed lines increment `skipped` and are left unchanged. Valid rows keep `ts`, `task`, `status`, `duration_ms`, and `proof_path`, with `source` `paperclip-tn`, `mode` `fixture`, and `schema` `paperclip-run-record.v1`. Non-empty string `error` and `suggested_action` values are kept; every other unknown key is dropped. A ledger with at least one valid row writes `paperclip_run_records.json` (variant `sample`) and `paperclip_run_records.ledger.jsonl` (those sample records). The empty variant is always written (`state` `empty`, `reason` `cron has not run yet`, `records` `[]`). A missing ledger or a ledger with no valid rows does not invent a sample file.
 
@@ -16,6 +16,6 @@ It reads `.planning/run-records.jsonl` line by line. Malformed lines increment `
 
 `index.json` lists one entry per command (`vault_para_stats`, then `paperclip_run_records`) with `sample` and `empty` filename keys. `sample` is `null` when that file was not produced. The paperclip entry gains a `ledger` key only when `paperclip_run_records.ledger.jsonl` is written.
 
-The process refuses to write inside the tenant root, a `twc-vault` path, or `/Volumes/`. It exits non-zero, without writing fixtures, if any output value contains a token marker (`nk_`, `sk-`, `ghp_`, `github_pat_`, `xox`, `AKIA`, `BEGIN PRIVATE`, `Bearer `, `api_key`, `password`, `/Volumes/`, `/Users/`) or a key named `token`, `password`, `secret`, `api_key`, or `authorization`. Paths in the output are relative.
+The process refuses to write inside the tenant root, a `twc-vault` path, or `/Volumes/`. That check uses the real path of `--out` (or its nearest existing ancestor) and refuses a symlink in `--out` or any path component. Each output file is opened without following symlinks, and an existing symlink or non-regular file at that name is left untouched. Reusing `--out` deletes stale `paperclip_run_records.json`, `paperclip_run_records.ledger.jsonl`, and `vault_para_stats.json` from an earlier run when this run did not produce them, and only when they are regular files. It exits non-zero, without writing fixtures, if any output value contains a token marker (`nk_`, `sk-`, `ghp_`, `github_pat_`, `xox`, `AKIA`, `BEGIN PRIVATE`, `Bearer `, `api_key`, `password`, `/Volumes/`, `/Users/`) or a key named `token`, `password`, `secret`, `api_key`, or `authorization`. Paths in the output are relative.
 
 `npm test` runs `scripts/generate-antahkarana-fixtures.test.mjs`.
