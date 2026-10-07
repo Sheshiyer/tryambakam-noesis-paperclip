@@ -17,7 +17,7 @@ Thoughtseed Labs operates a three-layer system:
 └──────────────────────────┬──────────────────────────────────────────┘
                            │
 ┌─ OpenClaw Gateway (Agent Runtime) ──────────────────────────────────┐
-│ ws://127.0.0.1:18789 | Token: 5338ff43... | Mode: local/loopback   │
+│ ws://127.0.0.1:18789 | Token: <redacted: OpenClaw gateway token, see local config> | Mode: local/loopback   │
 │ Config: ~/.openclaw/openclaw.json                                    │
 │ Cron runs: ~/.openclaw/cron/runs/*.jsonl                            │
 │ Agent workspaces: ~/.openclaw/workspace-{agent}/                    │
