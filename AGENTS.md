@@ -22,7 +22,7 @@ Agent bindings are roles, not runtime ids. Reusable pieces are host-agnostic mod
 
 ## Where work lives
 
-Open work and its order are in [ROADMAP.md](ROADMAP.md), by issue link. `tasks/todo.md` is a loop-cycle log, not the plan.
+Open work and its order are in [ROADMAP.md](ROADMAP.md), by issue link. Items in one tier may run in parallel unless a bullet names an issue it waits on. `tasks/todo.md` is a loop-cycle log, not the plan.
 
 Files under `agents/` are role notes for that role. They do not replace this guide.
 

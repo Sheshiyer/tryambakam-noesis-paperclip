@@ -16,7 +16,7 @@ Cost stays UNRESOLVED. Nothing here authorizes paid dispatch.
 
 ## Dependency order
 
-Items in one tier do not wait on each other. A later line waits only on the issues it names.
+Items in one tier may run in parallel unless a bullet names an issue it waits on. A named dependency overrides the tier.
 
 ### Start now
 
