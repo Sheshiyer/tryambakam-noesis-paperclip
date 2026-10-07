@@ -178,6 +178,17 @@ test('exponential backoff grows and then stops at max_ms', () => {
   assert.equal(backoffDelayMs(backoff, 3), 1_500);
 });
 
+test('capped exponential backoff stays at max_ms for a high attempt', () => {
+  const backoff = { strategy: 'exponential', initial_ms: 1_000, multiplier: 2, max_ms: 60_000 };
+  assert.equal(backoffDelayMs(backoff, 6), 32_000);
+  assert.equal(backoffDelayMs(backoff, 7), 60_000);
+  assert.equal(backoffDelayMs(backoff, 45), 60_000);
+  assert.throws(
+    () => backoffDelayMs({ strategy: 'exponential', initial_ms: 1_000, multiplier: 2 }, 45),
+    RangeError,
+  );
+});
+
 test('an ok attempt is terminal and does not schedule a retry', () => {
   const clock = manualClock('2026-08-12T00:00:00.000Z');
   const running = openRun(sampleConfig(), clock);
@@ -219,12 +230,74 @@ test('refuses to retry a model call unless the config has an explicit cost cap',
   assert.equal(decision.next_attempt_at, '2026-08-12T00:00:00.700Z');
   assert.equal(decision.run.cost_cap, 0);
 
-  const last = openRun({ ...config, attempt: 3 }, clock);
+  const once = openRun({
+    ...config,
+    retry: { max_attempts: 1, backoff: { strategy: 'fixed', delay_ms: 500 } },
+  }, clock);
   clock.set('2026-08-12T00:00:01.000Z');
-  const lastFailure = recordFailure(last, clock, { error: 'model transport failed' });
-  const dead = resolveFailure(lastFailure, clock);
+  const onceFailure = recordFailure(once, clock, { error: 'model transport failed' });
+  const dead = resolveFailure(onceFailure, clock);
   assert.equal(dead.action, 'dead-letter');
   assert.equal(dead.run.cost_cap, null);
+});
+
+test('openRun refuses a later model-call attempt without an explicit cost cap', () => {
+  const clock = manualClock('2026-08-12T00:00:00.000Z');
+  const config = sampleConfig({
+    makes_model_call: true,
+    attempt: 2,
+    retry: { max_attempts: 3, backoff: { strategy: 'fixed', delay_ms: 500 } },
+  });
+  assert.throws(() => openRun(config, clock), RetryRefused);
+  assert.throws(() => openRun({ ...config, cost_cap: null }, clock), RetryRefused);
+  try {
+    openRun({ ...config, cost_cap: null }, clock);
+    assert.fail('expected RetryRefused');
+  } catch (error) {
+    assert.equal(error.name, 'RetryRefused');
+    assert.equal(error.code, 'cost-cap-required');
+  }
+
+  const opened = openRun({ ...config, cost_cap: 0 }, clock);
+  assert.equal(opened.attempt, 2);
+  assert.equal(opened.state, 'running');
+  assert.equal(opened.cost_cap, 0);
+
+  const first = openRun(sampleConfig({ makes_model_call: true }), clock);
+  assert.equal(first.attempt, 1);
+  assert.equal(first.cost_cap, null);
+});
+
+test('assertJobRun accepts backoff properties in any key order', () => {
+  const clock = manualClock('2026-08-12T00:00:00.000Z');
+  const run = openRun(sampleConfig(), clock);
+  const fixed = {
+    ...run,
+    retry: {
+      backoff: { delay_ms: 1_000, strategy: 'fixed' },
+      max_attempts: run.retry.max_attempts,
+    },
+  };
+  assertJobRun(fixed);
+  assert.equal(fixed.retry.backoff.delay_ms, 1_000);
+
+  const exponential = {
+    ...run,
+    retry: {
+      max_attempts: 2,
+      backoff: { multiplier: 2, max_ms: 1_500, initial_ms: 1_000, strategy: 'exponential' },
+    },
+  };
+  assertJobRun(exponential);
+
+  const extra = {
+    ...run,
+    retry: {
+      max_attempts: 2,
+      backoff: { strategy: 'fixed', delay_ms: 1_000, extra: true },
+    },
+  };
+  assert.throws(() => assertJobRun(extra), /extra fields/);
 });
 
 test('timestamps from the clock are canonical UTC and impossible dates are rejected', () => {

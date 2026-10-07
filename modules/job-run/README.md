@@ -30,7 +30,7 @@ A record carries:
 
 [`job-run.mjs`](job-run.mjs) has no dependencies. It does not read or write files, use the network, or call `Date.now`. Every timestamp comes from a clock function the caller passes in. The clock returns a `Date` or an ISO-8601 UTC string, and the library stores the canonical millisecond form.
 
-- `openRun(config, clock)` starts attempt 1, or `config.attempt` when opening a later try
+- `openRun(config, clock)` starts attempt 1, or `config.attempt` when opening a later try. A later try that makes a model call requires an explicit `cost_cap`
 - `recordSuccess(run, clock)` and `recordFailure(run, clock, { error })` close a running attempt
 - `backoffDelayMs(backoff, attempt)` is the wait after that attempt fails
 - `resolveFailure(run, clock)` returns `{ action: 'retry', next_attempt_at, run }` or `{ action: 'dead-letter', run }`
@@ -44,9 +44,9 @@ The attempt that reaches `max_attempts` and fails is dead-lettered. Dead-letter 
 
 ## Cost cap
 
-A job with `makes_model_call: true` is not retried unless `cost_cap` is an explicit finite number greater than or equal to zero. Zero is an explicit ceiling. `null` and a missing `cost_cap` are not. `resolveFailure` throws `RetryRefused` (`code` `cost-cap-required`) and leaves the failed attempt unchanged, with `next_attempt_at` still null.
+A job with `makes_model_call: true` is not retried unless `cost_cap` is an explicit finite number greater than or equal to zero. Zero is an explicit ceiling. `null` and a missing `cost_cap` are not. `openRun` throws `RetryRefused` (`code` `cost-cap-required`) when `attempt` is greater than 1. `resolveFailure` throws the same error and leaves the failed attempt unchanged, with `next_attempt_at` still null.
 
-The first attempt may start without a cap. This module does not price a call and does not authorize spend.
+The first attempt may start without a cap. Dead-lettering the attempt that has reached `max_attempts` does not start another model call. This module does not price a call and does not authorize spend.
 
 ## Cockpit run records
 

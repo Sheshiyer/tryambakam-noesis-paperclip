@@ -158,7 +158,8 @@ function instantMs(iso) {
 /**
  * Delay in milliseconds before the attempt that follows `attempt`.
  * Fixed backoff returns delay_ms. Exponential backoff returns
- * floor(initial_ms * multiplier^(attempt-1)), capped by max_ms when set.
+ * floor(initial_ms * multiplier^(attempt-1)). When max_ms is set, the
+ * delay stops at that ceiling even if the uncapped product would overflow.
  */
 export function backoffDelayMs(backoff, attempt) {
   const policy = copyBackoff(backoff);
@@ -166,13 +167,57 @@ export function backoffDelayMs(backoff, attempt) {
     throw new TypeError('attempt must be a positive integer');
   }
   if (policy.strategy === 'fixed') return policy.delay_ms;
-  const raw = policy.initial_ms * (policy.multiplier ** (attempt - 1));
+  return exponentialDelayMs(policy, attempt);
+}
+
+function exponentialDelayMs(policy, attempt) {
+  const exponent = attempt - 1;
+  const cap = policy.max_ms;
+  if (policy.initial_ms === 0 || cap === 0) return 0;
+  if (exponent === 0) return cap === undefined ? policy.initial_ms : Math.min(policy.initial_ms, cap);
+  if (cap !== undefined && policy.initial_ms >= cap) return cap;
+
+  if (policy.multiplier > 1 && cap !== undefined) {
+    const stepsToCap = Math.log(cap / policy.initial_ms) / Math.log(policy.multiplier);
+    if (Number.isFinite(stepsToCap) && exponent > stepsToCap + 1) return cap;
+  }
+
+  if (policy.multiplier > 1 && cap === undefined) {
+    const stepsToOverflow = Math.log(Number.MAX_SAFE_INTEGER / policy.initial_ms) / Math.log(policy.multiplier);
+    if (Number.isFinite(stepsToOverflow) && exponent > stepsToOverflow + 1) {
+      throw new RangeError('backoff delay overflow');
+    }
+  }
+
+  if (policy.multiplier < 1) {
+    const raw = policy.initial_ms * (policy.multiplier ** exponent);
+    if (!Number.isFinite(raw)) return 0;
+    return Math.floor(raw);
+  }
+
+  const raw = policy.initial_ms * (policy.multiplier ** exponent);
+  if (cap !== undefined && (!Number.isFinite(raw) || raw >= cap)) return cap;
   if (!Number.isFinite(raw) || raw > Number.MAX_SAFE_INTEGER) {
     throw new RangeError('backoff delay overflow');
   }
   const delay = Math.floor(raw);
-  if (policy.max_ms !== undefined) return Math.min(delay, policy.max_ms);
+  if (cap !== undefined) return Math.min(delay, cap);
   return delay;
+}
+
+function sameMembers(actual, normalized) {
+  if (actual === null || typeof actual !== 'object' || Array.isArray(actual)) return false;
+  const actualKeys = Object.keys(actual);
+  const normalizedKeys = Object.keys(normalized);
+  if (actualKeys.length !== normalizedKeys.length) return false;
+  return normalizedKeys.every((key) => Object.hasOwn(actual, key) && actual[key] === normalized[key]);
+}
+
+function refuseUncappedModelRetry(attempt, makesModelCall, costCap) {
+  if (!Number.isSafeInteger(attempt) || attempt <= 1) return;
+  if (makesModelCall !== true) return;
+  if (isExplicitCostCap(costCap)) return;
+  throw new RetryRefused('retry refused: a job that makes a model call needs an explicit cost cap');
 }
 
 function addMillis(iso, ms) {
@@ -238,7 +283,7 @@ export function assertJobRun(run) {
     throw new TypeError('timeout_ms must be an integer greater than or equal to one');
   }
   const retry = copyRetry(run.retry);
-  if (retry.max_attempts !== run.retry.max_attempts || JSON.stringify(retry.backoff) !== JSON.stringify(run.retry.backoff)) {
+  if (retry.max_attempts !== run.retry.max_attempts || !sameMembers(run.retry.backoff, retry.backoff)) {
     throw new TypeError('retry policy has extra fields');
   }
   if (Object.keys(run.retry).length !== 2) throw new TypeError('retry policy has extra fields');
@@ -298,7 +343,7 @@ function assertRunning(run) {
 
 /**
  * Open an attempt. The first attempt may run without a cost cap.
- * A later retry of a model call is refused unless cost_cap is explicit.
+ * Opening attempt > 1 for a model call throws RetryRefused unless cost_cap is explicit.
  */
 export function openRun(config, clock) {
   if (config === null || typeof config !== 'object' || Array.isArray(config)) {
@@ -307,6 +352,7 @@ export function openRun(config, clock) {
   const startedAt = readClock(clock);
   const attempt = config.attempt === undefined ? 1 : config.attempt;
   const costCap = config.cost_cap === undefined ? null : config.cost_cap;
+  refuseUncappedModelRetry(attempt, config.makes_model_call, costCap);
   return seal({
     schema: SCHEMA_ID,
     job_id: config.job_id,
@@ -409,9 +455,7 @@ export function resolveFailure(run, clock) {
       }),
     };
   }
-  if (run.makes_model_call && !isExplicitCostCap(run.cost_cap)) {
-    throw new RetryRefused('retry refused: a job that makes a model call needs an explicit cost cap');
-  }
+  refuseUncappedModelRetry(run.attempt + 1, run.makes_model_call, run.cost_cap);
   const delay = backoffDelayMs(run.retry.backoff, run.attempt);
   const nextAttemptAt = addMillis(run.finished_at, delay);
   return {
