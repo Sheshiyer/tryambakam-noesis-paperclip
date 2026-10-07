@@ -22,7 +22,7 @@ Not open work.
 
 ## Dependency order
 
-Open work only. Items in one tier may run in parallel unless a bullet names an issue it waits on. A named dependency overrides the tier.
+Open work only. Items in one tier may run in parallel unless a bullet names an issue it waits on. A named wait is blocking and overrides the tier.
 
 ### Start now
 
@@ -32,8 +32,8 @@ Open work only. Items in one tier may run in parallel unless a bullet names an i
 
 ### Hygiene
 
-- [#6](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/6) — direction pending (#6). Blocks [#8](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/8), [#9](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/9), and [#15](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/15). Soft dependency for [#20](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/20).
-- [#20](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/20) — after [#6](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/6), so a later sync does not bring the bindings back. Job-file bindings stay in [#8](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/8).
+- [#6](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/6) — direction pending (#6). Blocks [#8](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/8), [#9](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/9), [#15](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/15), and [#20](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/20).
+- [#20](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/20) — blocking dependency on [#6](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/6), so a later sync does not bring the bindings back. Job-file bindings stay in [#8](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/8).
 - [#7](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/7) — related to [#6](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/6). Before [#9](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/9), [#10](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/10), and [#14](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/14).
 - [#8](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/8) — after [#6](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/6)
 
