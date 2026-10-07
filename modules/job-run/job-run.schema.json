@@ -1,0 +1,200 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:job-run:v1",
+  "title": "JobRun",
+  "description": "One attempt of a scheduled job. Host-agnostic. Timestamps are honest ISO-8601 UTC instants. Terminal states are ok, failed, and dead-lettered. running is the open attempt those states close.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "job_id",
+    "attempt",
+    "timeout_ms",
+    "retry",
+    "state",
+    "started_at",
+    "finished_at",
+    "next_attempt_at",
+    "makes_model_call",
+    "cost_cap",
+    "error"
+  ],
+  "properties": {
+    "schema": {
+      "const": "job-run.v1",
+      "description": "Contract id for this record."
+    },
+    "job_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "Stable id of the job this attempt belongs to."
+    },
+    "attempt": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "1-based attempt number. Bounded by retry.max_attempts."
+    },
+    "timeout_ms": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Attempt budget in milliseconds. A running attempt past this budget is stale."
+    },
+    "retry": {
+      "$ref": "#/$defs/retryPolicy"
+    },
+    "state": {
+      "enum": ["running", "ok", "failed", "dead-lettered"],
+      "description": "running is open. ok, failed, and dead-lettered are terminal for this attempt."
+    },
+    "started_at": {
+      "$ref": "#/$defs/timestamp"
+    },
+    "finished_at": {
+      "description": "Null while running. Set when the attempt reaches a terminal state.",
+      "oneOf": [
+        { "type": "null" },
+        { "$ref": "#/$defs/timestamp" }
+      ]
+    },
+    "next_attempt_at": {
+      "description": "When the next attempt may start. Set only on a failed attempt that still has a retry. Null on ok, dead-lettered, running, and a failed attempt with no retry scheduled.",
+      "oneOf": [
+        { "type": "null" },
+        { "$ref": "#/$defs/timestamp" }
+      ]
+    },
+    "makes_model_call": {
+      "type": "boolean",
+      "description": "True when this job calls a model. A retry then requires an explicit cost_cap."
+    },
+    "cost_cap": {
+      "description": "Explicit caller-defined ceiling. Null means no cap was declared. A finite number greater than or equal to zero is an explicit cap. This field does not authorize spend.",
+      "oneOf": [
+        { "type": "null" },
+        { "type": "number", "minimum": 0 }
+      ]
+    },
+    "error": {
+      "description": "Null on running and ok. A non-empty string on failed and dead-lettered.",
+      "oneOf": [
+        { "type": "null" },
+        { "type": "string", "minLength": 1 }
+      ]
+    }
+  },
+  "$defs": {
+    "timestamp": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$",
+      "description": "Canonical ISO-8601 UTC timestamp with millisecond precision. The library also rejects impossible calendar dates."
+    },
+    "retryPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_attempts", "backoff"],
+      "properties": {
+        "max_attempts": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Total attempts allowed, including the first. The attempt that reaches this count dead-letters on failure."
+        },
+        "backoff": {
+          "$ref": "#/$defs/backoff"
+        }
+      }
+    },
+    "backoff": {
+      "description": "Delay before the next attempt, computed from the attempt that just failed.",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["strategy", "delay_ms"],
+          "properties": {
+            "strategy": { "const": "fixed" },
+            "delay_ms": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Constant delay in milliseconds."
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["strategy", "initial_ms", "multiplier"],
+          "properties": {
+            "strategy": { "const": "exponential" },
+            "initial_ms": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Delay after attempt 1, in milliseconds."
+            },
+            "multiplier": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Delay after attempt n is initial_ms * multiplier^(n-1), floored, then capped by max_ms when set."
+            },
+            "max_ms": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Optional ceiling on the computed delay."
+            }
+          }
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "state": { "const": "running" } },
+        "required": ["state"]
+      },
+      "then": {
+        "properties": {
+          "finished_at": { "type": "null" },
+          "next_attempt_at": { "type": "null" },
+          "error": { "type": "null" }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "state": { "const": "ok" } },
+        "required": ["state"]
+      },
+      "then": {
+        "properties": {
+          "finished_at": { "$ref": "#/$defs/timestamp" },
+          "next_attempt_at": { "type": "null" },
+          "error": { "type": "null" }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "state": { "enum": ["failed", "dead-lettered"] } },
+        "required": ["state"]
+      },
+      "then": {
+        "properties": {
+          "finished_at": { "$ref": "#/$defs/timestamp" },
+          "error": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "state": { "const": "dead-lettered" } },
+        "required": ["state"]
+      },
+      "then": {
+        "properties": {
+          "next_attempt_at": { "type": "null" }
+        }
+      }
+    }
+  ]
+}

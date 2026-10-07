@@ -7,7 +7,7 @@
     "stop": "./scripts/babysitter.sh stop",
     "status": "./scripts/health-check.sh",
     "cycle": "./scripts/loop-runner.sh run --once",
-    "test": "node --test scripts/generate-antahkarana-fixtures.test.mjs"
+    "test": "node --test scripts/generate-antahkarana-fixtures.test.mjs modules/job-run/job-run.test.mjs"
   },
   "engines": {
     "node": ">=20"
