@@ -14,13 +14,18 @@ Cost stays UNRESOLVED. Nothing here authorizes paid dispatch.
 
 [#19](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/19) — runtime health, tenant reconciliation, and OpenClaw ingest as host-agnostic modules.
 
+## Completed
+
+Not open work.
+
+- [#17](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/17) — this roadmap and the agent guide, closed by this change
+
 ## Dependency order
 
-Items in one tier may run in parallel unless a bullet names an issue it waits on. A named dependency overrides the tier.
+Open work only. Items in one tier may run in parallel unless a bullet names an issue it waits on. A named dependency overrides the tier.
 
 ### Start now
 
-- [#17](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/17) — this roadmap and the agent guide
 - [#21](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/21) — can start now; live wiring stays in [#9](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/9)
 - [#4](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/4) — existing item linked from the epic; not a sub-issue
 - [#16](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/16)
@@ -42,13 +47,13 @@ Epic sequence: retry and the delivery queue, then heartbeat and the state machin
 
 ### Ingest
 
-Epic sequence after reliability: Telegram notify, Selemene prompt wiring, the bridger, the vikara detector, then the low-priority candidates.
+Epic #19 order, encoded on each bullet: after reliability, then each item waits on the ingest item before it.
 
-- [#11](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/11) — after [#9](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/9) and [#8](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/8)
-- [#15](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/15) — after [#6](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/6)
-- [#12](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/12) — after [#9](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/9) and [#8](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/8)
-- [#13](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/13) — after [#10](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/10)
-- [#18](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/18) — after [#21](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/21) and [#9](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/9)
+- [#11](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/11) — after reliability [#9](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/9), [#10](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/10), and [#14](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/14), and after [#8](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/8)
+- [#15](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/15) — after [#11](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/11) and [#6](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/6)
+- [#12](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/12) — after [#15](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/15), [#9](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/9), and [#8](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/8)
+- [#13](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/13) — after [#12](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/12) and [#10](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/10)
+- [#18](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/18) — after [#13](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/13), [#21](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/21), and [#9](https://github.com/Sheshiyer/tryambakam-noesis-paperclip/issues/9)
 
 ## Not in this list
 
