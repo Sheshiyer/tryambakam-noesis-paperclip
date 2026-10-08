@@ -308,6 +308,10 @@ test('schema and library agree on absolute paths in error text', async () => {
     'https://api.example.com/v1',
     'http://api.example.com/v1',
     'retry took ~5 seconds',
+    '~fakeuser/notes',
+    '~fakeuser\\notes',
+    'paths=[~fakeuser/notes]',
+    'failed at ~fakeuser/notes',
     'failed at /home/fakeuser/private',
     'paths=[/home/fakeuser/private]',
     '~/fakeuser/notes',
@@ -324,6 +328,12 @@ test('schema and library agree on absolute paths in error text', async () => {
   assert.equal(libraryAccepts({ ...failed, error: 'see https://example.com/docs' }), true);
   assert.equal(libraryAccepts({ ...failed, error: 'https://api.example.com/v1' }), true);
   assert.equal(schemaErrors(schema, { ...failed, error: 'https://api.example.com/v1' }).length === 0, true);
+  for (const error of ['~fakeuser/notes', '~fakeuser\\notes', 'paths=[~fakeuser/notes]']) {
+    assert.equal(schemaErrors(schema, { ...failed, error }).length === 0, false, error);
+    assert.equal(libraryAccepts({ ...failed, error }), false, error);
+  }
+  assert.equal(schemaErrors(schema, { ...failed, error: 'retry took ~5 seconds' }).length === 0, true);
+  assert.equal(libraryAccepts({ ...failed, error: 'retry took ~5 seconds' }), true);
 });
 
 test('schema and library reject the same bad job ids', async () => {
@@ -343,6 +353,12 @@ test('schema and library reject the same bad job ids', async () => {
     'job\n',
     'job\u0001id',
     'job\u007Fid',
+    'job\u2028/secret',
+    'job\u2029/secret',
+    'job\u2028..id',
+    'job\u2029\\id',
+    'job\u2028 ',
+    'job\u2029 ',
     '\u00A0job',
     'job\u00A0',
     '',
@@ -705,6 +721,28 @@ test('a bare tilde in failure text is prose and a home shortcut is still rejecte
   );
   assert.throws(
     () => recordFailure(running, clock, { error: 'failed at ~\\fakeuser\\notes' }),
+    /private path/,
+  );
+  for (const error of [
+    'failed at ~fakeuser/notes',
+    'failed at ~fakeuser\\notes',
+    '~fakeuser/notes',
+    'paths=[~fakeuser/notes]',
+  ]) {
+    assert.throws(() => recordFailure(running, clock, { error }), /private path/, error);
+  }
+  assert.throws(
+    () => toCockpitRunRecord(failed, {
+      proof_path: PROOF,
+      suggested_action: 'inspect ~fakeuser/notes',
+    }),
+    /private path/,
+  );
+  assert.throws(
+    () => toCockpitRunRecord(failed, {
+      proof_path: PROOF,
+      suggested_action: 'inspect ~fakeuser\\notes',
+    }),
     /private path/,
   );
 });

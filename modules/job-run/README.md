@@ -14,7 +14,7 @@ Cost stays UNRESOLVED. Nothing here authorizes paid dispatch.
 
 A record carries:
 
-- `job_id` — stable id of the job. Length 1 to 200. The schema pattern and the library use the same rule: no `/` or `\`, no `..`, no ASCII control characters, and no leading or trailing whitespace. A space in the middle is allowed.
+- `job_id` — stable id of the job. Length 1 to 200. The schema pattern and the library use the same rule: no `/` or `\`, no `..`, no ASCII control characters, no U+2028 or U+2029, and no leading or trailing whitespace. Those checks scan the whole id. A space in the middle is allowed.
 - `attempt` — 1-based attempt number
 - `timeout_ms` — budget for this attempt
 - `retry.max_attempts` — total attempts allowed, including the first
@@ -22,7 +22,7 @@ A record carries:
 - `state` — `running` while the attempt is open; `ok`, `failed`, or `dead-lettered` when it is terminal
 - `started_at`, `finished_at`, `next_attempt_at` — honest ISO-8601 UTC timestamps with millisecond precision (`YYYY-MM-DDTHH:mm:ss.sssZ`)
 - `makes_model_call` and `cost_cap` — see Cost cap below
-- `error` — null while running or `ok`; a non-empty string when `failed` or `dead-lettered`. `error` and `suggested_action` are rejected when they contain a home shortcut or an absolute host path (`~/` or `~\` at a token boundary, `/Users`, `/home`, `/root`, `/Volumes`, `/mnt`, `/media`, `/private/var`, `/var/folders`, a drive letter, or a UNC share), in either slash style and any letter case. A bare `~` in prose, such as `retry took ~5 seconds`, is not a home shortcut. An `http://` or `https://` URL is not a Windows drive path. Repo-relative text such as `proofs/sample-job.txt` stays allowed.
+- `error` — null while running or `ok`; a non-empty string when `failed` or `dead-lettered`. `error` and `suggested_action` are rejected when they contain a home shortcut or an absolute host path (`~/`, `~\`, `~user/`, or `~user\` at a token boundary, `/Users`, `/home`, `/root`, `/Volumes`, `/mnt`, `/media`, `/private/var`, `/var/folders`, a drive letter, or a UNC share), in either slash style and any letter case. A bare `~` in prose, such as `retry took ~5 seconds`, is not a home shortcut. An `http://` or `https://` URL is not a Windows drive path. Repo-relative text such as `proofs/sample-job.txt` stays allowed.
 
 `finished_at` and `next_attempt_at` are null on a running attempt. `next_attempt_at` is set only on a failed attempt that still has a retry. When it is set, the library requires it to equal `finished_at` plus `backoffDelayMs(backoff, attempt)`. It is null once `attempt` equals `retry.max_attempts`. A dead-lettered attempt has no next attempt, and the library accepts that state only when `attempt` equals `retry.max_attempts`. The library rejects impossible calendar dates such as `2026-02-31`.
 

@@ -9,8 +9,10 @@ export const TERMINAL_STATES = Object.freeze(['ok', 'failed', 'dead-lettered']);
 const TERMINAL = new Set(TERMINAL_STATES);
 const JOB_ID_MAX = 200;
 // Same rule as job_id.pattern in job-run.schema.json: no slash, no `..`,
-// no ASCII control characters, and no leading or trailing whitespace.
-const JOB_ID_RE = /^(?!.*\.\.)(?!.*[/\\])(?!\s)(?!.*\s$)[^\u0000-\u001F\u007F]+$/;
+// no ASCII control characters, no U+2028 or U+2029, and no leading or trailing whitespace.
+// [\s\S] lets the lookaheads see a forbidden token after every character, including
+// a Unicode line terminator. `.` would stop at U+2028 and U+2029.
+const JOB_ID_RE = /^(?![\s\S]*\.\.)(?![\s\S]*[/\\])(?!\s)(?![\s\S]*\s$)[^\u0000-\u001F\u007F\u2028\u2029]+$/;
 const TIMESTAMP_RE = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,3}))?Z$/;
 const STORED_TIMESTAMP_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
 
@@ -94,7 +96,8 @@ function assertJobId(value) {
 /**
  * Reject home shortcuts and absolute host paths in text the public repo may store.
  * Repo-relative text is allowed. Matching is case-insensitive and accepts both slash styles.
- * A home shortcut is `~/` or `~\` at a token boundary. A bare `~`, as in `retry took ~5 seconds`, is prose.
+ * A home shortcut is `~/`, `~\`, `~user/`, or `~user\` at a token boundary.
+ * A bare `~`, as in `retry took ~5 seconds`, is prose.
  * Covers that shortcut, /Users, /home, /root, /Volumes, /mnt, /media, /private/var, /var/folders,
  * a drive-letter path such as C:\..., and a UNC share.
  * An https:// or http:// URL is not a drive letter.
@@ -108,9 +111,10 @@ function assertPublicText(value, label) {
 function containsHostPath(value) {
   // A path character continues a repo-relative segment. Any other prefix, including
   // punctuation, starts an absolute host path. A scheme such as https:// is not a drive:
-  // the letter before :// stays inside the scheme token. A home shortcut is ~/ or ~\ at a token boundary.
+  // the letter before :// stays inside the scheme token.
+  // A home shortcut is ~/, ~\, ~user/, or ~user\ at a token boundary.
   const patterns = [
-    /(?:^|[^a-z0-9._-])~[/\\]/i,
+    /(?:^|[^a-z0-9._-])~(?:[a-z][a-z0-9._-]*)?[/\\]/i,
     /(^|[^a-z0-9])[a-z]:[/\\]/i,
     /(^|[^a-z0-9._-])\\\\[^\\/\s]+[\\/]/i,
     /(?:^|[^a-z0-9._:-])\/\/[^/\s]+[\\/]/i,
