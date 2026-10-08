@@ -4,6 +4,7 @@ import test from 'node:test';
 
 import { normalizeRecord } from '../../scripts/generate-antahkarana-fixtures.mjs';
 import {
+  HOME_PATH_RE,
   RetryRefused,
   SCHEMA_ID,
   TERMINAL_STATES,
@@ -234,6 +235,41 @@ function libraryAccepts(run) {
   }
 }
 
+function topLevelAlternatives(pattern) {
+  const parts = [];
+  let depth = 0;
+  let start = 0;
+  let escaped = false;
+  let inClass = false;
+  for (let index = 0; index < pattern.length; index += 1) {
+    const character = pattern[index];
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+    if (character === '\\') {
+      escaped = true;
+      continue;
+    }
+    if (inClass) {
+      if (character === ']') inClass = false;
+      continue;
+    }
+    if (character === '[') {
+      inClass = true;
+      continue;
+    }
+    if (character === '(') depth += 1;
+    else if (character === ')') depth -= 1;
+    else if (character === '|' && depth === 0) {
+      parts.push(pattern.slice(start, index));
+      start = index + 1;
+    }
+  }
+  parts.push(pattern.slice(start));
+  return parts;
+}
+
 test('schema names the job, attempt, timeout, retry policy, terminal states, and UTC timestamps', async () => {
   const schema = JSON.parse(await readFile(SCHEMA_URL, 'utf8'));
   assert.equal(schema.$schema, 'https://json-schema.org/draft/2020-12/schema');
@@ -309,6 +345,9 @@ test('schema and library agree on absolute paths in error text', async () => {
     'http://api.example.com/v1',
     'retry took ~5 seconds',
     '~ 5s',
+    '~someone@example.test/private/key',
+    '~user+tag/secret',
+    '~jos\u00e9/private',
     '~fakeuser/notes',
     '~_apt/x',
     '~123/x',
@@ -333,7 +372,18 @@ test('schema and library agree on absolute paths in error text', async () => {
   assert.equal(libraryAccepts({ ...failed, error: 'see https://example.com/docs' }), true);
   assert.equal(libraryAccepts({ ...failed, error: 'https://api.example.com/v1' }), true);
   assert.equal(schemaErrors(schema, { ...failed, error: 'https://api.example.com/v1' }).length === 0, true);
-  for (const error of ['~fakeuser/notes', '~fakeuser\\notes', 'paths=[~fakeuser/notes]', '~_apt/x', '~123/x', '~-x/y', '~.foo\\bar']) {
+  for (const error of [
+    '~fakeuser/notes',
+    '~fakeuser\\notes',
+    'paths=[~fakeuser/notes]',
+    '~_apt/x',
+    '~123/x',
+    '~-x/y',
+    '~.foo\\bar',
+    '~someone@example.test/private/key',
+    '~user+tag/secret',
+    '~jos\u00e9/private',
+  ]) {
     assert.equal(schemaErrors(schema, { ...failed, error }).length === 0, false, error);
     assert.equal(libraryAccepts({ ...failed, error }), false, error);
   }
@@ -707,6 +757,48 @@ test('rejects an absolute path after punctuation', () => {
   assert.equal(endpointRow.suggested_action, 'read http://api.example.com/v1');
   assert.throws(
     () => recordFailure(running, clock, { error: 'path=C:\\Users\\fakeuser\\file' }),
+    /private path/,
+  );
+});
+
+test('library and schema home-path patterns are identical', async () => {
+  const schema = JSON.parse(await readFile(SCHEMA_URL, 'utf8'));
+  const pattern = schema.properties.error.oneOf.find((branch) => branch.not).not.pattern;
+  const home = topLevelAlternatives(pattern).filter((part) => part.includes('~'));
+  assert.deepEqual(home, [HOME_PATH_RE.source]);
+  assert.equal(new RegExp(home[0]).source, HOME_PATH_RE.source);
+});
+
+test('home shortcuts whose names fall outside the old allowlist are rejected', async () => {
+  const schema = JSON.parse(await readFile(SCHEMA_URL, 'utf8'));
+  const clock = manualClock('2026-08-12T00:00:00.000Z');
+  const running = openRun(sampleConfig(), clock);
+  clock.set('2026-08-12T00:00:00.010Z');
+  const benign = 'retry took ~5 seconds';
+  assert.equal(HOME_PATH_RE.test(benign), false);
+  assert.equal(HOME_PATH_RE.test('~/'), true);
+  const failed = recordFailure(running, clock, { error: benign });
+  assert.equal(failed.error, benign);
+  assert.equal(schemaErrors(schema, failed).length === 0, true);
+  assert.equal(libraryAccepts(failed), true);
+
+  const rejected = [
+    '~someone@example.test/private/key',
+    '~user+tag/secret',
+    '~jos\u00e9/private',
+  ];
+  for (const error of rejected) {
+    assert.equal(HOME_PATH_RE.test(error), true, error);
+    assert.throws(() => recordFailure(running, clock, { error }), /private path/, error);
+    const run = { ...failed, error };
+    assert.equal(schemaErrors(schema, run).length === 0, false, error);
+    assert.equal(libraryAccepts(run), false, error);
+  }
+  assert.throws(
+    () => toCockpitRunRecord(failed, {
+      proof_path: PROOF,
+      suggested_action: 'inspect ~someone@example.test/private/key',
+    }),
     /private path/,
   );
 });
