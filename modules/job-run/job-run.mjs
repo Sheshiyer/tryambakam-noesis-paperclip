@@ -114,7 +114,7 @@ function containsHostPath(value) {
   // the letter before :// stays inside the scheme token.
   // A home shortcut is ~/, ~\, ~user/, or ~user\ at a token boundary.
   const patterns = [
-    /(?:^|[^a-z0-9._-])~(?:[a-z][a-z0-9._-]*)?[/\\]/i,
+    /(?:^|[^A-Za-z0-9._-])~[A-Za-z0-9._-]*[/\\]/i,
     /(^|[^a-z0-9])[a-z]:[/\\]/i,
     /(^|[^a-z0-9._-])\\\\[^\\/\s]+[\\/]/i,
     /(?:^|[^a-z0-9._:-])\/\/[^/\s]+[\\/]/i,

@@ -308,7 +308,12 @@ test('schema and library agree on absolute paths in error text', async () => {
     'https://api.example.com/v1',
     'http://api.example.com/v1',
     'retry took ~5 seconds',
+    '~ 5s',
     '~fakeuser/notes',
+    '~_apt/x',
+    '~123/x',
+    '~-x/y',
+    '~.foo\\bar',
     '~fakeuser\\notes',
     'paths=[~fakeuser/notes]',
     'failed at ~fakeuser/notes',
@@ -328,12 +333,14 @@ test('schema and library agree on absolute paths in error text', async () => {
   assert.equal(libraryAccepts({ ...failed, error: 'see https://example.com/docs' }), true);
   assert.equal(libraryAccepts({ ...failed, error: 'https://api.example.com/v1' }), true);
   assert.equal(schemaErrors(schema, { ...failed, error: 'https://api.example.com/v1' }).length === 0, true);
-  for (const error of ['~fakeuser/notes', '~fakeuser\\notes', 'paths=[~fakeuser/notes]']) {
+  for (const error of ['~fakeuser/notes', '~fakeuser\\notes', 'paths=[~fakeuser/notes]', '~_apt/x', '~123/x', '~-x/y', '~.foo\\bar']) {
     assert.equal(schemaErrors(schema, { ...failed, error }).length === 0, false, error);
     assert.equal(libraryAccepts({ ...failed, error }), false, error);
   }
-  assert.equal(schemaErrors(schema, { ...failed, error: 'retry took ~5 seconds' }).length === 0, true);
-  assert.equal(libraryAccepts({ ...failed, error: 'retry took ~5 seconds' }), true);
+  for (const error of ['retry took ~5 seconds', '~ 5s']) {
+    assert.equal(schemaErrors(schema, { ...failed, error }).length === 0, true, error);
+    assert.equal(libraryAccepts({ ...failed, error }), true, error);
+  }
 });
 
 test('schema and library reject the same bad job ids', async () => {
