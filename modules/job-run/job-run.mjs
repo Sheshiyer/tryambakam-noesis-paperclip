@@ -102,11 +102,14 @@ function assertPublicText(value, label) {
 
 function containsHostPath(value) {
   if (value.includes('~')) return true;
+  // A path character continues a repo-relative segment. Any other prefix, including
+  // punctuation, starts an absolute host path. A scheme such as https:// is not a drive.
   const patterns = [
-    /[a-z]:[/\\]/i,
-    /(^|[^a-z0-9_])\\\\[^\\/\s]+[\\/]/i,
-    /(^|[\s"'`(=])\/\/[^/\s]+[\\/]/i,
-    /(^|[\s"'`(:=])[/\\](?![/\\])/i,
+    /(^|[^a-z0-9])[a-z]:[/\\]/i,
+    /(^|[^a-z0-9._-])\\\\[^\\/\s]+[\\/]/i,
+    /(?:^|[^a-z0-9._:-])\/\/[^/\s]+[\\/]/i,
+    /:\/\/\/[a-z0-9._-]/i,
+    /(?:^|(?<=[^a-z0-9._/\\-]))[/\\][a-z0-9._-]/i,
   ];
   return patterns.some((pattern) => pattern.test(value));
 }
@@ -315,6 +318,7 @@ export function assertJobRun(run) {
     throw new TypeError('makes_model_call must be a boolean');
   }
   assertCostCap(run.cost_cap);
+  refuseUncappedModelRetry(run.attempt, run.makes_model_call, run.cost_cap);
   if (run.error !== null && (typeof run.error !== 'string' || run.error.length < 1)) {
     throw new TypeError('error must be null or a non-empty string');
   }

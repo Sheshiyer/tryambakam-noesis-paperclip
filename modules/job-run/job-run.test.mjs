@@ -268,6 +268,41 @@ test('openRun refuses a later model-call attempt without an explicit cost cap', 
   assert.equal(first.cost_cap, null);
 });
 
+test('assertJobRun refuses a persisted model-call retry without an explicit cost cap', () => {
+  const clock = manualClock('2026-08-12T00:00:00.000Z');
+  const running = openRun(sampleConfig({
+    makes_model_call: true,
+    retry: { max_attempts: 3, backoff: { strategy: 'fixed', delay_ms: 500 } },
+  }), clock);
+  const persisted = { ...running, attempt: 2 };
+  assert.throws(() => assertJobRun(persisted), RetryRefused);
+  try {
+    assertJobRun(persisted);
+    assert.fail('expected RetryRefused');
+  } catch (error) {
+    assert.equal(error.name, 'RetryRefused');
+    assert.equal(error.code, 'cost-cap-required');
+  }
+
+  const failed = {
+    ...persisted,
+    state: 'failed',
+    finished_at: '2026-08-12T00:00:00.010Z',
+    error: 'model transport failed',
+  };
+  assert.throws(() => assertJobRun(failed), RetryRefused);
+  assertJobRun({ ...persisted, cost_cap: 0 });
+  assertJobRun(running);
+
+  const plainRetry = openRun(sampleConfig({
+    attempt: 2,
+    retry: { max_attempts: 3, backoff: { strategy: 'fixed', delay_ms: 500 } },
+  }), clock);
+  assertJobRun(plainRetry);
+  assert.equal(plainRetry.makes_model_call, false);
+  assert.equal(plainRetry.cost_cap, null);
+});
+
 test('assertJobRun accepts backoff properties in any key order', () => {
   const clock = manualClock('2026-08-12T00:00:00.000Z');
   const run = openRun(sampleConfig(), clock);
@@ -395,6 +430,37 @@ test('rejects absolute host paths and home shortcuts in error text and suggested
   });
   assert.equal(row.suggested_action, 'inspect proofs/sample-job.txt');
   assert.equal(row.error, 'failed reading proofs/sample-job.txt');
+});
+
+test('rejects an absolute path after punctuation', () => {
+  const clock = manualClock('2026-08-12T00:00:00.000Z');
+  const running = openRun(sampleConfig(), clock);
+  clock.set('2026-08-12T00:00:00.010Z');
+  const hostPath = '/home/fakeuser/private';
+  for (const mark of ['=', '[', '(', '"', "'", ':', ',']) {
+    assert.throws(
+      () => recordFailure(running, clock, { error: `paths${mark}${hostPath}` }),
+      /private path/,
+      mark,
+    );
+  }
+  assert.throws(
+    () => recordFailure(running, clock, { error: 'paths=[\\Users\\fakeuser\\notes]' }),
+    /private path/,
+  );
+  assert.throws(
+    () => recordFailure(running, clock, { error: 'path=C:\\Users\\fakeuser\\file' }),
+    /private path/,
+  );
+  assert.equal(running.state, 'running');
+
+  const failed = recordFailure(running, clock, { error: 'see https://example.com/docs' });
+  assert.equal(failed.error, 'see https://example.com/docs');
+  const row = toCockpitRunRecord(failed, {
+    proof_path: PROOF,
+    suggested_action: 'read https://example.com/docs',
+  });
+  assert.equal(row.suggested_action, 'read https://example.com/docs');
 });
 
 test('cockpit projection keeps a relative proof and an optional suggested action', () => {
