@@ -15,6 +15,11 @@ const JOB_ID_MAX = 200;
 const JOB_ID_RE = /^(?![\s\S]*\.\.)(?![\s\S]*[/\\])(?!\s)(?![\s\S]*\s$)[^\u0000-\u001F\u007F\u2028\u2029]+$/;
 const TIMESTAMP_RE = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,3}))?Z$/;
 const STORED_TIMESTAMP_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
+// Home shortcut at a token boundary. This source is the home alternative in
+// error.not.pattern in job-run.schema.json. `~`, then any run of characters
+// that are not whitespace and not `/` or `\` (empty for `~/` and `~\`), then
+// `/` or `\`. A bare `~` in prose has no separator, so it does not match.
+export const HOME_PATH_RE = /(?:^|[^A-Za-z0-9._-])~[^\s/\\]*[/\\]/;
 
 export class RetryRefused extends Error {
   constructor(message) {
@@ -96,7 +101,9 @@ function assertJobId(value) {
 /**
  * Reject home shortcuts and absolute host paths in text the public repo may store.
  * Repo-relative text is allowed. Matching is case-insensitive and accepts both slash styles.
- * A home shortcut is `~/`, `~\`, `~user/`, or `~user\` at a token boundary.
+ * A home shortcut is `~` plus any run of non-whitespace, non-separator characters,
+ * then `/` or `\`, at a token boundary. That includes `~/`, `~\`, and names with
+ * `@`, `+`, or letters outside ASCII.
  * A bare `~`, as in `retry took ~5 seconds`, is prose.
  * Covers that shortcut, /Users, /home, /root, /Volumes, /mnt, /media, /private/var, /var/folders,
  * a drive-letter path such as C:\..., and a UNC share.
@@ -112,9 +119,9 @@ function containsHostPath(value) {
   // A path character continues a repo-relative segment. Any other prefix, including
   // punctuation, starts an absolute host path. A scheme such as https:// is not a drive:
   // the letter before :// stays inside the scheme token.
-  // A home shortcut is ~/, ~\, ~user/, or ~user\ at a token boundary.
+  // A home shortcut is ~ plus a non-whitespace, non-separator run, then / or \.
   const patterns = [
-    /(?:^|[^A-Za-z0-9._-])~[A-Za-z0-9._-]*[/\\]/i,
+    HOME_PATH_RE,
     /(^|[^a-z0-9])[a-z]:[/\\]/i,
     /(^|[^a-z0-9._-])\\\\[^\\/\s]+[\\/]/i,
     /(?:^|[^a-z0-9._:-])\/\/[^/\s]+[\\/]/i,

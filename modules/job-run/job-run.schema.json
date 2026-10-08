@@ -77,14 +77,14 @@
       ]
     },
     "error": {
-      "description": "Null on running and ok. A non-empty string on failed and dead-lettered. The string branch rejects common absolute host paths: a POSIX / after the start or a non-path character, a ~/ , ~\\ , ~user/ , or ~user\\ home shortcut at a token boundary, a Windows drive letter, and a UNC \\\\ share. It does not treat an https:// or http:// URL as a drive path, and a bare ~ in prose is not a home shortcut. The library check is authoritative and may reject additional private paths.",
+      "description": "Null on running and ok. A non-empty string on failed and dead-lettered. The string branch rejects common absolute host paths: a POSIX / after the start or a non-path character, a home shortcut at a token boundary (`~`, then any run of non-whitespace non-separator characters, then / or \\, including ~/), a Windows drive letter, and a UNC \\\\ share. It does not treat an https:// or http:// URL as a drive path, and a bare ~ in prose is not a home shortcut. The library check is authoritative and may reject additional private paths.",
       "oneOf": [
         { "type": "null" },
         {
           "type": "string",
           "minLength": 1,
             "not": {
-            "pattern": "(?:^|[^A-Za-z0-9._:/])/(?!/)|(?:^|[^A-Za-z0-9._-])~[A-Za-z0-9._-]*[/\\\\]|(?:^|[^A-Za-z0-9])[A-Za-z]:[/\\\\]|(?:^|[^A-Za-z0-9])\\\\\\\\"
+            "pattern": "(?:^|[^A-Za-z0-9._:/])/(?!/)|(?:^|[^A-Za-z0-9._-])~[^\\s/\\\\]*[/\\\\]|(?:^|[^A-Za-z0-9])[A-Za-z]:[/\\\\]|(?:^|[^A-Za-z0-9])\\\\\\\\"
           }
         }
       ]
