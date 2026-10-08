@@ -156,6 +156,81 @@ test('dry-run walks one job through fail, retry, and dead-letter, and marks a st
   assert.equal(staleRow.error, 'stale: exceeded timeout');
 });
 
+function typeOk(type, value) {
+  switch (type) {
+    case 'null': return value === null;
+    case 'boolean': return typeof value === 'boolean';
+    case 'string': return typeof value === 'string';
+    case 'number': return typeof value === 'number' && Number.isFinite(value);
+    case 'integer': return typeof value === 'number' && Number.isInteger(value);
+    case 'object': return value !== null && typeof value === 'object' && !Array.isArray(value);
+    case 'array': return Array.isArray(value);
+    default: return false;
+  }
+}
+
+function resolveRef(root, ref) {
+  if (!ref.startsWith('#/')) throw new Error(`unsupported $ref ${ref}`);
+  let node = root;
+  for (const part of ref.slice(2).split('/')) node = node[part];
+  return node;
+}
+
+function schemaErrors(schema, value, root = schema, errors = []) {
+  if (schema.$ref) {
+    schemaErrors(resolveRef(root, schema.$ref), value, root, errors);
+    return errors;
+  }
+  if (schema.type !== undefined && !typeOk(schema.type, value)) errors.push('type');
+  if (Object.hasOwn(schema, 'const') && value !== schema.const) errors.push('const');
+  if (schema.enum !== undefined && !schema.enum.includes(value)) errors.push('enum');
+  if (typeof value === 'string') {
+    if (schema.minLength !== undefined && value.length < schema.minLength) errors.push('minLength');
+    if (schema.maxLength !== undefined && value.length > schema.maxLength) errors.push('maxLength');
+    if (schema.pattern !== undefined && !new RegExp(schema.pattern).test(value)) errors.push('pattern');
+  }
+  if (typeof value === 'number') {
+    if (schema.minimum !== undefined && value < schema.minimum) errors.push('minimum');
+    if (schema.exclusiveMinimum !== undefined && value <= schema.exclusiveMinimum) errors.push('exclusiveMinimum');
+  }
+  const isObject = value !== null && typeof value === 'object' && !Array.isArray(value);
+  if (schema.required !== undefined && isObject) {
+    for (const key of schema.required) {
+      if (!Object.hasOwn(value, key)) errors.push(`required ${key}`);
+    }
+  }
+  if (schema.properties !== undefined && isObject) {
+    for (const [key, sub] of Object.entries(schema.properties)) {
+      if (Object.hasOwn(value, key)) schemaErrors(sub, value[key], root, errors);
+    }
+    if (schema.additionalProperties === false) {
+      for (const key of Object.keys(value)) {
+        if (!Object.hasOwn(schema.properties, key)) errors.push(`additional ${key}`);
+      }
+    }
+  }
+  if (schema.oneOf !== undefined) {
+    const matches = schema.oneOf.filter((sub) => schemaErrors(sub, value, root, []).length === 0);
+    if (matches.length !== 1) errors.push('oneOf');
+  }
+  if (schema.allOf !== undefined) {
+    for (const sub of schema.allOf) schemaErrors(sub, value, root, errors);
+  }
+  if (schema.if !== undefined && schemaErrors(schema.if, value, root, []).length === 0 && schema.then !== undefined) {
+    schemaErrors(schema.then, value, root, errors);
+  }
+  return errors;
+}
+
+function libraryAccepts(run) {
+  try {
+    assertJobRun(run);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 test('schema names the job, attempt, timeout, retry policy, terminal states, and UTC timestamps', async () => {
   const schema = JSON.parse(await readFile(SCHEMA_URL, 'utf8'));
   assert.equal(schema.$schema, 'https://json-schema.org/draft/2020-12/schema');
@@ -169,6 +244,32 @@ test('schema names the job, attempt, timeout, retry policy, terminal states, and
   assert.deepEqual(schema.$defs.retryPolicy.required, ['max_attempts', 'backoff']);
   assert.match(schema.$defs.timestamp.pattern, /\\d\{4\}/);
   assert.equal(schema.properties.schema.const, SCHEMA_ID);
+});
+
+test('schema and library agree on the model-call cost cap', async () => {
+  const schema = JSON.parse(await readFile(SCHEMA_URL, 'utf8'));
+  const clock = manualClock('2026-08-12T00:00:00.000Z');
+  const base = openRun(sampleConfig({
+    makes_model_call: true,
+    retry: { max_attempts: 3, backoff: { strategy: 'fixed', delay_ms: 500 } },
+  }), clock);
+  const fixtures = [
+    { attempt: 1, makes_model_call: true, cost_cap: null },
+    { attempt: 2, makes_model_call: true, cost_cap: null },
+    { attempt: 2, makes_model_call: true, cost_cap: 0 },
+    { attempt: 3, makes_model_call: true, cost_cap: 1.5 },
+    { attempt: 2, makes_model_call: false, cost_cap: null },
+  ];
+  for (const fixture of fixtures) {
+    const run = { ...base, ...fixture };
+    const schemaOk = schemaErrors(schema, run).length === 0;
+    const libraryOk = libraryAccepts(run);
+    assert.equal(schemaOk, libraryOk, JSON.stringify(fixture));
+  }
+  const uncappedRetry = { ...base, attempt: 2, makes_model_call: true, cost_cap: null };
+  assert.equal(schemaErrors(schema, uncappedRetry).length === 0, false);
+  assert.equal(libraryAccepts(uncappedRetry), false);
+  assert.throws(() => assertJobRun(uncappedRetry), RetryRefused);
 });
 
 test('exponential backoff grows and then stops at max_ms', () => {

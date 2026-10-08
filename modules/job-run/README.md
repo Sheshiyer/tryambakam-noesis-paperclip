@@ -44,7 +44,7 @@ The attempt that reaches `max_attempts` and fails is dead-lettered. Dead-letter 
 
 ## Cost cap
 
-A job with `makes_model_call: true` is not retried unless `cost_cap` is an explicit finite number greater than or equal to zero. Zero is an explicit ceiling. `null` and a missing `cost_cap` are not. `openRun` throws `RetryRefused` (`code` `cost-cap-required`) when `attempt` is greater than 1. `resolveFailure` throws the same error and leaves the failed attempt unchanged, with `next_attempt_at` still null.
+A job with `makes_model_call: true` is not retried unless `cost_cap` is an explicit finite number greater than or equal to zero. Zero is an explicit ceiling. `null` and a missing `cost_cap` are not. The JSON Schema uses the same rule: `attempt` of 2 or more with `makes_model_call` true is valid only when `cost_cap` is a number. `openRun` and `assertJobRun` throw `RetryRefused` (`code` `cost-cap-required`) for that record. `resolveFailure` throws the same error and leaves the failed attempt unchanged, with `next_attempt_at` still null.
 
 The first attempt may start without a cap. Dead-lettering the attempt that has reached `max_attempts` does not start another model call. This module does not price a call and does not authorize spend.
 
