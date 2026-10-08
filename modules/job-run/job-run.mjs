@@ -233,10 +233,12 @@ function sameMembers(actual, normalized) {
   return normalizedKeys.every((key) => Object.hasOwn(actual, key) && actual[key] === normalized[key]);
 }
 
-function refuseUncappedModelRetry(attempt, makesModelCall, costCap) {
-  if (!Number.isSafeInteger(attempt) || attempt <= 1) return;
+function refuseUncappedModelRetry(attempt, makesModelCall, costCap, nextAttemptAt = null) {
   if (makesModelCall !== true) return;
   if (isExplicitCostCap(costCap)) return;
+  const laterAttempt = Number.isSafeInteger(attempt) && attempt > 1;
+  const schedulesRetry = nextAttemptAt !== null && nextAttemptAt !== undefined;
+  if (!laterAttempt && !schedulesRetry) return;
   throw new RetryRefused('retry refused: a job that makes a model call needs an explicit cost cap');
 }
 
@@ -318,7 +320,7 @@ export function assertJobRun(run) {
     throw new TypeError('makes_model_call must be a boolean');
   }
   assertCostCap(run.cost_cap);
-  refuseUncappedModelRetry(run.attempt, run.makes_model_call, run.cost_cap);
+  refuseUncappedModelRetry(run.attempt, run.makes_model_call, run.cost_cap, run.next_attempt_at);
   if (run.error !== null && (typeof run.error !== 'string' || run.error.length < 1)) {
     throw new TypeError('error must be null or a non-empty string');
   }

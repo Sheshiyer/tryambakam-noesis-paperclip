@@ -219,6 +219,9 @@ function schemaErrors(schema, value, root = schema, errors = []) {
   if (schema.if !== undefined && schemaErrors(schema.if, value, root, []).length === 0 && schema.then !== undefined) {
     schemaErrors(schema.then, value, root, errors);
   }
+  if (schema.not !== undefined && schemaErrors(schema.not, value, root, []).length === 0) {
+    errors.push('not');
+  }
   return errors;
 }
 
@@ -270,6 +273,52 @@ test('schema and library agree on the model-call cost cap', async () => {
   assert.equal(schemaErrors(schema, uncappedRetry).length === 0, false);
   assert.equal(libraryAccepts(uncappedRetry), false);
   assert.throws(() => assertJobRun(uncappedRetry), RetryRefused);
+
+  clock.set('2026-08-12T00:00:00.100Z');
+  const failed = recordFailure(base, clock, { error: 'model transport failed' });
+  const scheduled = { ...failed, next_attempt_at: '2026-08-12T00:00:01.000Z' };
+  const scheduledCases = [
+    scheduled,
+    { ...scheduled, cost_cap: 0 },
+    { ...scheduled, makes_model_call: false },
+    failed,
+  ];
+  for (const run of scheduledCases) {
+    assert.equal(schemaErrors(schema, run).length === 0, libraryAccepts(run), JSON.stringify({
+      attempt: run.attempt,
+      makes_model_call: run.makes_model_call,
+      cost_cap: run.cost_cap,
+      next_attempt_at: run.next_attempt_at,
+    }));
+  }
+  assert.equal(libraryAccepts(scheduled), false);
+  assert.throws(() => assertJobRun(scheduled), RetryRefused);
+});
+
+test('schema and library agree on absolute paths in error text', async () => {
+  const schema = JSON.parse(await readFile(SCHEMA_URL, 'utf8'));
+  const clock = manualClock('2026-08-12T00:00:00.000Z');
+  const running = openRun(sampleConfig(), clock);
+  clock.set('2026-08-12T00:00:00.100Z');
+  const failed = recordFailure(running, clock, { error: 'upstream unavailable' });
+  const samples = [
+    'upstream unavailable',
+    'failed reading proofs/sample-job.txt',
+    'see https://example.com/docs',
+    'failed at /home/fakeuser/private',
+    'paths=[/home/fakeuser/private]',
+    '~/fakeuser/notes',
+    'C:\\Users\\fakeuser\\file',
+    '\\\\fileshare\\drop\\file',
+  ];
+  for (const error of samples) {
+    const run = { ...failed, error };
+    const schemaOk = schemaErrors(schema, run).length === 0;
+    const libraryOk = libraryAccepts(run);
+    assert.equal(schemaOk, libraryOk, error);
+  }
+  assert.equal(libraryAccepts({ ...failed, error: 'failed at /home/fakeuser/private' }), false);
+  assert.equal(libraryAccepts({ ...failed, error: 'see https://example.com/docs' }), true);
 });
 
 test('exponential backoff grows and then stops at max_ms', () => {

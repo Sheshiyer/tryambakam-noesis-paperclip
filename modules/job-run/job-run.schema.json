@@ -58,7 +58,7 @@
       ]
     },
     "next_attempt_at": {
-      "description": "When the next attempt may start. Set only on a failed attempt that still has a retry. Null on ok, dead-lettered, running, and a failed attempt with no retry scheduled.",
+      "description": "When the next attempt may start. Set only on a failed attempt that still has a retry. Null on ok, dead-lettered, running, and a failed attempt with no retry scheduled. A model call with a null cost_cap cannot set this field.",
       "oneOf": [
         { "type": "null" },
         { "$ref": "#/$defs/timestamp" }
@@ -69,17 +69,23 @@
       "description": "True when this job calls a model. A retry then requires an explicit cost_cap."
     },
     "cost_cap": {
-      "description": "Explicit caller-defined ceiling. Null means no cap was declared. A finite number greater than or equal to zero is an explicit cap. When makes_model_call is true and attempt is at least 2, cost_cap must be that number. This field does not authorize spend.",
+      "description": "Explicit caller-defined ceiling. Null means no cap was declared. A finite number greater than or equal to zero is an explicit cap. When makes_model_call is true and attempt is at least 2, cost_cap must be that number. A failed model call with a null cost_cap cannot set next_attempt_at. This field does not authorize spend.",
       "oneOf": [
         { "type": "null" },
         { "type": "number", "minimum": 0 }
       ]
     },
     "error": {
-      "description": "Null on running and ok. A non-empty string on failed and dead-lettered.",
+      "description": "Null on running and ok. A non-empty string on failed and dead-lettered. The string branch rejects common absolute host paths: a POSIX / after the start or a non-path character, a ~/ home shortcut, a Windows drive letter, and a UNC \\\\ share. It does not treat an https:// URL as one of those paths. The library check is authoritative and may reject additional private paths.",
       "oneOf": [
         { "type": "null" },
-        { "type": "string", "minLength": 1 }
+        {
+          "type": "string",
+          "minLength": 1,
+          "not": {
+            "pattern": "(?:^|[^A-Za-z0-9._:/])/(?!/)|~[/\\\\]|(?:^|[^A-Za-z0-9])[A-Za-z]:[/\\\\]|(?:^|[^A-Za-z0-9])\\\\\\\\"
+          }
+        }
       ]
     }
   },
@@ -209,6 +215,21 @@
           "cost_cap": { "type": "number", "minimum": 0 }
         },
         "required": ["cost_cap"]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "makes_model_call": { "const": true },
+          "cost_cap": { "type": "null" },
+          "state": { "const": "failed" }
+        },
+        "required": ["makes_model_call", "cost_cap", "state"]
+      },
+      "then": {
+        "properties": {
+          "next_attempt_at": { "type": "null" }
+        }
       }
     }
   ]
