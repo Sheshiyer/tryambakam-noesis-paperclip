@@ -8,6 +8,9 @@ export const SCHEMA_ID = 'job-run.v1';
 export const TERMINAL_STATES = Object.freeze(['ok', 'failed', 'dead-lettered']);
 const TERMINAL = new Set(TERMINAL_STATES);
 const JOB_ID_MAX = 200;
+// Same rule as job_id.pattern in job-run.schema.json: no slash, no `..`,
+// no ASCII control characters, and no leading or trailing whitespace.
+const JOB_ID_RE = /^(?!.*\.\.)(?!.*[/\\])(?!\s)(?!.*\s$)[^\u0000-\u001F\u007F]+$/;
 const TIMESTAMP_RE = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,3}))?Z$/;
 const STORED_TIMESTAMP_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
 
@@ -83,7 +86,7 @@ function assertJobId(value) {
   if (typeof value !== 'string' || value.length < 1 || value.length > JOB_ID_MAX) {
     throw new TypeError('job_id must be a non-empty string');
   }
-  if (value.trim() !== value || /[\u0000-\u001F\u007F]/.test(value) || value.includes('/') || value.includes('\\') || value.includes('..')) {
+  if (!JOB_ID_RE.test(value)) {
     throw new TypeError('job_id must not be a path');
   }
 }
@@ -91,8 +94,10 @@ function assertJobId(value) {
 /**
  * Reject home shortcuts and absolute host paths in text the public repo may store.
  * Repo-relative text is allowed. Matching is case-insensitive and accepts both slash styles.
- * Covers ~/..., /Users, /home, /root, /Volumes, /mnt, /media, /private/var, /var/folders,
+ * A home shortcut is `~/` or `~\` at a token boundary. A bare `~`, as in `retry took ~5 seconds`, is prose.
+ * Covers that shortcut, /Users, /home, /root, /Volumes, /mnt, /media, /private/var, /var/folders,
  * a drive-letter path such as C:\..., and a UNC share.
+ * An https:// or http:// URL is not a drive letter.
  */
 function assertPublicText(value, label) {
   if (containsHostPath(value)) {
@@ -101,10 +106,11 @@ function assertPublicText(value, label) {
 }
 
 function containsHostPath(value) {
-  if (value.includes('~')) return true;
   // A path character continues a repo-relative segment. Any other prefix, including
-  // punctuation, starts an absolute host path. A scheme such as https:// is not a drive.
+  // punctuation, starts an absolute host path. A scheme such as https:// is not a drive:
+  // the letter before :// stays inside the scheme token. A home shortcut is ~/ or ~\ at a token boundary.
   const patterns = [
+    /(?:^|[^a-z0-9._-])~[/\\]/i,
     /(^|[^a-z0-9])[a-z]:[/\\]/i,
     /(^|[^a-z0-9._-])\\\\[^\\/\s]+[\\/]/i,
     /(?:^|[^a-z0-9._:-])\/\/[^/\s]+[\\/]/i,
@@ -179,7 +185,9 @@ function instantMs(iso) {
  * Delay in milliseconds before the attempt that follows `attempt`.
  * Fixed backoff returns delay_ms. Exponential backoff returns
  * floor(initial_ms * multiplier^(attempt-1)). When max_ms is set, the
- * delay stops at that ceiling even if the uncapped product would overflow.
+ * delay does not exceed that ceiling. A multiplier below 1 decays under
+ * the ceiling when initial_ms is already at least max_ms, instead of
+ * sticking at the cap for every later attempt.
  */
 export function backoffDelayMs(backoff, attempt) {
   const policy = copyBackoff(backoff);
@@ -195,7 +203,9 @@ function exponentialDelayMs(policy, attempt) {
   const cap = policy.max_ms;
   if (policy.initial_ms === 0 || cap === 0) return 0;
   if (exponent === 0) return cap === undefined ? policy.initial_ms : Math.min(policy.initial_ms, cap);
-  if (cap !== undefined && policy.initial_ms >= cap) return cap;
+  // A multiplier below 1 can fall back under the cap. Only a non-decaying
+  // policy that already starts at the ceiling stays there.
+  if (cap !== undefined && policy.multiplier >= 1 && policy.initial_ms >= cap) return cap;
 
   if (policy.multiplier > 1 && cap !== undefined) {
     const stepsToCap = Math.log(cap / policy.initial_ms) / Math.log(policy.multiplier);
@@ -212,7 +222,9 @@ function exponentialDelayMs(policy, attempt) {
   if (policy.multiplier < 1) {
     const raw = policy.initial_ms * (policy.multiplier ** exponent);
     if (!Number.isFinite(raw)) return 0;
-    return Math.floor(raw);
+    const delay = Math.floor(raw);
+    if (cap !== undefined) return Math.min(delay, cap);
+    return delay;
   }
 
   const raw = policy.initial_ms * (policy.multiplier ** exponent);
@@ -348,13 +360,21 @@ export function assertJobRun(run) {
   if (typeof run.error !== 'string') throw new TypeError('a failed attempt records an error');
   if (run.state === 'dead-lettered') {
     if (run.next_attempt_at !== null) throw new TypeError('a dead-lettered attempt has no next attempt');
+    if (run.attempt !== retry.max_attempts) {
+      throw new TypeError('dead-letter requires attempt to equal retry.max_attempts');
+    }
     return;
+  }
+
+  if (run.attempt === retry.max_attempts && run.next_attempt_at !== null) {
+    throw new TypeError('next_attempt_at must be null when no attempt remains');
   }
 
   if (run.next_attempt_at !== null) {
     assertStoredTimestamp(run.next_attempt_at, 'next_attempt_at');
-    if (instantMs(run.next_attempt_at) < instantMs(run.finished_at)) {
-      throw new TypeError('next_attempt_at is earlier than finished_at');
+    const expected = addMillis(run.finished_at, backoffDelayMs(retry.backoff, run.attempt));
+    if (run.next_attempt_at !== expected) {
+      throw new TypeError('next_attempt_at must equal finished_at plus the backoff delay');
     }
   }
 }
@@ -495,6 +515,8 @@ function isRelativeProof(proofPath) {
   if (typeof proofPath !== 'string' || proofPath.length === 0 || proofPath.trim().length === 0) return false;
   if (proofPath.startsWith('/') || proofPath.startsWith('\\') || proofPath.startsWith('~')) return false;
   if (/^[A-Za-z]:[\\/]/.test(proofPath)) return false;
+  // A URI scheme is not a repository-relative proof, even when it has no leading slash.
+  if (/^[a-z][a-z0-9+.-]*:/i.test(proofPath) || proofPath.includes('://')) return false;
   const normalized = proofPath.replaceAll('\\', '/');
   if (normalized === '..' || normalized.startsWith('../') || normalized.startsWith('/')) return false;
   if (normalized.split('/').includes('..')) return false;
