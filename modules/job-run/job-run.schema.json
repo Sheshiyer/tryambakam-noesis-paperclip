@@ -28,7 +28,8 @@
       "type": "string",
       "minLength": 1,
       "maxLength": 200,
-      "description": "Stable id of the job this attempt belongs to."
+      "pattern": "^(?![\\s\\S]*\\.\\.)(?![\\s\\S]*[/\\\\])(?!\\s)(?![\\s\\S]*\\s$)[^\\u0000-\\u001F\\u007F\\u2028\\u2029]+$",
+      "description": "Stable id of the job this attempt belongs to. The pattern is the library rule: no slash or backslash, no `..`, no ASCII control characters, no U+2028 or U+2029, and no leading or trailing whitespace. The forbidden-token checks scan every character. A space in the middle is allowed. Length is 1 to 200."
     },
     "attempt": {
       "type": "integer",
@@ -58,7 +59,7 @@
       ]
     },
     "next_attempt_at": {
-      "description": "When the next attempt may start. Set only on a failed attempt that still has a retry. Null on ok, dead-lettered, running, and a failed attempt with no retry scheduled. A model call with a null cost_cap cannot set this field.",
+      "description": "When the next attempt may start. Set only on a failed attempt that still has a retry. Null on ok, dead-lettered, running, and a failed attempt with no retry scheduled. A model call with a null cost_cap cannot set this field. The library also requires null once attempt equals retry.max_attempts, and, when the value is set, requires it to equal finished_at plus the backoff delay for this attempt. The schema cannot compare those two integers or compute the delay.",
       "oneOf": [
         { "type": "null" },
         { "$ref": "#/$defs/timestamp" }
@@ -76,14 +77,14 @@
       ]
     },
     "error": {
-      "description": "Null on running and ok. A non-empty string on failed and dead-lettered. The string branch rejects common absolute host paths: a POSIX / after the start or a non-path character, a ~/ home shortcut, a Windows drive letter, and a UNC \\\\ share. It does not treat an https:// URL as one of those paths. The library check is authoritative and may reject additional private paths.",
+      "description": "Null on running and ok. A non-empty string on failed and dead-lettered. The string branch rejects common absolute host paths: a POSIX / after the start or a non-path character, a ~/ , ~\\ , ~user/ , or ~user\\ home shortcut at a token boundary, a Windows drive letter, and a UNC \\\\ share. It does not treat an https:// or http:// URL as a drive path, and a bare ~ in prose is not a home shortcut. The library check is authoritative and may reject additional private paths.",
       "oneOf": [
         { "type": "null" },
         {
           "type": "string",
           "minLength": 1,
-          "not": {
-            "pattern": "(?:^|[^A-Za-z0-9._:/])/(?!/)|~[/\\\\]|(?:^|[^A-Za-z0-9])[A-Za-z]:[/\\\\]|(?:^|[^A-Za-z0-9])\\\\\\\\"
+            "not": {
+            "pattern": "(?:^|[^A-Za-z0-9._:/])/(?!/)|(?:^|[^A-Za-z0-9._-])~[A-Za-z0-9._-]*[/\\\\]|(?:^|[^A-Za-z0-9])[A-Za-z]:[/\\\\]|(?:^|[^A-Za-z0-9])\\\\\\\\"
           }
         }
       ]
@@ -140,7 +141,7 @@
             "multiplier": {
               "type": "number",
               "exclusiveMinimum": 0,
-              "description": "Delay after attempt n is initial_ms * multiplier^(n-1), floored, then capped by max_ms when set."
+              "description": "Delay after attempt n is floor(initial_ms * multiplier^(n-1)), then capped by max_ms when set. When multiplier is below 1 and initial_ms is already at least max_ms, the delay starts at the cap and then decays below it. The library computes that delay."
             },
             "max_ms": {
               "type": "integer",
@@ -192,6 +193,7 @@
       }
     },
     {
+      "description": "A dead-lettered record has no next attempt. The library also rejects it unless attempt equals retry.max_attempts. The schema cannot compare those two integers.",
       "if": {
         "properties": { "state": { "const": "dead-lettered" } },
         "required": ["state"]

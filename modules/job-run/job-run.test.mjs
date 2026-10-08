@@ -276,7 +276,7 @@ test('schema and library agree on the model-call cost cap', async () => {
 
   clock.set('2026-08-12T00:00:00.100Z');
   const failed = recordFailure(base, clock, { error: 'model transport failed' });
-  const scheduled = { ...failed, next_attempt_at: '2026-08-12T00:00:01.000Z' };
+  const scheduled = { ...failed, next_attempt_at: '2026-08-12T00:00:00.600Z' };
   const scheduledCases = [
     scheduled,
     { ...scheduled, cost_cap: 0 },
@@ -305,6 +305,18 @@ test('schema and library agree on absolute paths in error text', async () => {
     'upstream unavailable',
     'failed reading proofs/sample-job.txt',
     'see https://example.com/docs',
+    'https://api.example.com/v1',
+    'http://api.example.com/v1',
+    'retry took ~5 seconds',
+    '~ 5s',
+    '~fakeuser/notes',
+    '~_apt/x',
+    '~123/x',
+    '~-x/y',
+    '~.foo\\bar',
+    '~fakeuser\\notes',
+    'paths=[~fakeuser/notes]',
+    'failed at ~fakeuser/notes',
     'failed at /home/fakeuser/private',
     'paths=[/home/fakeuser/private]',
     '~/fakeuser/notes',
@@ -319,6 +331,59 @@ test('schema and library agree on absolute paths in error text', async () => {
   }
   assert.equal(libraryAccepts({ ...failed, error: 'failed at /home/fakeuser/private' }), false);
   assert.equal(libraryAccepts({ ...failed, error: 'see https://example.com/docs' }), true);
+  assert.equal(libraryAccepts({ ...failed, error: 'https://api.example.com/v1' }), true);
+  assert.equal(schemaErrors(schema, { ...failed, error: 'https://api.example.com/v1' }).length === 0, true);
+  for (const error of ['~fakeuser/notes', '~fakeuser\\notes', 'paths=[~fakeuser/notes]', '~_apt/x', '~123/x', '~-x/y', '~.foo\\bar']) {
+    assert.equal(schemaErrors(schema, { ...failed, error }).length === 0, false, error);
+    assert.equal(libraryAccepts({ ...failed, error }), false, error);
+  }
+  for (const error of ['retry took ~5 seconds', '~ 5s']) {
+    assert.equal(schemaErrors(schema, { ...failed, error }).length === 0, true, error);
+    assert.equal(libraryAccepts({ ...failed, error }), true, error);
+  }
+});
+
+test('schema and library reject the same bad job ids', async () => {
+  const schema = JSON.parse(await readFile(SCHEMA_URL, 'utf8'));
+  const clock = manualClock('2026-08-12T00:00:00.000Z');
+  const running = openRun(sampleConfig(), clock);
+  const badIds = [
+    '/home/fakeuser/job',
+    'jobs/sample',
+    'jobs\\sample',
+    '..',
+    'job..id',
+    'a/../b',
+    ' job',
+    'job ',
+    ' ',
+    'job\n',
+    'job\u0001id',
+    'job\u007Fid',
+    'job\u2028/secret',
+    'job\u2029/secret',
+    'job\u2028..id',
+    'job\u2029\\id',
+    'job\u2028 ',
+    'job\u2029 ',
+    '\u00A0job',
+    'job\u00A0',
+    '',
+    'x'.repeat(201),
+  ];
+  for (const jobId of badIds) {
+    const run = { ...running, job_id: jobId };
+    assert.equal(schemaErrors(schema, run).length === 0, false, JSON.stringify(jobId));
+    assert.equal(libraryAccepts(run), false, JSON.stringify(jobId));
+    if (typeof jobId === 'string' && jobId.length > 0 && jobId.length <= 200) {
+      assert.throws(() => assertJobRun(run), /job_id must not be a path/, JSON.stringify(jobId));
+    }
+  }
+  for (const jobId of ['sample-job', 'job id', 'Job_1.name', 'x'.repeat(200)]) {
+    const run = { ...running, job_id: jobId };
+    assert.equal(schemaErrors(schema, run).length === 0, true, jobId);
+    assert.equal(libraryAccepts(run), true, jobId);
+  }
 });
 
 test('exponential backoff grows and then stops at max_ms', () => {
@@ -326,6 +391,27 @@ test('exponential backoff grows and then stops at max_ms', () => {
   assert.equal(backoffDelayMs(backoff, 1), 1_000);
   assert.equal(backoffDelayMs(backoff, 2), 1_500);
   assert.equal(backoffDelayMs(backoff, 3), 1_500);
+});
+
+test('capped exponential backoff decays below the cap when multiplier is below 1', () => {
+  const backoff = { strategy: 'exponential', initial_ms: 1_000, multiplier: 0.5, max_ms: 600 };
+  assert.equal(backoffDelayMs(backoff, 1), 600);
+  assert.equal(backoffDelayMs(backoff, 2), 500);
+  assert.equal(backoffDelayMs(backoff, 3), 250);
+
+  const tight = { strategy: 'exponential', initial_ms: 1_000, multiplier: 0.5, max_ms: 100 };
+  assert.equal(backoffDelayMs(tight, 1), 100);
+  assert.equal(backoffDelayMs(tight, 2), 100);
+  assert.equal(backoffDelayMs(tight, 5), 62);
+
+  const uncapped = { strategy: 'exponential', initial_ms: 1_000, multiplier: 0.5 };
+  assert.equal(backoffDelayMs(uncapped, 1), 1_000);
+  assert.equal(backoffDelayMs(uncapped, 2), 500);
+  assert.equal(backoffDelayMs(uncapped, 3), 250);
+
+  const flat = { strategy: 'exponential', initial_ms: 1_000, multiplier: 1, max_ms: 600 };
+  assert.equal(backoffDelayMs(flat, 1), 600);
+  assert.equal(backoffDelayMs(flat, 4), 600);
 });
 
 test('capped exponential backoff stays at max_ms for a high attempt', () => {
@@ -611,6 +697,149 @@ test('rejects an absolute path after punctuation', () => {
     suggested_action: 'read https://example.com/docs',
   });
   assert.equal(row.suggested_action, 'read https://example.com/docs');
+
+  const endpoint = recordFailure(running, clock, { error: 'https://api.example.com/v1' });
+  assert.equal(endpoint.error, 'https://api.example.com/v1');
+  const endpointRow = toCockpitRunRecord(endpoint, {
+    proof_path: PROOF,
+    suggested_action: 'read http://api.example.com/v1',
+  });
+  assert.equal(endpointRow.suggested_action, 'read http://api.example.com/v1');
+  assert.throws(
+    () => recordFailure(running, clock, { error: 'path=C:\\Users\\fakeuser\\file' }),
+    /private path/,
+  );
+});
+
+test('a bare tilde in failure text is prose and a home shortcut is still rejected', () => {
+  const clock = manualClock('2026-08-12T00:00:00.000Z');
+  const running = openRun(sampleConfig(), clock);
+  clock.set('2026-08-12T00:00:00.010Z');
+  const failed = recordFailure(running, clock, { error: 'retry took ~5 seconds' });
+  assert.equal(failed.error, 'retry took ~5 seconds');
+  const row = toCockpitRunRecord(failed, {
+    proof_path: PROOF,
+    suggested_action: 'wait ~5 seconds and inspect proofs/sample-job.txt',
+  });
+  assert.equal(row.suggested_action, 'wait ~5 seconds and inspect proofs/sample-job.txt');
+  assert.throws(
+    () => recordFailure(running, clock, { error: 'failed at ~/fakeuser/notes' }),
+    /private path/,
+  );
+  assert.throws(
+    () => recordFailure(running, clock, { error: 'failed at ~\\fakeuser\\notes' }),
+    /private path/,
+  );
+  for (const error of [
+    'failed at ~fakeuser/notes',
+    'failed at ~fakeuser\\notes',
+    '~fakeuser/notes',
+    'paths=[~fakeuser/notes]',
+  ]) {
+    assert.throws(() => recordFailure(running, clock, { error }), /private path/, error);
+  }
+  assert.throws(
+    () => toCockpitRunRecord(failed, {
+      proof_path: PROOF,
+      suggested_action: 'inspect ~fakeuser/notes',
+    }),
+    /private path/,
+  );
+  assert.throws(
+    () => toCockpitRunRecord(failed, {
+      proof_path: PROOF,
+      suggested_action: 'inspect ~fakeuser\\notes',
+    }),
+    /private path/,
+  );
+});
+
+test('assertJobRun rejects next_attempt_at when no attempt remains', () => {
+  const clock = manualClock('2026-08-12T00:00:00.000Z');
+  const running = openRun(sampleConfig({
+    retry: { max_attempts: 2, backoff: { strategy: 'fixed', delay_ms: 1_000 } },
+  }), clock);
+  clock.set('2026-08-12T00:00:00.100Z');
+  const failed = recordFailure(running, clock, { error: 'upstream unavailable' });
+  const exhausted = {
+    ...failed,
+    attempt: 2,
+    next_attempt_at: '2026-08-12T00:00:01.100Z',
+  };
+  assert.throws(() => assertJobRun(exhausted), /no attempt remains/);
+  const stopped = { ...exhausted, next_attempt_at: null };
+  assertJobRun(stopped);
+  assert.equal(stopped.state, 'failed');
+});
+
+test('a scheduled next_attempt_at equals finished_at plus the backoff delay', () => {
+  const clock = manualClock('2026-08-12T00:00:00.000Z');
+  const running = openRun(sampleConfig({
+    retry: { max_attempts: 3, backoff: { strategy: 'fixed', delay_ms: 1_000 } },
+  }), clock);
+  clock.set('2026-08-12T00:00:00.100Z');
+  const failed = recordFailure(running, clock, { error: 'upstream unavailable' });
+  const delay = backoffDelayMs(failed.retry.backoff, failed.attempt);
+  const expected = new Date(Date.parse(failed.finished_at) + delay).toISOString();
+  assert.equal(expected, '2026-08-12T00:00:01.100Z');
+  assertJobRun({ ...failed, next_attempt_at: expected });
+  assert.throws(
+    () => assertJobRun({ ...failed, next_attempt_at: '2026-08-12T00:00:00.101Z' }),
+    /backoff delay/,
+  );
+
+  const exponential = openRun(sampleConfig({
+    retry: {
+      max_attempts: 4,
+      backoff: { strategy: 'exponential', initial_ms: 1_000, multiplier: 0.5, max_ms: 600 },
+    },
+  }), clock);
+  clock.set('2026-08-12T00:00:00.200Z');
+  const second = { ...exponential, attempt: 2 };
+  clock.set('2026-08-12T00:00:00.400Z');
+  const failedAgain = recordFailure({ ...second, started_at: '2026-08-12T00:00:00.200Z' }, clock, {
+    error: 'upstream unavailable',
+  });
+  const decay = backoffDelayMs(failedAgain.retry.backoff, failedAgain.attempt);
+  assert.equal(decay, 500);
+  const scheduled = new Date(Date.parse(failedAgain.finished_at) + decay).toISOString();
+  assert.equal(scheduled, '2026-08-12T00:00:00.900Z');
+  assertJobRun({ ...failedAgain, next_attempt_at: scheduled });
+  const resolved = resolveFailure(failedAgain, clock);
+  assert.equal(resolved.next_attempt_at, scheduled);
+  assert.equal(resolved.run.next_attempt_at, scheduled);
+});
+
+test('assertJobRun rejects a dead-letter before attempts are exhausted', () => {
+  const clock = manualClock('2026-08-12T00:00:00.000Z');
+  const running = openRun(sampleConfig({
+    retry: { max_attempts: 2, backoff: { strategy: 'fixed', delay_ms: 1_000 } },
+  }), clock);
+  clock.set('2026-08-12T00:00:00.100Z');
+  const failed = recordFailure(running, clock, { error: 'upstream unavailable' });
+  const premature = { ...failed, state: 'dead-lettered', next_attempt_at: null };
+  assert.equal(premature.attempt, 1);
+  assert.throws(() => assertJobRun(premature), /retry\.max_attempts/);
+  const exhausted = { ...premature, attempt: 2 };
+  assertJobRun(exhausted);
+  assert.equal(exhausted.state, 'dead-lettered');
+});
+
+test('cockpit projection rejects a URI scheme as a proof path', () => {
+  const clock = manualClock('2026-08-12T00:00:00.000Z');
+  const running = openRun(sampleConfig(), clock);
+  clock.set('2026-08-12T00:00:00.010Z');
+  const failed = recordFailure(running, clock, { error: 'upstream unavailable' });
+  for (const proofPath of [
+    'https://example.com/proof',
+    'http://example.com/proof',
+    'HTTPS://example.com/proof',
+    'file:///proofs/sample-job.txt',
+  ]) {
+    assert.throws(() => toCockpitRunRecord(failed, { proof_path: proofPath }), /relative path/, proofPath);
+  }
+  const row = toCockpitRunRecord(failed, { proof_path: PROOF });
+  assert.equal(row.proof_path, PROOF);
 });
 
 test('cockpit projection keeps a relative proof and an optional suggested action', () => {

@@ -14,17 +14,27 @@ Cost stays UNRESOLVED. Nothing here authorizes paid dispatch.
 
 A record carries:
 
-- `job_id` — stable id of the job
+- `job_id` — stable id of the job. Length 1 to 200. The schema pattern and the library use the same rule: no `/` or `\`, no `..`, no ASCII control characters, no U+2028 or U+2029, and no leading or trailing whitespace. Those checks scan the whole id. A space in the middle is allowed.
 - `attempt` — 1-based attempt number
 - `timeout_ms` — budget for this attempt
 - `retry.max_attempts` — total attempts allowed, including the first
-- `retry.backoff` — `fixed` (`delay_ms`) or `exponential` (`initial_ms`, `multiplier`, optional `max_ms`)
+- `retry.backoff` — `fixed` (`delay_ms`) or `exponential` (`initial_ms`, `multiplier`, optional `max_ms`). Exponential delay is `floor(initial_ms * multiplier^(attempt-1))`, then capped by `max_ms` when set. When `multiplier` is below 1 and `initial_ms` is already at least `max_ms`, the delay starts at the cap and then decays below it. The library computes that delay. The schema stores the policy fields.
 - `state` — `running` while the attempt is open; `ok`, `failed`, or `dead-lettered` when it is terminal
 - `started_at`, `finished_at`, `next_attempt_at` — honest ISO-8601 UTC timestamps with millisecond precision (`YYYY-MM-DDTHH:mm:ss.sssZ`)
 - `makes_model_call` and `cost_cap` — see Cost cap below
-- `error` — null while running or `ok`; a non-empty string when `failed` or `dead-lettered`. `error` and `suggested_action` are rejected when they contain a home shortcut or an absolute host path (`~/`, `/Users`, `/home`, `/root`, `/Volumes`, `/mnt`, `/media`, `/private/var`, `/var/folders`, a drive letter, or a UNC share), in either slash style and any letter case. Repo-relative text such as `proofs/sample-job.txt` stays allowed.
+- `error` — null while running or `ok`; a non-empty string when `failed` or `dead-lettered`. `error` and `suggested_action` are rejected when they contain a home shortcut or an absolute host path (`~/`, `~\`, `~user/`, or `~user\` at a token boundary, `/Users`, `/home`, `/root`, `/Volumes`, `/mnt`, `/media`, `/private/var`, `/var/folders`, a drive letter, or a UNC share), in either slash style and any letter case. A bare `~` in prose, such as `retry took ~5 seconds`, is not a home shortcut. An `http://` or `https://` URL is not a Windows drive path. Repo-relative text such as `proofs/sample-job.txt` stays allowed.
 
-`finished_at` and `next_attempt_at` are null on a running attempt. `next_attempt_at` is set only on a failed attempt that still has a retry. A dead-lettered attempt has no next attempt. The library rejects impossible calendar dates such as `2026-02-31`.
+`finished_at` and `next_attempt_at` are null on a running attempt. `next_attempt_at` is set only on a failed attempt that still has a retry. When it is set, the library requires it to equal `finished_at` plus `backoffDelayMs(backoff, attempt)`. It is null once `attempt` equals `retry.max_attempts`. A dead-lettered attempt has no next attempt, and the library accepts that state only when `attempt` equals `retry.max_attempts`. The library rejects impossible calendar dates such as `2026-02-31`.
+
+## Rules only the library enforces
+
+The schema and the library share every rule the schema can express, including the `job_id` pattern, the model-call cost cap, and the absolute-path checks on `error`. These rules stay in the library because draft 2020-12 cannot express them:
+
+- `next_attempt_at` is null when `attempt` equals `retry.max_attempts`. That compares two integers.
+- A non-null `next_attempt_at` equals `finished_at` plus the backoff delay for that attempt. That computes the delay.
+- `state` `dead-lettered` requires `attempt` to equal `retry.max_attempts`. That is the same integer comparison.
+- Exponential decay below `max_ms` when `multiplier` is below 1. The schema stores `initial_ms`, `multiplier`, and `max_ms`. `backoffDelayMs` computes the delay.
+- `proof_path` on a cockpit projection is not a schema field. The library rejects a URI scheme such as `https://example.com/proof` before the row is emitted. The ledger reader has its own relative-path check and is unchanged here.
 
 ## Library
 
@@ -58,7 +68,7 @@ A ledger row is kept when:
 - `task` is a non-empty string. A job-run projection uses `job_id`.
 - `status` is a non-empty string. A job-run projection uses the terminal state `ok`, `failed`, or `dead-lettered`.
 - `duration_ms` is a finite number. A job-run projection uses `finished_at - started_at` in milliseconds.
-- `proof_path` is a non-empty relative path. Absolute paths, a leading `~`, and any `..` segment are dropped.
+- `proof_path` is a non-empty relative path. Absolute paths, a leading `~`, and any `..` segment are dropped. `toCockpitRunRecord` also rejects a URI scheme, such as `https://example.com/proof`, so that URL is not emitted as a proof path.
 - `error` is present and is kept when it is a non-empty string.
 - `suggested_action` is present and is kept when it is a non-empty string.
 
