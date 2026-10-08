@@ -88,10 +88,27 @@ function assertJobId(value) {
   }
 }
 
+/**
+ * Reject home shortcuts and absolute host paths in text the public repo may store.
+ * Repo-relative text is allowed. Matching is case-insensitive and accepts both slash styles.
+ * Covers ~/..., /Users, /home, /root, /Volumes, /mnt, /media, /private/var, /var/folders,
+ * a drive-letter path such as C:\..., and a UNC share.
+ */
 function assertPublicText(value, label) {
-  if (value.includes('/Volumes/') || value.includes('/Users/') || value.includes('~')) {
+  if (containsHostPath(value)) {
     throw new TypeError(`${label} must not carry a private path`);
   }
+}
+
+function containsHostPath(value) {
+  if (value.includes('~')) return true;
+  const patterns = [
+    /[a-z]:[/\\]/i,
+    /(^|[^a-z0-9_])\\\\[^\\/\s]+[\\/]/i,
+    /(^|[\s"'`(=])\/\/[^/\s]+[\\/]/i,
+    /(^|[\s"'`(:=])[/\\](?![/\\])/i,
+  ];
+  return patterns.some((pattern) => pattern.test(value));
 }
 
 function isExplicitCostCap(value) {

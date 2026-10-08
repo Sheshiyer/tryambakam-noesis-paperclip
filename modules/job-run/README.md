@@ -22,7 +22,7 @@ A record carries:
 - `state` — `running` while the attempt is open; `ok`, `failed`, or `dead-lettered` when it is terminal
 - `started_at`, `finished_at`, `next_attempt_at` — honest ISO-8601 UTC timestamps with millisecond precision (`YYYY-MM-DDTHH:mm:ss.sssZ`)
 - `makes_model_call` and `cost_cap` — see Cost cap below
-- `error` — null while running or `ok`; a non-empty string when `failed` or `dead-lettered`
+- `error` — null while running or `ok`; a non-empty string when `failed` or `dead-lettered`. `error` and `suggested_action` are rejected when they contain a home shortcut or an absolute host path (`~/`, `/Users`, `/home`, `/root`, `/Volumes`, `/mnt`, `/media`, `/private/var`, `/var/folders`, a drive letter, or a UNC share), in either slash style and any letter case. Repo-relative text such as `proofs/sample-job.txt` stays allowed.
 
 `finished_at` and `next_attempt_at` are null on a running attempt. `next_attempt_at` is set only on a failed attempt that still has a retry. A dead-lettered attempt has no next attempt. The library rejects impossible calendar dates such as `2026-02-31`.
 

@@ -327,6 +327,76 @@ test('the library takes time only from the injected clock and does no I/O of its
   assert.equal(running.started_at, '2026-08-12T00:00:00.000Z');
 });
 
+test('rejects absolute host paths and home shortcuts in error text and suggested action', () => {
+  const patterns = [
+    '/Users/fakeuser/notes',
+    '/users/fakeuser/notes',
+    '\\Users\\fakeuser\\notes',
+    '/Users\\fakeuser\\notes',
+    '/home/fakeuser/project',
+    '/HOME/fakeuser/project',
+    '\\home\\fakeuser\\project',
+    '/root',
+    '/root/private',
+    '/ROOT/private',
+    '\\root\\private',
+    '~/fakeuser/notes',
+    '~\\fakeuser\\notes',
+    'C:\\Users\\fakeuser\\file',
+    'c:/users/fakeuser/file',
+    'D:\\data\\file',
+    'E:/drop/file',
+    '\\\\fileshare\\drop\\file',
+    '//fileshare/drop/file',
+    '\\\\fileshare/drop/file',
+    '//fileshare\\drop\\file',
+    '/Volumes/fakeuser/file',
+    '\\Volumes\\fakeuser\\file',
+    '/VOLUMES/fakeuser/file',
+    '/mnt/fakeuser/file',
+    '\\mnt\\fakeuser\\file',
+    '/media/fakeuser/file',
+    '\\media\\fakeuser\\file',
+    '/private/var/folders/ab',
+    '/PRIVATE/VAR/folders/ab',
+    '\\private\\var\\log',
+    '/var/folders/ab',
+    '/VAR/FOLDERS/ab',
+    '\\var\\folders\\ab',
+  ];
+
+  const clock = manualClock('2026-08-12T00:00:00.000Z');
+  const running = openRun(sampleConfig(), clock);
+  clock.set('2026-08-12T00:00:00.010Z');
+  for (const pattern of patterns) {
+    assert.throws(
+      () => recordFailure(running, clock, { error: `failed at ${pattern}` }),
+      /private path/,
+      pattern,
+    );
+  }
+  assert.equal(running.state, 'running');
+
+  const failed = recordFailure(running, clock, { error: 'failed reading proofs/sample-job.txt' });
+  assert.equal(failed.error, 'failed reading proofs/sample-job.txt');
+  for (const pattern of patterns) {
+    assert.throws(
+      () => toCockpitRunRecord(failed, {
+        proof_path: PROOF,
+        suggested_action: `inspect ${pattern}`,
+      }),
+      /private path/,
+      pattern,
+    );
+  }
+  const row = toCockpitRunRecord(failed, {
+    proof_path: PROOF,
+    suggested_action: 'inspect proofs/sample-job.txt',
+  });
+  assert.equal(row.suggested_action, 'inspect proofs/sample-job.txt');
+  assert.equal(row.error, 'failed reading proofs/sample-job.txt');
+});
+
 test('cockpit projection keeps a relative proof and an optional suggested action', () => {
   const clock = manualClock('2026-08-12T00:00:00.000Z');
   const running = openRun(sampleConfig(), clock);
